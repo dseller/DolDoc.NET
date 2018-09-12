@@ -1,17 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace DolDoc.Core.Editor
+﻿namespace DolDoc.Core.Editor
 {
     public class DolDocInstruction<T>
     {
-        public string[] Flags { get; }
-
+        public CharacterFlags Flags { get; set; }
+                
         public T Data { get; }
 
-        public DolDocInstruction(IEnumerable<string> flags, T data)
+        public DolDocInstruction(CharacterFlags flags, T data)
         {
-            Flags = flags?.ToArray() ?? new string[0];
+            Flags = flags;
             Data = data;
         }
     }

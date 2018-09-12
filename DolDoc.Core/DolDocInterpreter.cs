@@ -7,13 +7,14 @@ namespace DolDoc.Core.Editor
 {
     public class DolDocInterpreter
     {
+        private bool _underLine, _wordWrap;
+        private int _yOffset, _xOffset;
         private Stream _stream;
         private StreamReader _reader;
 
         public event Action OnClear;
         public event Action<DolDocInstruction<string>> OnWriteLink;
         public event Action<DolDocInstruction<string>> OnWriteString;
-        public event Action<bool> OnUnderline;
         public event Action<char> OnWriteCharacter;
         public event Action<EgaColor?> OnForegroundColor;
         public event Action<EgaColor?> OnBackgroundColor;
@@ -89,6 +90,7 @@ namespace DolDoc.Core.Editor
                         }
                     }
 
+                    var f = CreateFlags(flags);
                     switch (cmd)
                     {
                         case "BG":
@@ -110,15 +112,24 @@ namespace DolDoc.Core.Editor
                             break;
 
                         case "LK":
-                            OnWriteLink(new DolDocInstruction<string>(null, arguments[0]));
+                            OnWriteLink(new DolDocInstruction<string>(f, arguments[0]));
+                            break;
+                            
+                        case "SY":
+                            // Shift cursor amount of pixels on Y axis.
+                            _yOffset = int.Parse(arguments[0]);
                             break;
 
                         case "TX":
-                            OnWriteString(new DolDocInstruction<string>(flags, arguments[0]));
+                            OnWriteString(new DolDocInstruction<string>(f, arguments[0]));
                             break;
 
                         case "UL":
-                            OnUnderline(arguments[0] == "1");
+                            _underLine = arguments[0] == "1";
+                            break;
+
+                        case "WW":
+                            _wordWrap = arguments[0] == "1";
                             break;
                     }
                 }
@@ -131,9 +142,31 @@ namespace DolDoc.Core.Editor
                     if (content[i] == '$')
                         i--;
 
-                    OnWriteString(new DolDocInstruction<string>(new string[0], builder.ToString()));
+                    OnWriteString(new DolDocInstruction<string>(CreateFlags(new string[0]), builder.ToString()));
                 }
             }
+        }
+
+        private CharacterFlags CreateFlags(IEnumerable<string> flags)
+        {
+            var result = CharacterFlags.None;
+
+            if (_underLine)
+                result |= CharacterFlags.Underline;
+            if (_wordWrap)
+                result |= CharacterFlags.WordWrap;
+
+            foreach (var flag in flags)
+            {
+                if (flag == "+H")
+                    result |= CharacterFlags.Hold;
+                else if (flag == "+CX")
+                    result |= CharacterFlags.Center;
+                else if (flag == "+RX")
+                    result |= CharacterFlags.Right;
+            }
+
+            return result;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -74,11 +75,10 @@ namespace DolDoc.Win32Host
             Marshal.Copy(data.Scan0, bitmap, 0, bitmap.Length);
 
             var ch = _document.Read(_document.CursorX, _document.ViewLine + _document.CursorY);
-            var color = (ch >> 8) & 0xFF;
-            var character = SysFont.Font[ch & 0xFF];
+            var character = SysFont.Font[ch.Char & 0xFF];
 
-            var fg = tock ? (byte)((color >> 4) & 0x0F) : (byte)(color & 0x0F);
-            var bg = tock ? (byte)(color & 0x0F) : (byte)((color >> 4) & 0x0F);
+            var fg = tock ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
+            var bg = tock ? (byte)(ch.Color & 0x0F) : (byte)((ch.Color >> 4) & 0x0F);
 
             for (int fx = 0; fx < 8; fx++)
                 for (int fy = 0; fy < 8; fy++)
@@ -100,16 +100,22 @@ namespace DolDoc.Win32Host
             for (int y = 0; y < _document.Rows; y++)
                 for (int x = 0; x < _document.Columns; x++)
                 {
-                    ushort ch = _document.Read(x, y + _document.ViewLine);
-                    var character = SysFont.Font[ch & 0xFF];
-                    var color = (byte)((ch >> 8) & 0xFF);
+                    var ch = _document.Read(x, y + _document.ViewLine);
+                    var character = SysFont.Font[ch.Char];
+                    //var color = (byte)((ch >> 8) & 0xFF);
 
                     for (int fx = 0; fx < 8; fx++)
                         for (int fy = 0; fy < 8; fy++)
                         {
                             bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                            fb[(((y * 8) + fy) * _bmp.Width) + (x * 8) + fx] = draw ? (byte)((color >> 4) & 0x0F) : (byte)(color & 0x0F);
+                            fb[(((y * 8) + fy) * _bmp.Width) + (x * 8) + fx] = draw ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
                         }
+
+                    if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
+                    {
+                        for (int i = 0; i < 8; i++)
+                            fb[(((y * 8) + (8 - 1)) * _bmp.Width) + (x * 8) + i] = (byte)((ch.Color >> 4) & 0x0F);
+                    }
                 }
 
             var data = _bmp.LockBits(new Rectangle(0, 0, _bmp.Width, _bmp.Height), ImageLockMode.ReadOnly, _bmp.PixelFormat);
@@ -134,6 +140,7 @@ namespace DolDoc.Win32Host
             if (stream == null)
                 return;
 
+            Text = Path.GetFileName(fd.FileName);
             _document.Load(stream);
         }
 

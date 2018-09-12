@@ -1,15 +1,13 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 
 namespace DolDoc.Core.Editor
 {
     public class Document
     {
-        private ushort[] _data;
+        private Character[] _data;
         public int Columns, Rows, CursorX, CursorY;
         private int _maxY;
-        private bool _underline;
         private EgaColor _bgColor, _fgColor;
         private EgaColor _defaultBgColor, _defaultFgColor;
 
@@ -24,20 +22,21 @@ namespace DolDoc.Core.Editor
             _bgColor = backgroundColor;
             _defaultFgColor = _fgColor;
             _defaultBgColor = _bgColor;
-            _data = new ushort[Rows * Columns];
+            _data = new Character[Rows * Columns];
             Clear(backgroundColor);
         }
 
         public void Load(Stream stream)
         {
+            Clear(_defaultBgColor);
+
             var interpreter = new DolDocInterpreter(stream);
             interpreter.OnClear += () => Clear(_bgColor);
-            interpreter.OnWriteCharacter += ch => OnWriteCharacter(ch, true);
+            interpreter.OnWriteCharacter += ch => OnWriteCharacter(ch, CharacterFlags.None);
             interpreter.OnWriteString += OnWriteString;
             interpreter.OnWriteLink += OnWriteLink;
             interpreter.OnForegroundColor += color => _fgColor = color ?? _defaultFgColor;
             interpreter.OnBackgroundColor += color => _bgColor = color ?? _defaultBgColor;
-            interpreter.OnUnderline += value => _underline = value;
             interpreter.Run();
             CursorX = 0;
             CursorY = 0;
@@ -47,24 +46,35 @@ namespace DolDoc.Core.Editor
         private void OnWriteLink(DolDocInstruction<string> obj)
         {
             var oldColor = _fgColor;
+
             _fgColor = EgaColor.Red;
+            obj.Flags |= CharacterFlags.Underline;
             OnWriteString(obj);
             _fgColor = oldColor;
         }
 
-        public void Write(int x, int y, char ch, EgaColor fgColor, EgaColor bgColor)
+        public void Write(int x, int y, CharacterFlags flags, char ch, EgaColor fgColor, EgaColor bgColor)
         {
             var color = ((byte)fgColor << 4) | (byte)bgColor;
-            _data[(y * Columns) + x] = (ushort)((((byte)color) << 8) | (byte)ch);
+            _data[(y * Columns) + x] = new Character((byte)ch, (byte)color, flags);
         }
 
-        public ushort Read(int x, int y) => _data[(y * Columns) + x];
+        public Character Read(int x, int y) => _data[(y * Columns) + x];
 
         public void Clear(EgaColor color)
         {
+            // Y = X * Columns
+            var rows = _data.Length / Columns;
+
             for (int column = 0; column < Columns; column++)
-                for (int row = 0; row < Rows; row++)
-                    Write(column, row, (char)0, _fgColor, color);
+                for (int row = 0; row < rows; row++)
+                {
+                    var ch = Read(column, row);
+                    if ((ch.Flags & CharacterFlags.Hold) == CharacterFlags.Hold)
+                        continue;
+
+                    Write(column, row, CharacterFlags.None, (char)0, _fgColor, color);
+                }
         }
 
         public void PreviousPage()
@@ -99,30 +109,68 @@ namespace DolDoc.Core.Editor
 
         public void SetCursor(int x, int y)
         {
-            if (CursorX < 0)
-                CursorX = 0;
-            if (CursorY < 0)
-                CursorY = 0;
+            bool update = false;
+
+            if (x < 0)
+                x = 0;
+
+            if (y < 0)
+            {
+                if (ViewLine > 0)
+                {
+                    ViewLine--;
+                    update = true;
+                }
+
+                y = 0;
+            }
+
+
+            if (y >= Rows)
+            {
+                ViewLine += (Rows - y) + 1;
+                y = Rows - 1;
+                update = true;
+            }
 
             CursorX = x;
             CursorY = y;
-
+            if (update)
+                OnUpdate();
         }
 
         private void OnWriteString(DolDocInstruction<string> data)
         {
-            if (data.Flags.Contains("+CX"))
+            if ((data.Flags & CharacterFlags.Center) == CharacterFlags.Center)
                 CursorX = (Columns / 2) - (data.Data.Length / 2);
+            else if ((data.Flags & CharacterFlags.Right) == CharacterFlags.Right)
+                CursorX = Columns - data.Data.Length;
 
-            foreach (var ch in data.Data)
-                OnWriteCharacter(ch, false);
+            //if ((data.Flags & CharacterFlags.WordWrap) == CharacterFlags.WordWrap)
+            //{
+            //    // Get length of first word.
+            //    var words = data.Data.Split(null);
+            //    foreach (var word in words)
+            //    {
+            //        if ((CursorX + word.Length) >= Columns)
+            //        {
+            //            SetCursor(0, CursorY + 1);
+            //        }
+
+            //        foreach (var ch in data.Data)
+            //            OnWriteCharacter(ch, data.Flags);
+            //    }
+            //}
+            //else
+                foreach (var ch in data.Data)
+                    OnWriteCharacter(ch, data.Flags);
         }
 
-        private void OnWriteCharacter(char obj, bool refresh)
+        private void OnWriteCharacter(char obj, CharacterFlags flags)
         {
             if (!char.IsControl(obj))
             {
-                Write(CursorX, CursorY, obj, _fgColor, _bgColor);
+                Write(CursorX, CursorY, flags, obj, _fgColor, _bgColor);
                 CursorX++;
             }
             else
@@ -146,7 +194,7 @@ namespace DolDoc.Core.Editor
                 Array.Resize(ref _data, _data.Length + (Columns * Rows));
 
                 for (int i = 0; i < Columns * Rows; i++)
-                    _data[oldLength + i] = (ushort)((byte)_bgColor << 8);
+                    _data[oldLength + i] = new Character(0x00, (byte)_bgColor, CharacterFlags.None);
             }
 
             _maxY = Math.Max(_maxY, CursorY);
