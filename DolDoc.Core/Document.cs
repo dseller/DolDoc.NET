@@ -1,5 +1,9 @@
-﻿using System;
+﻿using Antlr.Runtime;
+using DolDoc.Core.Parser;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace DolDoc.Core.Editor
 {
@@ -30,17 +34,56 @@ namespace DolDoc.Core.Editor
         {
             Clear(_defaultBgColor);
 
-            var interpreter = new DolDocInterpreter(stream);
-            interpreter.OnClear += () => Clear(_bgColor);
-            interpreter.OnWriteCharacter += ch => OnWriteCharacter(ch, CharacterFlags.None);
-            interpreter.OnWriteString += OnWriteString;
-            interpreter.OnWriteLink += OnWriteLink;
-            interpreter.OnForegroundColor += color => _fgColor = color ?? _defaultFgColor;
-            interpreter.OnBackgroundColor += color => _bgColor = color ?? _defaultBgColor;
-            interpreter.Run();
+            var lexer = new doldocLexer(new ANTLRInputStream(stream));
+            var tokenStream = new CommonTokenStream(lexer);
+            var parser = new doldocParser(tokenStream);
+            var nodes = parser.document();
+
+            var nodesFixed = FixStrings(nodes);
+
+            //var interpreter = new DolDocInterpreter(this, stream);
+            //interpreter.OnClear += () => Clear(_bgColor);
+            //interpreter.OnWriteCharacter += ch => OnWriteCharacter(ch, CharacterFlags.None);
+            //interpreter.OnWriteString += OnWriteString;
+            //interpreter.OnWriteLink += OnWriteLink;
+            //interpreter.OnForegroundColor += color => _fgColor = color ?? _defaultFgColor;
+            //interpreter.OnBackgroundColor += color => _bgColor = color ?? _defaultBgColor;
+            //interpreter.Run();
             CursorX = 0;
             CursorY = 0;
             OnUpdate();
+        }
+
+        private static IEnumerable<DocumentNode> FixStrings(IEnumerable<DocumentNode> nodes)
+        {
+            StringBuilder builder = new StringBuilder();
+            List<DocumentNode> result = new List<DocumentNode>();
+            
+            foreach (var node in nodes)
+            {
+                if (node is StringNode chNode)
+                    builder.Append(chNode.Value);
+                else if (node is Command cmd)
+                {
+                    if (builder.Length > 0)
+                    {
+                        var str = new StringNode(builder.ToString());
+                        builder.Clear();
+                        result.Add(str);
+                    }
+
+                    result.Add(node);
+                }
+            }
+
+            if (builder.Length > 0)
+            {
+                var str = new StringNode(builder.ToString());
+                builder.Clear();
+                result.Add(str);
+            }
+
+            return result;
         }
 
         private void OnWriteLink(DolDocInstruction<string> obj)
@@ -53,11 +96,11 @@ namespace DolDoc.Core.Editor
             _fgColor = oldColor;
         }
 
-        public void Write(int x, int y, CharacterFlags flags, char ch, EgaColor fgColor, EgaColor bgColor)
-        {
-            var color = ((byte)fgColor << 4) | (byte)bgColor;
-            _data[(y * Columns) + x] = new Character((byte)ch, (byte)color, flags);
-        }
+        //public void Write(int x, int y, CharacterFlags flags, char ch, EgaColor fgColor, EgaColor bgColor)
+        //{
+        //    var color = ((byte)fgColor << 4) | (byte)bgColor;
+        //    _data[(y * Columns) + x] = new Character((byte)ch, (byte)color, flags);
+        //}
 
         public Character Read(int x, int y) => _data[(y * Columns) + x];
 
@@ -73,7 +116,7 @@ namespace DolDoc.Core.Editor
                     if ((ch.Flags & CharacterFlags.Hold) == CharacterFlags.Hold)
                         continue;
 
-                    Write(column, row, CharacterFlags.None, (char)0, _fgColor, color);
+                    //Write(column, row, CharacterFlags.None, (char)0, _fgColor, color);
                 }
         }
 
@@ -162,24 +205,28 @@ namespace DolDoc.Core.Editor
             //    }
             //}
             //else
-                foreach (var ch in data.Data)
-                    OnWriteCharacter(ch, data.Flags);
+                //foreach (var ch in data.Data)
+                //    OnWriteCharacter(ch, data.Flags);
         }
 
-        private void OnWriteCharacter(char obj, CharacterFlags flags)
+        public void WriteCharacter(Character c, int x, int y)
         {
-            if (!char.IsControl(obj))
+            if (!char.IsControl(c.Char))
             {
-                Write(CursorX, CursorY, flags, obj, _fgColor, _bgColor);
+                //Write(CursorX, CursorY, flags, obj, _fgColor, _bgColor);
+                //var color = ((byte)fgColor << 4) | (byte)bgColor;
+
+                _data[(y * Columns) + x] = c;
+
                 CursorX++;
             }
             else
             {
-                if (obj == '\n')
-                {
-                    CursorY++;
-                    CursorX = 0;
-                }
+                //if (obj == '\n')
+                //{
+                //    CursorY++;
+                //    CursorX = 0;
+                //}
             }
 
             if (CursorX >= Columns)
@@ -193,8 +240,8 @@ namespace DolDoc.Core.Editor
                 int oldLength = _data.Length;
                 Array.Resize(ref _data, _data.Length + (Columns * Rows));
 
-                for (int i = 0; i < Columns * Rows; i++)
-                    _data[oldLength + i] = new Character(0x00, (byte)_bgColor, CharacterFlags.None);
+                //for (int i = 0; i < Columns * Rows; i++)
+                //    _data[oldLength + i] = new Character(0x00, (byte)_bgColor, CharacterFlags.None);
             }
 
             _maxY = Math.Max(_maxY, CursorY);

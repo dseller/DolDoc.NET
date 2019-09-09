@@ -1,0 +1,16 @@
+Anything=4
+COMMA=5
+DOLLAR=6
+EQ=7
+Identifier=8
+MINUS=9
+Number=10
+PLUS=11
+QUOTE=12
+String=13
+'"'=12
+'$'=6
+'+'=11
+','=5
+'-'=9
+'='=7

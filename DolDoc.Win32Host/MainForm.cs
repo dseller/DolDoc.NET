@@ -77,8 +77,8 @@ namespace DolDoc.Win32Host
             var ch = _document.Read(_document.CursorX, _document.ViewLine + _document.CursorY);
             var character = SysFont.Font[ch.Char & 0xFF];
 
-            var fg = tock ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
-            var bg = tock ? (byte)(ch.Color & 0x0F) : (byte)((ch.Color >> 4) & 0x0F);
+            var fg = tock ? (byte)ch.ForegroundColor : (byte)ch.BackgroundColor;
+            var bg = tock ? (byte)ch.BackgroundColor : (byte)ch.ForegroundColor;
 
             for (int fx = 0; fx < 8; fx++)
                 for (int fy = 0; fy < 8; fy++)
@@ -108,13 +108,13 @@ namespace DolDoc.Win32Host
                         for (int fy = 0; fy < 8; fy++)
                         {
                             bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                            fb[(((y * 8) + fy) * _bmp.Width) + (x * 8) + fx] = draw ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
+                            fb[(((y * 8) + fy) * _bmp.Width) + (x * 8) + fx] = draw ? (byte)ch.ForegroundColor : (byte)ch.BackgroundColor;
                         }
 
                     if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
                     {
                         for (int i = 0; i < 8; i++)
-                            fb[(((y * 8) + (8 - 1)) * _bmp.Width) + (x * 8) + i] = (byte)((ch.Color >> 4) & 0x0F);
+                            fb[(((y * 8) + (8 - 1)) * _bmp.Width) + (x * 8) + i] = (byte)ch.ForegroundColor;
                     }
                 }
 
