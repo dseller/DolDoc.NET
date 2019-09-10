@@ -10,32 +10,19 @@ namespace DolDoc.Core.Editor
         private bool _underLine, _wordWrap;
         private int _yOffset, _xOffset;
         private Stream _stream;
-        private Document _document;
         private StreamReader _reader;
 
+        public event Action OnClear;
+        public event Action<DolDocInstruction<string>> OnWriteLink;
+        public event Action<DolDocInstruction<string>> OnWriteString;
+        public event Action<char> OnWriteCharacter;
+        public event Action<EgaColor?> OnForegroundColor;
+        public event Action<EgaColor?> OnBackgroundColor;
 
-        //public Character[] Characters { get; set; }
-
-        //private int _cursorPosition;
-        //private EgaColor _fg, _bg;
-
-        //public event Action OnClear;
-        //public event Action<DolDocInstruction<string>> OnWriteLink;
-        //public event Action<DolDocInstruction<string>> OnWriteString;
-        //public event Action<char> OnWriteCharacter;
-        //public event Action<EgaColor?> OnForegroundColor;
-        //public event Action<EgaColor?> OnBackgroundColor;
-
-        public DolDocInterpreter(Document document, Stream stream)
+        public DolDocInterpreter(Stream stream)
         {
-            //_bg = EgaColor.Blue;
-            //_fg = EgaColor.White;
             _stream = stream;
             _reader = new StreamReader(_stream);
-            _document = document;
-            //_cursorPosition = 0;
-
-            //Characters = new Character[640 * 480];
         }
 
         public void Run()
@@ -53,8 +40,7 @@ namespace DolDoc.Core.Editor
                     i++;
                     if (content[i] == '$')
                     {
-                        //WriteCharacter(content[i]);
-                        //_document.WriteCharacter(content[i]);
+                        OnWriteCharacter(content[i]);
                         continue;
                     }
 
@@ -107,48 +93,44 @@ namespace DolDoc.Core.Editor
                     var f = CreateFlags(flags);
                     switch (cmd)
                     {
-                        //case "BG":
-                        //    if (arguments.Count == 0)
-                        //        OnBackgroundColor(null);
-                        //    else
-                        //        OnBackgroundColor((EgaColor)Enum.Parse(typeof(EgaColor), arguments[0], true));
-                        //    break;
+                        case "BG":
+                            if (arguments.Count == 0)
+                                OnBackgroundColor(null);
+                            else
+                                OnBackgroundColor((EgaColor)Enum.Parse(typeof(EgaColor), arguments[0], true));
+                            break;
 
-                        //case "CL":
-                        //    OnClear();
-                        //    break;
+                        case "CL":
+                            OnClear();
+                            break;
 
-                        //case "CR":
+                        case "FG":
+                            if (arguments.Count == 0)
+                                OnForegroundColor(null);
+                            else
+                                OnForegroundColor((EgaColor)Enum.Parse(typeof(EgaColor), arguments[0], true));
+                            break;
 
-                        //    break;
-
-                        //case "FG":
-                        //    if (arguments.Count == 0)
-                        //        OnForegroundColor(null);
-                        //    else
-                        //        OnForegroundColor((EgaColor)Enum.Parse(typeof(EgaColor), arguments[0], true));
-                        //    break;
-
-                        //case "LK":
-                        //    OnWriteLink(new DolDocInstruction<string>(f, arguments[0]));
-                        //    break;
+                        case "LK":
+                            OnWriteLink(new DolDocInstruction<string>(f, arguments[0]));
+                            break;
                             
-                        //case "SY":
-                        //    // Shift cursor amount of pixels on Y axis.
-                        //    _yOffset = int.Parse(arguments[0]);
-                        //    break;
+                        case "SY":
+                            // Shift cursor amount of pixels on Y axis.
+                            _yOffset = int.Parse(arguments[0]);
+                            break;
 
-                        //case "TX":
-                        //    OnWriteString(new DolDocInstruction<string>(f, arguments[0]));
-                        //    break;
+                        case "TX":
+                            OnWriteString(new DolDocInstruction<string>(f, arguments[0]));
+                            break;
 
-                        //case "UL":
-                        //    _underLine = arguments[0] == "1";
-                        //    break;
+                        case "UL":
+                            _underLine = arguments[0] == "1";
+                            break;
 
-                        //case "WW":
-                        //    _wordWrap = arguments[0] == "1";
-                        //    break;
+                        case "WW":
+                            _wordWrap = arguments[0] == "1";
+                            break;
                     }
                 }
                 else
@@ -160,15 +142,10 @@ namespace DolDoc.Core.Editor
                     if (content[i] == '$')
                         i--;
 
-                    //OnWriteString(new DolDocInstruction<string>(CreateFlags(new string[0]), builder.ToString()));
+                    OnWriteString(new DolDocInstruction<string>(CreateFlags(new string[0]), builder.ToString()));
                 }
             }
         }
-
-        //private void WriteCharacter(char ch)
-        //{
-        //    Characters[_cursorPosition++] = new Character((byte)ch, _fg, _bg, CharacterFlags.None);
-        //}
 
         private CharacterFlags CreateFlags(IEnumerable<string> flags)
         {
