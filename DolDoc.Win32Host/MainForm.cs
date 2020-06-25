@@ -1,27 +1,31 @@
 ﻿using DolDoc.Core.Editor;
+using DolDoc.Editor;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DolDoc.Win32Host
 {
     public partial class MainForm : Form
     {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool AllocConsole();
+
         private bool _tock;
         private Bitmap _bmp;
+        private string[] _args;
         private Document _document;
 
-        public MainForm()
+        private EditorState _editorState;
+
+        public MainForm(string[] args)
         {
+            _args = args;
             InitializeComponent();
         }
 
@@ -48,6 +52,10 @@ namespace DolDoc.Win32Host
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            AllocConsole();
+
+            _editorState = new EditorState(80, 60);
+
             _bmp = new Bitmap(640, 480, PixelFormat.Format8bppIndexed);
             _bmp.Palette = PatchPalette(_bmp.Palette);
             uxImage.Width = 640;
@@ -59,6 +67,12 @@ namespace DolDoc.Win32Host
             _document.OnUpdate += RenderDocument;
 
             timer.Tick += Tick;
+
+            Focus();
+            ActiveControl = null;
+
+            if (_args != null && _args.Length > 0)
+                LoadFile(File.Open(_args[0], FileMode.Open));
         }
 
         private void Tick(object sender, EventArgs e)
@@ -94,7 +108,7 @@ namespace DolDoc.Win32Host
 
         private void RenderDocument()
         {
-            timer.Enabled = true;
+            timer.Enabled = false;
             byte[] fb = new byte[_bmp.Width * _bmp.Height];
 
             for (int y = 0; y < _document.Rows; y++)
@@ -125,6 +139,15 @@ namespace DolDoc.Win32Host
             uxImage.Refresh();
 
             Application.DoEvents();
+            timer.Enabled = true;
+
+            // debug stuff
+            uxDebugView.Clear();
+            uxDebugView.Text = $@"Cursor {_document.CursorX},{_document.CursorY}
+
+Character info:
+  textOffset: {_document.Read(_document.CursorX, _document.CursorY).TextOffset}
+";
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -141,7 +164,19 @@ namespace DolDoc.Win32Host
                 return;
 
             Text = Path.GetFileName(fd.FileName);
-            _document.Load(stream);
+
+            LoadFile(stream);            
+        }
+
+        private void LoadFile(Stream stream)
+        {
+            using (var reader = new StreamReader(stream))
+            {
+                var content = reader.ReadToEnd();
+                _document.Load(content);
+                _editorState = new EditorState(80, 60, content);
+                _editorState.OnUpdate += data => _document.Load(data, true);
+            }
         }
 
         private void WriteBackground(Bitmap g)
@@ -166,6 +201,17 @@ namespace DolDoc.Win32Host
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
+            var translation = new Dictionary<Keys, ConsoleKey>
+            {
+                { Keys.Down, ConsoleKey.DownArrow},
+                { Keys.Right, ConsoleKey.RightArrow },
+                { Keys.Left, ConsoleKey.LeftArrow },
+                { Keys.Up, ConsoleKey.UpArrow },
+                { Keys.Back, ConsoleKey.Backspace },
+                { Keys.Delete, ConsoleKey.Delete },
+                { Keys.Home, ConsoleKey.Home }
+            };
+
             switch (e.KeyCode)
             {
                 case Keys.PageUp:
@@ -177,33 +223,72 @@ namespace DolDoc.Win32Host
                     break;
 
                 case Keys.End:
-                    _document.LastPage();
+                    //_document.LastPage();
+                    for (int i = _document.CursorX; i < _document.Columns; i++)
+                        if (_document.Read(i, _document.CursorY).TextOffset == null)
+                        {
+                            _document.SetCursor(i, _document.CursorY);
+                            _editorState.SetCursorPosition(_document.Read(i - 1, _document.CursorY).TextOffset.Value + 1);
+                            break;
+                        }
+                    break;
+
+                case Keys.Home:
+                    RenderDocument();
+                    _document.SetCursor(0, _document.CursorY);
+                    _editorState.SetCursorPosition((_document.Read(0, _document.CursorY).TextOffset ?? 0));
+                    InvertCursor(false);
                     break;
 
                 case Keys.Left:
                     RenderDocument();
                     _document.SetCursor(_document.CursorX - 1, _document.CursorY);
+                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
                     InvertCursor(false);
                     break;
 
                 case Keys.Right:
                     RenderDocument();
                     _document.SetCursor(_document.CursorX + 1, _document.CursorY);
+                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
                     InvertCursor(false);
                     break;
 
                 case Keys.Up:
                     RenderDocument();
                     _document.SetCursor(_document.CursorX, _document.CursorY - 1);
+                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
                     InvertCursor(false);
                     break;
 
                 case Keys.Down:
                     RenderDocument();
                     _document.SetCursor(_document.CursorX, _document.CursorY + 1);
+                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
                     InvertCursor(false);
                     break;
             }
+
+            if (translation.TryGetValue(e.KeyCode, out var key))
+                _editorState.KeyDown(key);
+        }
+
+        private void toggleRawModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _document.EnableInterpreter = !_document.EnableInterpreter;
+        }
+
+        private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            _editorState.KeyPress(e.KeyChar);
+            _document.SetCursor(_document.CursorX + 1, _document.CursorY);
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _editorState = new EditorState(80, 60);
+            _editorState.OnUpdate += data => _document.Load(data, true);
+            _document.Load(string.Empty, false);
         }
     }
 }

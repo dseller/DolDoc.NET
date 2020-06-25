@@ -6,10 +6,13 @@
                 
         public T Data { get; }
 
-        public DolDocInstruction(CharacterFlags flags, T data)
+        public int TextOffset { get; }
+
+        public DolDocInstruction(CharacterFlags flags, T data, int textOffset)
         {
             Flags = flags;
             Data = data;
+            TextOffset = textOffset;
         }
     }
 }

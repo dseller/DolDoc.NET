@@ -9,28 +9,21 @@ namespace DolDoc.Core.Editor
     {
         private bool _underLine, _wordWrap;
         private int _yOffset, _xOffset;
-        private Stream _stream;
-        private StreamReader _reader;
 
         public event Action OnClear;
         public event Action<DolDocInstruction<string>> OnWriteLink;
         public event Action<DolDocInstruction<string>> OnWriteString;
-        public event Action<char> OnWriteCharacter;
+        public event Action<char, int> OnWriteCharacter;
         public event Action<EgaColor?> OnForegroundColor;
         public event Action<EgaColor?> OnBackgroundColor;
 
-        public DolDocInterpreter(Stream stream)
+        public void Render(string content)
         {
-            _stream = stream;
-            _reader = new StreamReader(_stream);
-        }
-
-        public void Run()
-        {
-            string content = _reader.ReadToEnd();
+            OnClear();
 
             for (int i = 0; i < content.Length; i++)
             {
+                int offset = i;
                 char ch = content[i];
                 if (ch == '$')
                 {
@@ -40,7 +33,7 @@ namespace DolDoc.Core.Editor
                     i++;
                     if (content[i] == '$')
                     {
-                        OnWriteCharacter(content[i]);
+                        OnWriteCharacter(content[i], i);
                         continue;
                     }
 
@@ -112,7 +105,7 @@ namespace DolDoc.Core.Editor
                             break;
 
                         case "LK":
-                            OnWriteLink(new DolDocInstruction<string>(f, arguments[0]));
+                            OnWriteLink(new DolDocInstruction<string>(f, arguments[0], offset));
                             break;
                             
                         case "SY":
@@ -121,7 +114,7 @@ namespace DolDoc.Core.Editor
                             break;
 
                         case "TX":
-                            OnWriteString(new DolDocInstruction<string>(f, arguments[0]));
+                            OnWriteString(new DolDocInstruction<string>(f, arguments[0], offset));
                             break;
 
                         case "UL":
@@ -142,7 +135,7 @@ namespace DolDoc.Core.Editor
                     if (content[i] == '$')
                         i--;
 
-                    OnWriteString(new DolDocInstruction<string>(CreateFlags(new string[0]), builder.ToString()));
+                    OnWriteString(new DolDocInstruction<string>(CreateFlags(new string[0]), builder.ToString(), offset));
                 }
             }
         }

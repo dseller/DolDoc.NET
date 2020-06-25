@@ -10,7 +10,7 @@ namespace DolDoc.Editor.Input
 
         void KeyUp(ConsoleKey key);
 
-        void KeyPress(ConsoleKey key);
+        void KeyPress(char key);
 
         void MousePress(int x, int y);
 

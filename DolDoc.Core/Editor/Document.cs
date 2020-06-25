@@ -9,10 +9,20 @@ namespace DolDoc.Core.Editor
         public int Columns, Rows, CursorX, CursorY;
         private int _maxY;
         private EgaColor _bgColor, _fgColor;
+        private EgaColor _originalBgColor, _originalFgColor;
         private EgaColor _defaultBgColor, _defaultFgColor;
+        private DolDocInterpreter _interpreter;
 
+        private string _content;
         public int ViewLine;
         public event Action OnUpdate;
+
+        private bool _enableInterpreter;
+        public bool EnableInterpreter
+        {
+            get { return _enableInterpreter; }
+            set { _enableInterpreter = value; Load(_content, true); }
+        }
 
         public Document(int columns, int rows, EgaColor backgroundColor, EgaColor foregroundColor)
         {
@@ -20,26 +30,44 @@ namespace DolDoc.Core.Editor
             Columns = columns;
             _fgColor = foregroundColor;
             _bgColor = backgroundColor;
-            _defaultFgColor = _fgColor;
-            _defaultBgColor = _bgColor;
+            _defaultFgColor = _originalFgColor = _fgColor;
+            _defaultBgColor = _originalBgColor = _bgColor;
             _data = new Character[Rows * Columns];
+            _interpreter = new DolDocInterpreter();
+            _interpreter.OnClear += () => Clear(_bgColor);
+            _interpreter.OnWriteCharacter += (ch, to) => OnWriteCharacter(ch, to, CharacterFlags.None);
+            _interpreter.OnWriteString += OnWriteString;
+            _interpreter.OnWriteLink += OnWriteLink;
+            _interpreter.OnForegroundColor += color => _fgColor = color ?? _defaultFgColor;
+            _interpreter.OnBackgroundColor += color => _bgColor = color ?? _defaultBgColor;
+
+            _enableInterpreter = true;
+            
             Clear(backgroundColor);
         }
 
-        public void Load(Stream stream)
+        public void Load(string contents, bool restoreCursor = false)
         {
+            var cX = CursorX;
+            var cY = CursorY;
+            CursorX = CursorY = 0;
+
             Clear(_defaultBgColor);
 
-            var interpreter = new DolDocInterpreter(stream);
-            interpreter.OnClear += () => Clear(_bgColor);
-            interpreter.OnWriteCharacter += ch => OnWriteCharacter(ch, CharacterFlags.None);
-            interpreter.OnWriteString += OnWriteString;
-            interpreter.OnWriteLink += OnWriteLink;
-            interpreter.OnForegroundColor += color => _fgColor = color ?? _defaultFgColor;
-            interpreter.OnBackgroundColor += color => _bgColor = color ?? _defaultBgColor;
-            interpreter.Run();
-            CursorX = 0;
-            CursorY = 0;
+            _content = contents;
+            if (EnableInterpreter)
+                _interpreter.Render(contents);
+            else
+                OnWriteString(new DolDocInstruction<string>(CharacterFlags.None, contents, 0));
+
+            if (restoreCursor)
+                SetCursor(cX, cY);
+            else
+            {
+                CursorX = 0;
+                CursorY = 0;
+            }
+
             OnUpdate();
         }
 
@@ -53,17 +81,23 @@ namespace DolDoc.Core.Editor
             _fgColor = oldColor;
         }
 
-        public void Write(int x, int y, CharacterFlags flags, char ch, EgaColor fgColor, EgaColor bgColor)
+        public void Write(int x, int y, CharacterFlags flags, char ch, EgaColor fgColor, EgaColor bgColor, int? textOffset)
         {
             var color = ((byte)fgColor << 4) | (byte)bgColor;
-            _data[(y * Columns) + x] = new Character((byte)ch, (byte)color, flags);
+            _data[(y * Columns) + x] = new Character((byte)ch, (byte)color, textOffset, flags);
         }
 
         public Character Read(int x, int y) => _data[(y * Columns) + x];
 
+        public int CursorPosition => CursorX + ((CursorY + ViewLine) * Columns);
+
         public void Clear(EgaColor color)
         {
+            _defaultBgColor = _bgColor = _originalBgColor;
+            _defaultFgColor = _fgColor = _originalFgColor;
+
             // Y = X * Columns
+            // CursorX = CursorY = 0;
             var rows = _data.Length / Columns;
 
             for (int column = 0; column < Columns; column++)
@@ -73,7 +107,7 @@ namespace DolDoc.Core.Editor
                     if ((ch.Flags & CharacterFlags.Hold) == CharacterFlags.Hold)
                         continue;
 
-                    Write(column, row, CharacterFlags.None, (char)0, _fgColor, color);
+                    Write(column, row, CharacterFlags.None, (char)0, _fgColor, color, null);
                 }
         }
 
@@ -125,6 +159,11 @@ namespace DolDoc.Core.Editor
                 y = 0;
             }
 
+            if (x > Columns)
+            {
+                y += x / Columns;
+                x %= Columns;
+            }
 
             if (y >= Rows)
             {
@@ -138,6 +177,7 @@ namespace DolDoc.Core.Editor
             if (update)
                 OnUpdate();
         }
+
 
         private void OnWriteString(DolDocInstruction<string> data)
         {
@@ -162,15 +202,18 @@ namespace DolDoc.Core.Editor
             //    }
             //}
             //else
-                foreach (var ch in data.Data)
-                    OnWriteCharacter(ch, data.Flags);
+            //foreach (var ch in data.Data)
+            //OnWriteCharacter(ch, data.TextOffset, data.Flags);
+
+            for (int i = 0; i < data.Data.Length; i++)
+                OnWriteCharacter(data.Data[i], data.TextOffset + i, data.Flags);
         }
 
-        private void OnWriteCharacter(char obj, CharacterFlags flags)
+        private void OnWriteCharacter(char obj, int textOffset, CharacterFlags flags)
         {
             if (!char.IsControl(obj))
             {
-                Write(CursorX, CursorY, flags, obj, _fgColor, _bgColor);
+                Write(CursorX, CursorY, flags, obj, _fgColor, _bgColor, textOffset);
                 CursorX++;
             }
             else
@@ -188,13 +231,16 @@ namespace DolDoc.Core.Editor
                 CursorY++;
             }
 
-            if ((CursorY % Rows) == 0)
+            if (CursorPosition >= _data.Length)
             {
+                Console.WriteLine("Allocating new data page");
+
                 int oldLength = _data.Length;
                 Array.Resize(ref _data, _data.Length + (Columns * Rows));
 
                 for (int i = 0; i < Columns * Rows; i++)
-                    _data[oldLength + i] = new Character(0x00, (byte)_bgColor, CharacterFlags.None);
+                    _data[oldLength + i] = new Character(0x00, (byte)_bgColor, textOffset, CharacterFlags.None);
+
             }
 
             _maxY = Math.Max(_maxY, CursorY);
