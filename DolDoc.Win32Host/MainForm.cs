@@ -145,7 +145,7 @@ Cursor {_editorState.CursorPosition}
                 //_editorState.OnUpdate += data => document.Load(data, true);
 
                 _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
-                _viewerState.Render();
+                //_viewerState.Render();
                 _editorState.Kick();
             }
         }
@@ -180,7 +180,9 @@ Cursor {_editorState.CursorPosition}
                 { Keys.Up, ConsoleKey.UpArrow },
                 { Keys.Back, ConsoleKey.Backspace },
                 { Keys.Delete, ConsoleKey.Delete },
-                { Keys.Home, ConsoleKey.Home }
+                { Keys.Home, ConsoleKey.Home },
+                { Keys.PageUp, ConsoleKey.PageUp },
+                { Keys.PageDown, ConsoleKey.PageDown }
             };
 
             if (translation.TryGetValue(e.KeyCode, out var key))

@@ -39,17 +39,8 @@ namespace DolDoc.Editor.Core
 
         public Character this[int x, int y]
         {
-            get
-            {
-                var page = GetOrCreatePageForPosition(x, y);
-                return page[x, y - ((page.PageNumber - 1) * page.Rows)];
-            }
-
-            set
-            {
-                var page = GetOrCreatePageForPosition(x, y);
-                page[x, y - ((page.PageNumber - 1) * page.Rows)] = value;
-            }
+            get => this[(y * PageColumns) + x];
+            set => this[(y * PageColumns) + x] = value;
         }
 
         public CharacterPage Get(int pageNumber) => _pages[pageNumber];

@@ -58,11 +58,36 @@ namespace DolDoc.Tests.Core
         public void ItNormalizesLocalPagePosition()
         {
             var pd = new CharacterPageDirectory(80, 60);
-            pd[3600] = new Character(0xFF, 0xFF, null, CharacterFlags.None);
+            pd[3601] = new Character(0xFF, 0xFF, null, CharacterFlags.None);
 
             Assert.AreEqual(2, pd.PageCount);
             Assert.AreEqual(0, pd.Get(1)[0, 59].Char);
-            Assert.AreEqual(0xFF, pd.Get(1)[3600].Char);
+            Assert.AreEqual(0xFF, pd.Get(1)[3601].Char);
+        }
+
+        [TestMethod]
+        public void PageCoordinatesAndPositionsMatch()
+        {
+            var pd = new CharacterPageDirectory(80, 60);
+            pd[0, 60] = new Character(0xFF, 0xFF, null, CharacterFlags.None);
+
+            Assert.AreEqual(2, pd.GetOrCreatePage(60 * 80).PageNumber);
+            Assert.AreEqual(0xFF, pd.Get(1)[0].Char);
+            Assert.AreEqual(0xFF, pd[60 * 80].Char);
+        }
+
+        [TestMethod]
+        public void Test80x60Pages()
+        {
+            var pd = new CharacterPageDirectory(80, 60);
+
+            for (int i = 0; i < 80 * 60; i++)
+                pd[i] = new Character((byte)'A', 0x00, null, CharacterFlags.None);
+            for (int i = 80*60; i < (80*60)*2; i++)
+                pd[i] = new Character((byte)'B', 0x00, null, CharacterFlags.None);
+
+            for (int i = 0; i < 80 * 60; i++)
+                Assert.AreEqual((byte)'A', pd[i].Char);
         }
     }
 }

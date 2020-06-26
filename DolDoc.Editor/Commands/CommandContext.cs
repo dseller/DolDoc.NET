@@ -26,6 +26,8 @@ namespace DolDoc.Editor.Commands
 
         public EgaColor DefaultBackgroundColor { get; set; }
 
+        public bool Underline { get; set; }
+
         public bool HasFlag(string flag) =>
             Flags.Any(f => f.Value == flag && f.Status);
         

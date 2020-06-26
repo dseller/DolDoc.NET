@@ -33,21 +33,9 @@ namespace DolDoc.Editor
             Width = width;
             Height = height;
             Columns = columns;
+            ViewLine = 0;
 
             editor.OnUpdate += Editor_OnUpdate;
-
-            /*_interpreter = new DolDocInterpreter();
-            _interpreter.OnClear += () => Clear(_bgColor);
-            _interpreter.OnWriteCharacter += (ch, to) => OnWriteCharacter(ch, to, CharacterFlags.None);
-            _interpreter.OnWriteString += OnWriteString;
-            _interpreter.OnWriteLink += OnWriteLink;
-            _interpreter.OnForegroundColor += color => _fgColor = color ?? _defaultFgColor;
-            _interpreter.OnBackgroundColor += color => _bgColor = color ?? _defaultBgColor;
-            _interpreter.OnParseError += ex =>
-            {
-                Console.WriteLine(ex);
-                RawMode = true;
-            };*/
 
             Pages = new CharacterPageDirectory(columns, rows);
         }
@@ -66,7 +54,6 @@ namespace DolDoc.Editor
             };
 
             var commands = _parser.Parse(obj);
-            int renderPosition = 0;
             foreach (var command in commands)
             {
                 ctx.Flags = command.Flags;
@@ -212,7 +199,7 @@ namespace DolDoc.Editor
                 for (int x = 0; x < Columns; x++)
                 {
                     //var ch = _document.Read(x, y + ViewLine);
-                    var ch = Pages[x, y];
+                    var ch = Pages[x, y + ViewLine];
                     var character = SysFont.Font[ch.Char];
                     //var color = (byte)((ch >> 8) & 0xFF);
 

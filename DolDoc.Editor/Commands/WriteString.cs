@@ -18,7 +18,6 @@ namespace DolDoc.Editor.Commands
                 charsWritten = ctx.State.Columns - (renderPosition - (renderPosition % ctx.State.Columns));
             }
 
-
             for (var i = 0; i < str.Length; i++)
             {
                 char ch = str[i];
@@ -33,9 +32,9 @@ namespace DolDoc.Editor.Commands
                 else
                     charsWritten++;
 
-
+                var chFlags = ctx.Underline ? CharacterFlags.Underline : CharacterFlags.None;
                 ctx.State.Pages[renderPosition++] =
-                    new Character((byte)str[i], (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset, CharacterFlags.None);
+                    new Character((byte)str[i], (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset, chFlags);
             }
 
             return new CommandResult(true, charsWritten);
