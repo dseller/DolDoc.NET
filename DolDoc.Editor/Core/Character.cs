@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace DolDoc.Core.Editor
+namespace DolDoc.Editor.Core
 {
     /// <summary>
     /// Represents a character on the screen.
@@ -10,7 +10,7 @@ namespace DolDoc.Core.Editor
     {
         public CharacterFlags Flags;
         public byte Color;
-        
+
         /// <summary>
         /// The actual character value.
         /// </summary>

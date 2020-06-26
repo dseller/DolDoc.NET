@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DolDoc.Interpreter.Domain
+namespace DolDoc.Editor.Core
 {
-    public class Argument
+    public class Flag
     {
-        public string Key { get; }
+        public bool Status { get; }
 
         public string Value { get; }
 
-        public Argument(string key, string value)
+        public Flag(bool status, string value)
         {
-            Key = key;
+            Status = status;
             Value = value;
         }
     }

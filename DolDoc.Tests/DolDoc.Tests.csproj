@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DolDoc.Core\DolDoc.Core.csproj" />
-    <ProjectReference Include="..\DolDoc.Interpreter\DolDoc.Interpreter.csproj" />
+    <ProjectReference Include="..\DolDoc.Editor\DolDoc.Editor.csproj" />
   </ItemGroup>
 
 </Project>

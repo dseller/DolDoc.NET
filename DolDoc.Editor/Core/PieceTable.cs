@@ -5,7 +5,7 @@ using System.Linq;
 // This piece table implementation was ported from jdormit's JavaScript piece table implementation: https://github.com/sparkeditor/piece-table/blob/master/index.js
 // Note that I don't believe it is a perfect implementation of it, because the piece table should be append-only. This version mutates already existing entries in the piece table.
 
-namespace DolDoc.Core.Editor
+namespace DolDoc.Editor.Core
 {
     public class Piece
     {
@@ -75,7 +75,7 @@ namespace DolDoc.Core.Editor
             var (pieceIndex, bufferOffset) = GetIndicesForStringOffset(position);
             var originalPiece = Pieces[pieceIndex];
             if (originalPiece.AddBuffer &&
-                bufferOffset == originalPiece.Start + originalPiece.Length && 
+                bufferOffset == originalPiece.Start + originalPiece.Length &&
                 originalPiece.Start + originalPiece.Length == addBufferOffset)
             {
                 originalPiece.Length += str.Length;
@@ -107,7 +107,7 @@ namespace DolDoc.Core.Editor
 
             var (initialPieceIndex, initialBufferOffset) = GetIndicesForStringOffset(offset);
             var (finalPieceIndex, finalBufferOffset) = GetIndicesForStringOffset(offset + length);
-            
+
             if (initialPieceIndex == finalPieceIndex)
             {
                 var piece = Pieces[initialPieceIndex];

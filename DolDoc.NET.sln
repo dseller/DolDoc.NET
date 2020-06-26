@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolDoc.Win32Host", "DolDoc.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.Editor", "DolDoc.Editor\DolDoc.Editor.csproj", "{7AF51E57-0552-4E47-B72E-E53C36BFBE38}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.Interpreter", "DolDoc.Interpreter\DolDoc.Interpreter.csproj", "{BDBECEA4-2FD0-44CA-935B-920A63CC00BD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.Tests", "DolDoc.Tests\DolDoc.Tests.csproj", "{13E0DA19-A9B4-4B96-9311-5B6A158A9DA9}"
 EndProject
 Global
@@ -20,7 +18,6 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{848836D4-02AC-4EF6-AC88-7FFC1050174F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{848836D4-02AC-4EF6-AC88-7FFC1050174F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{848836D4-02AC-4EF6-AC88-7FFC1050174F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{848836D4-02AC-4EF6-AC88-7FFC1050174F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EF7E8493-19E6-4B68-A622-2C473A0BF2D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -31,10 +28,6 @@ Global
 		{7AF51E57-0552-4E47-B72E-E53C36BFBE38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AF51E57-0552-4E47-B72E-E53C36BFBE38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AF51E57-0552-4E47-B72E-E53C36BFBE38}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BDBECEA4-2FD0-44CA-935B-920A63CC00BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BDBECEA4-2FD0-44CA-935B-920A63CC00BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BDBECEA4-2FD0-44CA-935B-920A63CC00BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BDBECEA4-2FD0-44CA-935B-920A63CC00BD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13E0DA19-A9B4-4B96-9311-5B6A158A9DA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13E0DA19-A9B4-4B96-9311-5B6A158A9DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13E0DA19-A9B4-4B96-9311-5B6A158A9DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU

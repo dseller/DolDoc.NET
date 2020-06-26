@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Text;
 
-namespace DolDoc.Interpreter.Commands
-{
-    public class SetBackgroundColor
-    {
-    }
-}
+//namespace DolDoc.Interpreter.Commands
+//{
+//    public class SetBackgroundColor
+//    {
+//    }
+//}

@@ -1,4 +1,4 @@
-﻿namespace DolDoc.Core.Editor
+﻿namespace DolDoc.Editor.Core
 {
     public static class SysFont
     {

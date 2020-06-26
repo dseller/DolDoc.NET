@@ -1,5 +1,7 @@
-﻿using DolDoc.Core.Editor;
-using DolDoc.Editor;
+﻿using DolDoc.Editor;
+using DolDoc.Editor.Core;
+using DolDoc.Editor.Input;
+using DolDoc.Editor.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,22 +12,20 @@ using System.Windows.Forms;
 
 namespace DolDoc.Win32Host
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IFrameBuffer
     {
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool AllocConsole();
-
-        private bool _tock;
         private Bitmap _bmp;
-        private string[] _args;
-        private Document _document;
+        private string _providedFileName;
 
         private EditorState _editorState;
+        private ViewerState _viewerState;
 
-        public MainForm(string[] args)
+        public MainForm()
         {
-            _args = args;
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+                _providedFileName = args[1];
+
             InitializeComponent();
         }
 
@@ -52,10 +52,6 @@ namespace DolDoc.Win32Host
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            AllocConsole();
-
-            _editorState = new EditorState(80, 60);
-
             _bmp = new Bitmap(640, 480, PixelFormat.Format8bppIndexed);
             _bmp.Palette = PatchPalette(_bmp.Palette);
             uxImage.Width = 640;
@@ -63,78 +59,31 @@ namespace DolDoc.Win32Host
             uxImage.Image = _bmp;
             WriteBackground(_bmp);
 
-            _document = new Document(80, 60, EgaColor.White, EgaColor.Black);
-            _document.OnUpdate += RenderDocument;
-
             timer.Tick += Tick;
 
             Focus();
             ActiveControl = null;
 
-            if (_args != null && _args.Length > 0)
-                LoadFile(File.Open(_args[0], FileMode.Open));
+            if (_providedFileName != null)
+                LoadFile(File.Open(_providedFileName, FileMode.Open));
         }
 
         private void Tick(object sender, EventArgs e)
         {
-            InvertCursor(_tock);
+            /*InvertCursor(_tock);
+            _tock = !_tock;*/
 
-            _tock = !_tock;
+            /*foreach (var listener in _tickListeners)
+                listener.Tick();*/
         }
 
-        private void InvertCursor(bool tock)
-        {
-            var data = _bmp.LockBits(new Rectangle(0, 0, _bmp.Width, _bmp.Height), ImageLockMode.ReadOnly, _bmp.PixelFormat);
-            var bitmap = new byte[_bmp.Width * _bmp.Height];
-            Marshal.Copy(data.Scan0, bitmap, 0, bitmap.Length);
-
-            var ch = _document.Read(_document.CursorX, _document.ViewLine + _document.CursorY);
-            var character = SysFont.Font[ch.Char & 0xFF];
-
-            var fg = tock ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
-            var bg = tock ? (byte)(ch.Color & 0x0F) : (byte)((ch.Color >> 4) & 0x0F);
-
-            for (int fx = 0; fx < 8; fx++)
-                for (int fy = 0; fy < 8; fy++)
-                {
-                    bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                    bitmap[(((_document.CursorY * 8) + fy) * _bmp.Width) + (_document.CursorX * 8) + fx] = draw ? fg : bg;
-                }
-
-            Marshal.Copy(bitmap, 0, data.Scan0, bitmap.Length);
-            _bmp.UnlockBits(data);
-            uxImage.Refresh();
-        }
-
-        private void RenderDocument()
+        public void Render(byte[] data)
         {
             timer.Enabled = false;
-            byte[] fb = new byte[_bmp.Width * _bmp.Height];
 
-            for (int y = 0; y < _document.Rows; y++)
-                for (int x = 0; x < _document.Columns; x++)
-                {
-                    var ch = _document.Read(x, y + _document.ViewLine);
-                    var character = SysFont.Font[ch.Char];
-                    //var color = (byte)((ch >> 8) & 0xFF);
-
-                    for (int fx = 0; fx < 8; fx++)
-                        for (int fy = 0; fy < 8; fy++)
-                        {
-                            bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                            fb[(((y * 8) + fy) * _bmp.Width) + (x * 8) + fx] = draw ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
-                        }
-
-                    if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-                    {
-                        for (int i = 0; i < 8; i++)
-                            fb[(((y * 8) + (8 - 1)) * _bmp.Width) + (x * 8) + i] = (byte)((ch.Color >> 4) & 0x0F);
-                    }
-                }
-
-            var data = _bmp.LockBits(new Rectangle(0, 0, _bmp.Width, _bmp.Height), ImageLockMode.ReadOnly, _bmp.PixelFormat);
-            Marshal.Copy(fb, 0, data.Scan0, fb.Length);
-            _bmp.UnlockBits(data);
+            var bmpData = _bmp.LockBits(new Rectangle(0, 0, _bmp.Width, _bmp.Height), ImageLockMode.ReadOnly, _bmp.PixelFormat);
+            Marshal.Copy(data, 0, bmpData.Scan0, data.Length);
+            _bmp.UnlockBits(bmpData);
 
             uxImage.Refresh();
 
@@ -142,12 +91,28 @@ namespace DolDoc.Win32Host
             timer.Enabled = true;
 
             // debug stuff
-            uxDebugView.Clear();
-            uxDebugView.Text = $@"Cursor {_document.CursorX},{_document.CursorY}
+            DebugDump();
+        }
 
-Character info:
-  textOffset: {_document.Read(_document.CursorX, _document.CursorY).TextOffset}
+        public void RenderPartial(int x, int y, int width, int height, byte[] data)
+        {
+            var bmpData = _bmp.LockBits(new Rectangle(x, y, width, height), ImageLockMode.ReadOnly, _bmp.PixelFormat);
+            Marshal.Copy(data, (y * Width) + x, bmpData.Scan0, data.Length);
+            _bmp.UnlockBits(bmpData);
+            uxImage.Refresh();
+            Application.DoEvents();
+        }
+
+        private void DebugDump()
+        {
+            uxDebugView.Clear();
+            uxDebugView.Text = $@"ViewerState:
+Cursor {_viewerState.CursorX},{_viewerState.CursorY}
+
+EditorState:
+Cursor {_editorState.CursorPosition}
 ";
+            // TODO: ABOVE IS WEIRD fix it (using viewerstate cursorX/Y to read from document character matrix)
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -173,9 +138,15 @@ Character info:
             using (var reader = new StreamReader(stream))
             {
                 var content = reader.ReadToEnd();
-                _document.Load(content);
-                _editorState = new EditorState(80, 60, content);
-                _editorState.OnUpdate += data => _document.Load(data, true);
+                var document = new Document(80, 60, EgaColor.White, EgaColor.Black);
+                document.Load(content);
+
+                _editorState = new EditorState(document, 80, 60, content);
+                //_editorState.OnUpdate += data => document.Load(data, true);
+
+                _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
+                _viewerState.Render();
+                _editorState.Kick();
             }
         }
 
@@ -212,15 +183,18 @@ Character info:
                 { Keys.Home, ConsoleKey.Home }
             };
 
-            switch (e.KeyCode)
+            if (translation.TryGetValue(e.KeyCode, out var key))
             {
-                case Keys.PageUp:
-                    _document.PreviousPage();
-                    break;
+                _editorState.KeyDown(key);
+                _viewerState.KeyDown(key);
+            }
 
-                case Keys.PageDown:
-                    _document.NextPage();
-                    break;
+
+                //_editorState.KeyDown(key);
+
+            /*switch (e.KeyCode)
+            {
+                
 
                 case Keys.End:
                     //_document.LastPage();
@@ -249,7 +223,17 @@ Character info:
 
                 case Keys.Right:
                     RenderDocument();
+
                     _document.SetCursor(_document.CursorX + 1, _document.CursorY);
+                    var cell = _document.Read(_document.CursorX, _document.CursorY);
+                    if (cell.TextOffset == null)
+                    {
+                        // Undo the cursor move if the destination character does not have a text offset.
+                        _document.SetCursor(_document.CursorX - 1, _document.CursorY);
+                        SystemSounds.Exclamation.Play();
+                        return;
+                    }
+
                     _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
                     InvertCursor(false);
                     break;
@@ -257,6 +241,18 @@ Character info:
                 case Keys.Up:
                     RenderDocument();
                     _document.SetCursor(_document.CursorX, _document.CursorY - 1);
+                    var upCell = _document.Read(_document.CursorX, _document.CursorY);
+                    if (upCell.TextOffset == null)
+                    {
+                        // Find a correct one
+                        var idx = _document.GetLastCharacterOnLine(_document.CursorY);
+                        if (!idx.HasValue)
+                            throw new Exception("yeahhh...");
+
+                        _document.SetCursor(idx.Value, _document.CursorY);
+                    }
+
+
                     _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
                     InvertCursor(false);
                     break;
@@ -267,28 +263,42 @@ Character info:
                     _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
                     InvertCursor(false);
                     break;
-            }
 
-            if (translation.TryGetValue(e.KeyCode, out var key))
-                _editorState.KeyDown(key);
+                case Keys.Enter:
+                    _document.SetCursor(0, _document.CursorY + 1);
+                    break;
+            }*/
+
+            
+
+            DebugDump();
         }
 
         private void toggleRawModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.EnableInterpreter = !_document.EnableInterpreter;
+            _viewerState.RawMode = !_viewerState.RawMode;
         }
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
             _editorState.KeyPress(e.KeyChar);
-            _document.SetCursor(_document.CursorX + 1, _document.CursorY);
+            _viewerState.KeyPress(e.KeyChar);
+
+            /*_editorState.KeyPress(e.KeyChar);
+
+            if (!char.IsControl(e.KeyChar))
+                _document.SetCursor(_document.CursorX + 1, _document.CursorY);*/
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _editorState = new EditorState(80, 60);
-            _editorState.OnUpdate += data => _document.Load(data, true);
-            _document.Load(string.Empty, false);
+            var document = new Document(80, 60, EgaColor.White, EgaColor.Black);
+            document.Load(string.Empty, false);
+
+            _editorState = new EditorState(document, 80, 60);
+            _editorState.OnUpdate += data => document.Load(data, true);
+            _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
+            //_document.Load(string.Empty, false);
         }
     }
 }

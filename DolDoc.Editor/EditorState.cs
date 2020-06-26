@@ -1,4 +1,4 @@
-﻿using DolDoc.Core.Editor;
+﻿using DolDoc.Editor.Core;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using DolDoc.Editor.UI;
@@ -11,24 +11,27 @@ namespace DolDoc.Editor
     public class EditorState : IInputListener
     {
         private readonly PieceTable _pieceTable;
-        private readonly Composer _composer;
-        private readonly CharacterMatrix _visualRepresentation;
-        private int _cursorPosition, _columns, _rows;
+        private int _columns, _rows;
 
         public event Action<string> OnUpdate;
 
-        public EditorState(int columns, int rows, string content = null)
+        public EditorState(Document doc, int columns, int rows, string content = null)
         {
+            Document = doc;
             _rows = rows;
             _columns = columns;
             _pieceTable = new PieceTable(content);
 
-            Console.SetWindowSize(_columns, _rows);
-            Console.SetBufferSize(_columns, _rows);
+            //Console.SetWindowSize(_columns, _rows);
+            //Console.SetBufferSize(_columns, _rows);
 
             OnUpdate += OutputTableToConsole;
             OnUpdate(content);
         }
+
+        public int CursorPosition { get; private set; }
+
+        public Document Document { get; private set; }
 
         public void KeyDown(ConsoleKey key)
         {
@@ -53,28 +56,28 @@ namespace DolDoc.Editor
                     break;*/
 
                 case ConsoleKey.Backspace:
-                    if (_cursorPosition == 0)
+                    if (CursorPosition == 0)
                         break;
 
-                    _cursorPosition--;
-                    _pieceTable.Remove(_cursorPosition, 1);
+                    CursorPosition--;
+                    _pieceTable.Remove(CursorPosition, 1);
                     update = true;
                     break;
 
                 case ConsoleKey.Delete:
-                    _pieceTable.Remove(_cursorPosition, 1);
+                    _pieceTable.Remove(CursorPosition, 1);
                     update = true;
                     break;
             }
 
             int maxLength = _pieceTable.ToString().Length;
-            if (_cursorPosition < 0)
-                _cursorPosition = 0;
-            if (_cursorPosition > maxLength)
-                _cursorPosition = maxLength;
+            if (CursorPosition < 0)
+                CursorPosition = 0;
+            if (CursorPosition > maxLength)
+                CursorPosition = maxLength;
             
 
-            Console.SetCursorPosition(_cursorPosition % Console.WindowWidth, _cursorPosition / Console.WindowWidth);
+            Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
 
             if (update)
                 OnUpdate(_pieceTable.ToString());
@@ -85,9 +88,9 @@ namespace DolDoc.Editor
         public void KeyPress(char key)
         {
             if (!char.IsControl(key))
-                _pieceTable.Insert(new string(key, 1), _cursorPosition++);
+                _pieceTable.Insert(new string(key, 1), CursorPosition++);
             else if (key == '\r')
-                _pieceTable.Insert(new string('\n', 1), _cursorPosition++);
+                _pieceTable.Insert(new string('\n', 1), CursorPosition++);
             else
                 return;
 
@@ -116,15 +119,20 @@ namespace DolDoc.Editor
 
         public void SetCursorPosition(int position)
         {
-            _cursorPosition = position;
-            Console.SetCursorPosition(_cursorPosition % Console.WindowWidth, _cursorPosition / Console.WindowWidth);
+            CursorPosition = position;
+            Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
         }
 
         private void OutputTableToConsole(string data)
         {
-            Console.Clear();
+            /*Console.Clear();
             Console.Write(data);
-            Console.SetCursorPosition(_cursorPosition % Console.WindowWidth, _cursorPosition / Console.WindowWidth);
+            Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);*/
+        }
+
+        public void Kick()
+        {
+            OnUpdate(_pieceTable.ToString());
         }
     }
 }

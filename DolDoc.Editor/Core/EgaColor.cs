@@ -1,4 +1,4 @@
-﻿namespace DolDoc.Editor.Rendering
+﻿namespace DolDoc.Editor.Core
 {
     public enum EgaColor : byte
     {

@@ -1,4 +1,4 @@
-﻿using DolDoc.Core.Editor;
+﻿using DolDoc.Editor.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DolDoc.Tests.Editor
