@@ -154,7 +154,7 @@ namespace DolDoc.Editor
                     }
                     else
                         CursorPosition--;
-                    
+
                     if (CursorPosition < 0)
                         CursorPosition = 0;
 
@@ -178,7 +178,7 @@ namespace DolDoc.Editor
                             CursorPosition--;
                         } while (Pages[CursorPosition].TextOffset == null);
                     }
-                    
+
 
                     break;
 
@@ -193,6 +193,9 @@ namespace DolDoc.Editor
 
                         do
                         {
+                            if (CursorPosition <= 0)
+                                break;
+
                             // TODO: endoffile is not the correct position in the character buffer, it's the raw text position EOF.
                             //if (CursorPosition >= _endOfFile)
                             //{
@@ -203,6 +206,9 @@ namespace DolDoc.Editor
                             CursorPosition--;
                         } while (Pages[CursorPosition].TextOffset == null);
                     }
+
+                    if (CursorPosition < 0)
+                        CursorPosition = 0;
 
                     break;
 
@@ -325,6 +331,19 @@ namespace DolDoc.Editor
             _frameBuffer.RenderPartial(CursorX * 8, CursorY * 8, 8, 8, _renderBuffer);
         }
 
+        private void DoBlink(bool inverted)
+        {
+            for (int row = 0; row < Rows; row++)
+                for (int column = 0; column < Columns; column++)
+                {
+                    var ch = Pages[column, row];
+                    if ((ch.Flags & CharacterFlags.Blink) == CharacterFlags.Blink)
+                        RenderCharacter(column, row, ch, inverted);
+                }
+
+            _frameBuffer.Render(_renderBuffer);
+        }
+
         private void RenderCharacter(int column, int row, Character ch, bool inverted = false)
         {
             var bg = inverted ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
@@ -346,6 +365,7 @@ namespace DolDoc.Editor
 
         public void Tick()
         {
+            DoBlink(_cursorInverted);
             RenderCursor(_cursorInverted);
 
             _cursorInverted = !_cursorInverted;

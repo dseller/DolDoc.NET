@@ -28,6 +28,8 @@ namespace DolDoc.Editor.Commands
 
         public bool Underline { get; set; }
 
+        public bool Blink { get; set; }
+
         public bool WordWrap { get; set; }
 
         public int Indentation { get; set; }

@@ -11,6 +11,7 @@ namespace DolDoc.Interpreter.Commands
             switch (cmd.Mnemonic)
             {
                 case "BG": return new SetBackgroundColor().Execute(ctx);
+                case "BK": return new Blink().Execute(ctx);
                 case "CL": return new Clear().Execute(ctx);
                 case "FG": return new SetForegroundColor().Execute(ctx);
                 case "ID": return new Indent().Execute(ctx);

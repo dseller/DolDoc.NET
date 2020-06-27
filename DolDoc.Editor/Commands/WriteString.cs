@@ -52,7 +52,13 @@ namespace DolDoc.Editor.Commands
                 else
                     charsWritten++;
 
-                var chFlags = ctx.Underline ? CharacterFlags.Underline : CharacterFlags.None;
+                //var chFlags = ctx.Underline ? CharacterFlags.Underline : CharacterFlags.None;
+                var chFlags = CharacterFlags.None;
+                if (ctx.Underline)
+                    chFlags |= CharacterFlags.Underline;
+                if (ctx.Blink)
+                    chFlags |= CharacterFlags.Blink;
+
                 ctx.State.Pages[renderPosition++] =
                     new Character((byte)str[i], (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset + i, chFlags);
             }
