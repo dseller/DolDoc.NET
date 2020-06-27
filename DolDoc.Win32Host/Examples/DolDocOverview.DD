@@ -284,5 +284,3 @@ $CM+RX,LE=-40,RE=3$Note mandatory comma after flags
 The following may be changed to modes instead of attr with flags.
 
 $TX+CX,"This is centered"$
-
-$TX+RX,"This is right justified"$

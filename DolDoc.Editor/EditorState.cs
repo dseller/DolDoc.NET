@@ -4,6 +4,7 @@ using DolDoc.Editor.Rendering;
 using DolDoc.Editor.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace DolDoc.Editor
@@ -120,14 +121,19 @@ namespace DolDoc.Editor
         public void SetCursorPosition(int position)
         {
             CursorPosition = position;
+
+            if (!Debugger.IsAttached)
             Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
         }
 
         private void OutputTableToConsole(string data)
         {
-            //Console.Clear();
-            //Console.Write(data);
-            //Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
+            if (!Debugger.IsAttached)
+            {
+                Console.Clear();
+                Console.Write(data);
+                Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
+            }
         }
 
         public void Kick()

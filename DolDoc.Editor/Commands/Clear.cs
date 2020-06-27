@@ -1,7 +1,4 @@
 ﻿using DolDoc.Editor.Core;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Editor.Commands
 {
@@ -9,7 +6,9 @@ namespace DolDoc.Editor.Commands
     {
         public CommandResult Execute(CommandContext ctx)
         {
-            return null;
+            ctx.State.Pages.Clear(ctx.BackgroundColor);
+
+            return new CommandResult(true);
         }
     }
 }

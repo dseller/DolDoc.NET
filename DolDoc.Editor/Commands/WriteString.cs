@@ -34,6 +34,9 @@ namespace DolDoc.Editor.Commands
 
                 if (ch == '\n')
                 {
+                    ctx.State.Pages[renderPosition] =
+                       new Character((byte)' ', (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset + i, CharacterFlags.None);
+
                     var charsUntilEndOfLine = ctx.State.Columns - (renderPosition % ctx.State.Columns);
                     renderPosition += charsUntilEndOfLine;
                     charsWritten += charsUntilEndOfLine;

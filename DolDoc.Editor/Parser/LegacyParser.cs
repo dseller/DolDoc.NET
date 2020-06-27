@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using DolDoc.Editor.Core;
 
@@ -14,6 +12,7 @@ namespace DolDoc.Core.Parser
 
             for (int i = 0; i < content.Length; i++)
             {
+                var offset = i;
                 char ch = content[i];
                 if (ch == '$')
                 {
@@ -24,7 +23,7 @@ namespace DolDoc.Core.Parser
                     if (content[i] == '$')
                     {
                         // OnWriteCharacter?.Invoke(content[i]);
-                        result.Add(new Command(i, "TX", flags, new[] { new Argument(null, new string(content[i], 1)) }));
+                        result.Add(new Command(offset, "TX", flags, new[] { new Argument(null, new string(content[i], 1)) }));
                         continue;
                     }
 
@@ -79,7 +78,7 @@ namespace DolDoc.Core.Parser
                     }
 
                     // OnCommand?.Invoke(new Command(cmd, flags, arguments));
-                    result.Add(new Command(i, cmd, flags, arguments));
+                    result.Add(new Command(offset, cmd, flags, arguments));
 
                     //var f = CreateFlags(flags);
                     //switch (cmd)
@@ -134,7 +133,7 @@ namespace DolDoc.Core.Parser
                         i--;
 
                     // OnWriteString?.Invoke(builder.ToString());
-                    result.Add(Command.CreateTextCommand(i, new Flag[0], builder.ToString()));
+                    result.Add(Command.CreateTextCommand(offset, new Flag[0], builder.ToString()));
                 }
             }
 

@@ -1,5 +1,4 @@
-﻿using DolDoc.Editor;
-using DolDoc.Editor.Commands;
+﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using System;
 
@@ -11,6 +10,8 @@ namespace DolDoc.Interpreter.Commands
         {
             switch (cmd.Mnemonic)
             {
+                case "BG": return new SetBackgroundColor().Execute(ctx);
+                case "CL": return new Clear().Execute(ctx);
                 case "FG": return new SetForegroundColor().Execute(ctx);
                 case "ID": return new Indent().Execute(ctx);
                 case "LK": return new Link().Execute(ctx);

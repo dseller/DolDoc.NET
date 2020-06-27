@@ -35,6 +35,8 @@ namespace DolDoc.Editor
             ViewLine = 0;
             _cursorInverted = false;
 
+            RawMode = true;
+
             editor.OnUpdate += Editor_OnUpdate;
 
             Pages = new CharacterPageDirectory(columns, rows);
@@ -42,7 +44,6 @@ namespace DolDoc.Editor
 
         private void Editor_OnUpdate(string obj)
         {
-            Console.WriteLine("UPDATE");
             var ctx = new CommandContext
             {
                 ForegroundColor = DefaultForegroundColor,
@@ -99,6 +100,8 @@ namespace DolDoc.Editor
                 RenderCursor(false);
                 CursorX = value % Columns;
                 CursorY = value / Columns;
+
+                _editor.SetCursorPosition(Pages[value].TextOffset ?? 0);
             }
         }
 
@@ -119,30 +122,103 @@ namespace DolDoc.Editor
                     break;
 
                 case ConsoleKey.RightArrow:
-                    CursorPosition++;
+                    if (Pages[CursorPosition + 1].TextOffset == null)
+                    {
+                        do
+                        {
+                            // TODO: endoffile is not the correct position in the character buffer, it's the raw text position EOF.
+                            /*if (CursorPosition >= _endOfFile)
+                                break;*/
+
+                            CursorPosition++;
+                        } while (Pages[CursorPosition].TextOffset == null);
+                    }
+                    else
+                        CursorPosition++;
+
                     break;
 
                 case ConsoleKey.LeftArrow:
-                    CursorPosition--;
+                    if (CursorPosition == 0)
+                        break;
+
+                    if (Pages[CursorPosition - 1].TextOffset == null && CursorY > 0)
+                    {
+                        do
+                        {
+                            if (CursorPosition <= 0)
+                                break;
+
+                            CursorPosition--;
+                        } while (Pages[CursorPosition].TextOffset == null);
+                    }
+                    else
+                        CursorPosition--;
+                    
                     if (CursorPosition < 0)
                         CursorPosition = 0;
+
                     break;
 
                 case ConsoleKey.DownArrow:
                     CursorPosition += Columns;
+
+                    if (Pages[CursorPosition].TextOffset == null)
+                    {
+
+                        do
+                        {
+                            // TODO: endoffile is not the correct position in the character buffer, it's the raw text position EOF.
+                            //if (CursorPosition >= _endOfFile)
+                            //{
+                            //    CursorPosition = _endOfFile;
+                            //    break;
+                            //}
+
+                            CursorPosition--;
+                        } while (Pages[CursorPosition].TextOffset == null);
+                    }
+                    
+
                     break;
 
                 case ConsoleKey.UpArrow:
+                    if (CursorPosition - Columns < 0)
+                        break;
+
                     CursorPosition -= Columns;
-                    if (CursorPosition < 0)
-                        CursorPosition = 0;
+
+                    if (Pages[CursorPosition].TextOffset == null)
+                    {
+
+                        do
+                        {
+                            // TODO: endoffile is not the correct position in the character buffer, it's the raw text position EOF.
+                            //if (CursorPosition >= _endOfFile)
+                            //{
+                            //    CursorPosition = _endOfFile;
+                            //    break;
+                            //}
+
+                            CursorPosition--;
+                        } while (Pages[CursorPosition].TextOffset == null);
+                    }
+
+                    break;
+
+                case ConsoleKey.Backspace:
+                    if (CursorPosition - 1 < 0)
+                        break;
+
+                    CursorPosition--;
                     break;
             }
         }
 
         public void KeyPress(char key)
         {
-            // throw new NotImplementedException();
+            if (!char.IsControl(key))
+                CursorPosition++;
         }
 
         public void KeyUp(ConsoleKey key)
@@ -238,17 +314,7 @@ namespace DolDoc.Editor
 
             for (int y = 0; y < Rows; y++)
                 for (int x = 0; x < Columns; x++)
-                {
-                    var ch = Pages[x, y + ViewLine];
-
-                    RenderCharacter(x, y, ch);
-
-                    if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-                    {
-                        for (int i = 0; i < 8; i++)
-                            _renderBuffer[(((y * 8) + (8 - 1)) * Width) + (x * 8) + i] = (byte)((ch.Color >> 4) & 0x0F);
-                    }
-                }
+                    RenderCharacter(x, y, Pages[x, y + ViewLine]);
 
             _frameBuffer.Render(_renderBuffer);
         }
@@ -270,6 +336,12 @@ namespace DolDoc.Editor
                     bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
                     _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx] = draw ? fg : bg;
                 }
+
+            if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
+            {
+                for (int i = 0; i < 8; i++)
+                    _renderBuffer[(((row * 8) + (8 - 1)) * Width) + (column * 8) + i] = fg;
+            }
         }
 
         public void Tick()

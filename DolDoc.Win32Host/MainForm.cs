@@ -109,6 +109,7 @@ Cursor {_viewerState.CursorX},{_viewerState.CursorY} ({_viewerState.CursorPositi
 Char info:
   Char: {_viewerState.Pages[_viewerState.CursorPosition].Char}
   TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].TextOffset}
+  Page: {_viewerState.Pages.GetOrCreatePage(_viewerState.CursorPosition).PageNumber}
 
 EditorState:
 Cursor {_editorState.CursorPosition}
