@@ -55,6 +55,12 @@ namespace DolDoc.Editor.Core
             return GetOrCreatePage(position % PageColumns, position / PageRows);
         }
 
+        public void Clear()
+        {
+            foreach (var page in _pages)
+                page.Clear(EgaColor.White);
+        }
+
         private CharacterPage GetOrCreatePageForPosition(int x, int y)
         {
             int pageIndex = y / PageRows;

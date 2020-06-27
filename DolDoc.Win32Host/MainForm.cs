@@ -279,6 +279,8 @@ Cursor {_editorState.CursorPosition}
         private void toggleRawModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _viewerState.RawMode = !_viewerState.RawMode;
+            _viewerState.Pages.Clear();
+            _editorState.Kick();
         }
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)

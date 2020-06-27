@@ -28,6 +28,8 @@ namespace DolDoc.Editor.Commands
 
         public bool Underline { get; set; }
 
+        public bool WordWrap { get; set; }
+
         public bool HasFlag(string flag) =>
             Flags.Any(f => f.Value == flag && f.Status);
         

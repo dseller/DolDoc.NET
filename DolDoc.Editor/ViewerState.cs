@@ -53,15 +53,25 @@ namespace DolDoc.Editor
                 State = this
             };
 
-            var commands = _parser.Parse(obj);
-            foreach (var command in commands)
+            if (!RawMode)
             {
-                ctx.Flags = command.Flags;
-                ctx.Arguments = command.Arguments;
-                ctx.TextOffset = command.TextOffset;
+                var commands = _parser.Parse(obj);
+                foreach (var command in commands)
+                {
+                    ctx.Flags = command.Flags;
+                    ctx.Arguments = command.Arguments;
+                    ctx.TextOffset = command.TextOffset;
 
-                var result = CommandHelper.Execute(command, ctx);
-                ctx.RenderPosition += result?.WrittenCharacters ?? 0;
+                    var result = CommandHelper.Execute(command, ctx);
+                    ctx.RenderPosition += result?.WrittenCharacters ?? 0;
+                }
+            }
+            else
+            {
+                var cmd = Command.CreateTextCommand(0, new Flag[0], obj);
+                ctx.Arguments = cmd.Arguments;
+                ctx.Flags = cmd.Flags;
+                CommandHelper.Execute(cmd, ctx);
             }
 
             Render();

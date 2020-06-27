@@ -14,6 +14,8 @@ namespace DolDoc.Interpreter.Commands
                 case "FG": return new SetForegroundColor().Execute(ctx);
                 case "LK": return new Link().Execute(ctx);
                 case "TX": return new WriteString().Execute(ctx);
+                case "UL": return new Underline().Execute(ctx);
+                case "WW": return new WordWrap().Execute(ctx);
                 default:
                     Console.WriteLine($"Unimplemented command {cmd.Mnemonic}");
                     return null;
