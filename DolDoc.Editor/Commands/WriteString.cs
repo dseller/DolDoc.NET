@@ -1,4 +1,5 @@
 ﻿using DolDoc.Editor.Core;
+using System.Linq;
 
 namespace DolDoc.Editor.Commands
 {
@@ -58,9 +59,23 @@ namespace DolDoc.Editor.Commands
                     chFlags |= CharacterFlags.Underline;
                 if (ctx.Blink)
                     chFlags |= CharacterFlags.Blink;
+                if (ctx.Inverted)
+                    chFlags |= CharacterFlags.Inverted;
+                if (ctx.HasFlag("H"))
+                    chFlags |= CharacterFlags.Hold;
 
-                ctx.State.Pages[renderPosition++] =
-                    new Character((byte)str[i], (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset + i, chFlags);
+                byte shiftX = 0, shiftY = 0;
+                if (ctx.Arguments.Any(arg => arg.Key == "SX"))
+                    shiftX = byte.Parse(ctx.Arguments.First(arg => arg.Key == "SX").Value);
+
+                ctx.State.Pages[renderPosition++] = new Character(
+                    (byte)str[i], 
+                    (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), 
+                    ctx.TextOffset + i, 
+                    chFlags,
+                    shiftX,
+                    shiftY
+                );
             }
 
             return new CommandResult(true, charsWritten);

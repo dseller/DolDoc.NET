@@ -1,127 +1,98 @@
-﻿//using DolDoc.Interpreter.Domain;
-//using DolDoc.Interpreter.Parser;
-//using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using System;
-//using System.Collections.Generic;
-//using System.IO;
-//using System.Linq;
-//using System.Text;
+﻿using DolDoc.Core.Parser;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
-//namespace DolDoc.Tests.Interpreter
-//{
-//    [TestClass]
-//    public class LegacyParserTests
-//    {
-//        private LegacyParser _parser;
+namespace DolDoc.Tests.Interpreter
+{
+    [TestClass]
+    public class LegacyParserTests
+    {
+        private LegacyParser _parser;
 
-//        [TestInitialize]
-//        public void Initialize()
-//        {
-//            _parser = new LegacyParser();
-//        }
+        [TestInitialize]
+        public void Initialize()
+        {
+            _parser = new LegacyParser();
+        }
 
-//        [TestMethod]
-//        public void EmitsStrings()
-//        {
-//            string str = null;
-//            _parser.OnWriteString += value => str = value;
+        [TestMethod]
+        public void EmitsStrings()
+        {
+            const string text = "Hello World!";
+            var result = _parser.Parse(text).ToArray();
 
-//            const string text = "$FG,BLUE$Hello World!";
-//            using (var ms = new MemoryStream(Encoding.ASCII.GetBytes(text)))
-//            {
-//                _parser.Parse(ms);
-//            }
+            Assert.AreEqual("TX", result[0].Mnemonic);
+            Assert.AreEqual("Hello World!", result[0].Arguments[0].Value);
+        }
 
-//            Assert.AreEqual("Hello World!", str);
-//        }
+        [TestMethod]
+        public void EmitsEscapedDollars()
+        {
+            const string text = "$$";
+            var result = _parser.Parse(text).ToArray();
 
-//        [TestMethod]
-//        public void EmitsEscapedDollars()
-//        {
-//            char ch = default;
-//            _parser.OnWriteCharacter += value => ch = value;
+            Assert.AreEqual("$", result[0].Arguments[0].Value);
+        }
 
-//            const string text = "$FG,BLUE$$$";
-//            using (var ms = new MemoryStream(Encoding.ASCII.GetBytes(text)))
-//            {
-//                _parser.Parse(ms);
-//            }
+        [TestMethod]
+        public void EmitsCommands()
+        {
+            const string text = "$FG,BLUE$Hello World!$BG,RED$";
+            var results = _parser.Parse(text).ToArray();
 
-//            Assert.AreEqual('$', ch);
-//        }
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("FG", results[0].Mnemonic);
+            Assert.AreEqual("BLUE", results[0].Arguments.ElementAt(0).Value);
+            Assert.AreEqual("BG", results[2].Mnemonic);
+            Assert.AreEqual("RED", results[2].Arguments.ElementAt(0).Value);
+        }
 
-//        [TestMethod]
-//        public void EmitsCommands()
-//        {
-//            List<Command> cmds = new List<Command>();
-//            _parser.OnCommand += value => cmds.Add(value);
+        [TestMethod]
+        public void ParsesQuotedArguments()
+        {
+            const string text = "$LK,\"Test Quoted String\",\"Another\"$";
+            var results = _parser.Parse(text).ToArray();
 
-//            const string text = "$FG,BLUE$Hello World!$BG,RED$";
-//            using (var ms = new MemoryStream(Encoding.ASCII.GetBytes(text)))
-//            {
-//                _parser.Parse(ms);
-//            }
+            Assert.AreEqual("LK", results[0].Mnemonic);
+            Assert.AreEqual("Test Quoted String", results[0].Arguments.ElementAt(0).Value);
+            Assert.AreEqual("Another", results[0].Arguments.ElementAt(1).Value);
+        }
 
-//            Assert.AreEqual(2, cmds.Count);
-//            Assert.AreEqual("FG", cmds[0].Mnemonic);
-//            Assert.AreEqual("BLUE", cmds[0].Arguments.ElementAt(0).Value);
-//            Assert.AreEqual("BG", cmds[1].Mnemonic);
-//            Assert.AreEqual("RED", cmds[1].Arguments.ElementAt(0).Value);
-//        }
+        [TestMethod]
+        public void ParsesPlusFlags()
+        {
+            const string text = "$TX+CX+DX$";
+            var results = _parser.Parse(text).ToArray();
 
-//        [TestMethod]
-//        public void ParsesQuotedArguments()
-//        {
-//            Command cmd = null;
-//            _parser.OnCommand += value => cmd = value;
+            Assert.AreEqual("TX", results[0].Mnemonic);
+            Assert.AreEqual(true, results[0].Flags.ElementAt(0).Status);
+            Assert.AreEqual("CX", results[0].Flags.ElementAt(0).Value);
+            Assert.AreEqual(true, results[0].Flags.ElementAt(1).Status);
+            Assert.AreEqual("DX", results[0].Flags.ElementAt(1).Value);
+        }
 
-//            const string text = "$LK,\"Test Quoted String\",\"Another\"$";
-//            using (var ms = new MemoryStream(Encoding.ASCII.GetBytes(text)))
-//            {
-//                _parser.Parse(ms);
-//            }
+        [TestMethod]
+        public void ParsesMinusFlags()
+        {
+            const string text = "$TX-CX-DX$";
+            var results = _parser.Parse(text).ToArray();
 
-//            Assert.AreEqual("LK", cmd.Mnemonic);
-//            Assert.AreEqual("Test Quoted String", cmd.Arguments.ElementAt(0).Value);
-//            Assert.AreEqual("Another", cmd.Arguments.ElementAt(1).Value);
-//        }
+            Assert.AreEqual("TX", results[0].Mnemonic);
+            Assert.AreEqual(false, results[0].Flags.ElementAt(0).Status);
+            Assert.AreEqual("CX", results[0].Flags.ElementAt(0).Value);
+            Assert.AreEqual(false, results[0].Flags.ElementAt(1).Status);
+            Assert.AreEqual("DX", results[0].Flags.ElementAt(1).Value);
+        }
 
-//        [TestMethod]
-//        public void ParsesPlusFlags()
-//        {
-//            Command cmd = null;
-//            _parser.OnCommand += value => cmd = value;
+        //[Ignore("This test is ignored because the legacy parser can not handle keyed arguments")]
+        [TestMethod]
+        public void ParsesKeyedArguments()
+        {
+            var results = _parser.Parse("$TX,\"Hello\",SX=4$").ToArray();
 
-//            const string text = "$TX+CX+DX$";
-//            using (var ms = new MemoryStream(Encoding.ASCII.GetBytes(text)))
-//            {
-//                _parser.Parse(ms);
-//            }
-
-//            Assert.AreEqual("TX", cmd.Mnemonic);
-//            Assert.AreEqual(true, cmd.Flags.ElementAt(0).Status);
-//            Assert.AreEqual("CX", cmd.Flags.ElementAt(0).Value);
-//            Assert.AreEqual(true, cmd.Flags.ElementAt(1).Status);
-//            Assert.AreEqual("DX", cmd.Flags.ElementAt(1).Value);
-//        }
-
-//        [TestMethod]
-//        public void ParsesMinusFlags()
-//        {
-//            Command cmd = null;
-//            _parser.OnCommand += value => cmd = value;
-
-//            const string text = "$TX-CX-DX$";
-//            using (var ms = new MemoryStream(Encoding.ASCII.GetBytes(text)))
-//            {
-//                _parser.Parse(ms);
-//            }
-
-//            Assert.AreEqual("TX", cmd.Mnemonic);
-//            Assert.AreEqual(false, cmd.Flags.ElementAt(0).Status);
-//            Assert.AreEqual("CX", cmd.Flags.ElementAt(0).Value);
-//            Assert.AreEqual(false, cmd.Flags.ElementAt(1).Status);
-//            Assert.AreEqual("DX", cmd.Flags.ElementAt(1).Value);
-//        }
-//    }
-//}
+            Assert.IsNull(results[0].Arguments.ElementAt(0).Key);
+            Assert.AreEqual("Hello", results[0].Arguments.ElementAt(0).Value);
+            Assert.AreEqual("SX", results[0].Arguments.ElementAt(1).Key);
+        }
+    }
+}

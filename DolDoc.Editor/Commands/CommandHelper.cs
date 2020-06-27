@@ -13,8 +13,10 @@ namespace DolDoc.Interpreter.Commands
                 case "BG": return new SetBackgroundColor().Execute(ctx);
                 case "BK": return new Blink().Execute(ctx);
                 case "CL": return new Clear().Execute(ctx);
+                case "CM": return new CursorMove().Execute(ctx);
                 case "FG": return new SetForegroundColor().Execute(ctx);
                 case "ID": return new Indent().Execute(ctx);
+                case "IV": return new Invert().Execute(ctx);
                 case "LK": return new Link().Execute(ctx);
                 case "TR": return new Tree().Execute(ctx);
                 case "TX": return new WriteString().Execute(ctx);

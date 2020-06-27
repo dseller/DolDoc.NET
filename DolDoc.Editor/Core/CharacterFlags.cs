@@ -14,6 +14,7 @@ namespace DolDoc.Editor.Core
         Left = 0b00001100,
 
         WordWrap = 0b00010000,
-        Blink = 0b00100000
+        Blink = 0b00100000,
+        Inverted = 0b01000000
     }
 }

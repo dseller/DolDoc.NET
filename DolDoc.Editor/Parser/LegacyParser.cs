@@ -71,57 +71,24 @@ namespace DolDoc.Core.Parser
                                     builder.Append(content[i++]);
                             }
 
-                            // TODO: this implementation does not support key/value arguments :/
-                            // thats why its legacy
-                            arguments.Add(new Argument(null, builder.ToString()));
+                            string arg = builder.ToString();
+                            string key = null, value;
+
+                            if (arg.Contains("="))
+                            {
+                                var tokens = arg.Split('=');
+                                key = tokens[0];
+                                value = tokens[1];
+                            }
+                            else
+                                value = arg;
+
+                            arguments.Add(new Argument(key, value));
                         }
                     }
 
                     // OnCommand?.Invoke(new Command(cmd, flags, arguments));
                     result.Add(new Command(offset, cmd, flags, arguments));
-
-                    //var f = CreateFlags(flags);
-                    //switch (cmd)
-                    //{
-                    //    case "BG":
-                    //        if (arguments.Count == 0)
-                    //            OnBackgroundColor(null);
-                    //        else
-                    //            OnBackgroundColor((EgaColor)Enum.Parse(typeof(EgaColor), arguments[0], true));
-                    //        break;
-
-                    //    case "CL":
-                    //        OnClear();
-                    //        break;
-
-                    //    case "FG":
-                    //        if (arguments.Count == 0)
-                    //            OnForegroundColor(null);
-                    //        else
-                    //            OnForegroundColor((EgaColor)Enum.Parse(typeof(EgaColor), arguments[0], true));
-                    //        break;
-
-                    //    case "LK":
-                    //        OnWriteLink(new DolDocInstruction<string>(f, arguments[0]));
-                    //        break;
-
-                    //    case "SY":
-                    //        // Shift cursor amount of pixels on Y axis.
-                    //        _yOffset = int.Parse(arguments[0]);
-                    //        break;
-
-                    //    case "TX":
-                    //        OnWriteString(new DolDocInstruction<string>(f, arguments[0]));
-                    //        break;
-
-                    //    case "UL":
-                    //        _underLine = arguments[0] == "1";
-                    //        break;
-
-                    //    case "WW":
-                    //        _wordWrap = arguments[0] == "1";
-                    //        break;
-                    //}
                 }
                 else
                 {

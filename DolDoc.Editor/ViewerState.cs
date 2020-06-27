@@ -346,6 +346,9 @@ namespace DolDoc.Editor
 
         private void RenderCharacter(int column, int row, Character ch, bool inverted = false)
         {
+            if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
+                inverted = true;
+
             var bg = inverted ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
             var fg = inverted ? (byte)(ch.Color & 0x0F) : (byte)((ch.Color >> 4) & 0x0F);
             var character = SysFont.Font[ch.Char];
@@ -353,7 +356,7 @@ namespace DolDoc.Editor
                 for (int fy = 0; fy < 8; fy++)
                 {
                     bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                    _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx] = draw ? fg : bg;
+                    _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx + ch.ShiftX] = draw ? fg : bg;
                 }
 
             if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)

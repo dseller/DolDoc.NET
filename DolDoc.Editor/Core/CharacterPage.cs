@@ -38,7 +38,8 @@ namespace DolDoc.Editor.Core
         public void Clear(EgaColor color)
         {
             for (int i = 0; i < _characters.Length; i++)
-                _characters[i] = new Character(0x00, (byte)color, null, CharacterFlags.None);
+                if ((_characters[i].Flags & CharacterFlags.Hold) == 0)
+                    _characters[i] = new Character(0x00, (byte)color, null, CharacterFlags.None);
         }
     }
 }
