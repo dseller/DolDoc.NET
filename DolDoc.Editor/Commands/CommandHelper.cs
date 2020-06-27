@@ -12,7 +12,9 @@ namespace DolDoc.Interpreter.Commands
             switch (cmd.Mnemonic)
             {
                 case "FG": return new SetForegroundColor().Execute(ctx);
+                case "ID": return new Indent().Execute(ctx);
                 case "LK": return new Link().Execute(ctx);
+                case "TR": return new Tree().Execute(ctx);
                 case "TX": return new WriteString().Execute(ctx);
                 case "UL": return new Underline().Execute(ctx);
                 case "WW": return new WordWrap().Execute(ctx);

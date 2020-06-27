@@ -22,11 +22,28 @@ namespace DolDoc.Editor.Commands
             {
                 char ch = str[i];
 
+                // Check indentation.
+                if (renderPosition % ctx.State.Columns == 0)
+                {
+                    for (int indent = 0; indent < ctx.Indentation; indent++)
+                        ctx.State.Pages[indent] = new Character((byte)' ', (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset, CharacterFlags.None);
+
+                    renderPosition += ctx.Indentation;
+                    charsWritten += ctx.Indentation;
+                }
+
                 if (ch == '\n')
                 {
                     var charsUntilEndOfLine = ctx.State.Columns - (renderPosition % ctx.State.Columns);
                     renderPosition += charsUntilEndOfLine;
                     charsWritten += charsUntilEndOfLine;
+                    continue;
+                }
+                else if (ch == '\t')
+                {
+                    var charsUntilMultipleOf5 = 5 - (renderPosition % 5);
+                    renderPosition += charsUntilMultipleOf5;
+                    charsWritten += charsUntilMultipleOf5;
                     continue;
                 }
                 else

@@ -82,6 +82,9 @@
     <None Include="Examples\DolDocOverview.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Examples\Glossary.DD">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Examples\HoldTest.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
