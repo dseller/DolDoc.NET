@@ -51,7 +51,7 @@ namespace DolDoc.Editor.Commands
 
                 var chFlags = ctx.Underline ? CharacterFlags.Underline : CharacterFlags.None;
                 ctx.State.Pages[renderPosition++] =
-                    new Character((byte)str[i], (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset, chFlags);
+                    new Character((byte)str[i], (byte)(((byte)ctx.ForegroundColor << 4) | (byte)ctx.BackgroundColor), ctx.TextOffset + i, chFlags);
             }
 
             return new CommandResult(true, charsWritten);

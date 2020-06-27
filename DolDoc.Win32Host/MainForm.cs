@@ -1,6 +1,5 @@
 ﻿using DolDoc.Editor;
 using DolDoc.Editor.Core;
-using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
 using System.Collections.Generic;
@@ -70,11 +69,7 @@ namespace DolDoc.Win32Host
 
         private void Tick(object sender, EventArgs e)
         {
-            /*InvertCursor(_tock);
-            _tock = !_tock;*/
-
-            /*foreach (var listener in _tickListeners)
-                listener.Tick();*/
+            _viewerState.Tick();
         }
 
         public void Render(byte[] data)
@@ -97,7 +92,10 @@ namespace DolDoc.Win32Host
         public void RenderPartial(int x, int y, int width, int height, byte[] data)
         {
             var bmpData = _bmp.LockBits(new Rectangle(x, y, width, height), ImageLockMode.ReadOnly, _bmp.PixelFormat);
-            Marshal.Copy(data, (y * Width) + x, bmpData.Scan0, data.Length);
+            
+            for (int dstY = 0; dstY < height; dstY++)
+                Marshal.Copy(data, x + ((dstY + y) * 640), bmpData.Scan0 + (dstY * bmpData.Stride), width);
+            
             _bmp.UnlockBits(bmpData);
             uxImage.Refresh();
             Application.DoEvents();
@@ -107,12 +105,14 @@ namespace DolDoc.Win32Host
         {
             uxDebugView.Clear();
             uxDebugView.Text = $@"ViewerState:
-Cursor {_viewerState.CursorX},{_viewerState.CursorY}
+Cursor {_viewerState.CursorX},{_viewerState.CursorY} ({_viewerState.CursorPosition})
+Char info:
+  Char: {_viewerState.Pages[_viewerState.CursorPosition].Char}
+  TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].TextOffset}
 
 EditorState:
 Cursor {_editorState.CursorPosition}
 ";
-            // TODO: ABOVE IS WEIRD fix it (using viewerstate cursorX/Y to read from document character matrix)
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -142,10 +142,7 @@ Cursor {_editorState.CursorPosition}
                 document.Load(content);
 
                 _editorState = new EditorState(document, 80, 60, content);
-                //_editorState.OnUpdate += data => document.Load(data, true);
-
                 _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
-                //_viewerState.Render();
                 _editorState.Kick();
             }
         }
@@ -190,9 +187,6 @@ Cursor {_editorState.CursorPosition}
                 _editorState.KeyDown(key);
                 _viewerState.KeyDown(key);
             }
-
-
-                //_editorState.KeyDown(key);
 
             /*switch (e.KeyCode)
             {

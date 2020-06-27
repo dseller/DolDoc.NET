@@ -16,10 +16,10 @@ namespace DolDoc.Editor
         private const EgaColor DefaultBackgroundColor = EgaColor.White;
         private const EgaColor DefaultForegroundColor = EgaColor.Black;
 
+        private bool _cursorInverted;
         private EditorState _editor;
         private IFrameBuffer _frameBuffer;
         private byte[] _renderBuffer;
-        private Document _document;
         private IDolDocParser _parser;
 
         public ViewerState(IDolDocParser parser, EditorState editor, IFrameBuffer frameBuffer, Document doc, int width, int height, int columns, int rows)
@@ -28,12 +28,12 @@ namespace DolDoc.Editor
             _parser = parser;
             _frameBuffer = frameBuffer;
             _renderBuffer = new byte[width * height];
-            //_document = doc;
             Rows = rows;
             Width = width;
             Height = height;
             Columns = columns;
             ViewLine = 0;
+            _cursorInverted = false;
 
             editor.OnUpdate += Editor_OnUpdate;
 
@@ -91,6 +91,17 @@ namespace DolDoc.Editor
 
         public int CursorY { get; private set; }
 
+        public int CursorPosition
+        {
+            get => CursorX + (CursorY * Columns);
+            set
+            {
+                RenderCursor(false);
+                CursorX = value % Columns;
+                CursorY = value / Columns;
+            }
+        }
+
         public int ViewLine { get; private set; }
 
         public bool RawMode { get; set; }
@@ -106,12 +117,32 @@ namespace DolDoc.Editor
                 case ConsoleKey.PageDown:
                     NextPage();
                     break;
+
+                case ConsoleKey.RightArrow:
+                    CursorPosition++;
+                    break;
+
+                case ConsoleKey.LeftArrow:
+                    CursorPosition--;
+                    if (CursorPosition < 0)
+                        CursorPosition = 0;
+                    break;
+
+                case ConsoleKey.DownArrow:
+                    CursorPosition += Columns;
+                    break;
+
+                case ConsoleKey.UpArrow:
+                    CursorPosition -= Columns;
+                    if (CursorPosition < 0)
+                        CursorPosition = 0;
+                    break;
             }
         }
 
         public void KeyPress(char key)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         public void KeyUp(ConsoleKey key)
@@ -208,17 +239,9 @@ namespace DolDoc.Editor
             for (int y = 0; y < Rows; y++)
                 for (int x = 0; x < Columns; x++)
                 {
-                    //var ch = _document.Read(x, y + ViewLine);
                     var ch = Pages[x, y + ViewLine];
-                    var character = SysFont.Font[ch.Char];
-                    //var color = (byte)((ch >> 8) & 0xFF);
 
-                    for (int fx = 0; fx < 8; fx++)
-                        for (int fy = 0; fy < 8; fy++)
-                        {
-                            bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                            _renderBuffer[(((y * 8) + fy) * Width) + (x * 8) + fx] = draw ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
-                        }
+                    RenderCharacter(x, y, ch);
 
                     if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
                     {
@@ -230,36 +253,30 @@ namespace DolDoc.Editor
             _frameBuffer.Render(_renderBuffer);
         }
 
-        private void InvertCursor(bool tock)
+        private void RenderCursor(bool inverted)
         {
-            //var data = _bmp.LockBits(new Rectangle(0, 0, _bmp.Width, _bmp.Height), ImageLockMode.ReadOnly, _bmp.PixelFormat);
-            //var bitmap = new byte[_bmp.Width * _bmp.Height];
-            //Marshal.Copy(data.Scan0, bitmap, 0, bitmap.Length);
+            RenderCharacter(CursorX, CursorY, Pages[CursorX, ViewLine + CursorY], inverted);
+            _frameBuffer.RenderPartial(CursorX * 8, CursorY * 8, 8, 8, _renderBuffer);
+        }
 
-            //var ch = _document.Read(CursorX, ViewLine + CursorY);
-            var ch = Pages[CursorX, ViewLine + CursorY];
-            var character = SysFont.Font[ch.Char & 0xFF];
-
-            var fg = tock ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
-            var bg = tock ? (byte)(ch.Color & 0x0F) : (byte)((ch.Color >> 4) & 0x0F);
-
+        private void RenderCharacter(int column, int row, Character ch, bool inverted = false)
+        {
+            var bg = inverted ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
+            var fg = inverted ? (byte)(ch.Color & 0x0F) : (byte)((ch.Color >> 4) & 0x0F);
+            var character = SysFont.Font[ch.Char];
             for (int fx = 0; fx < 8; fx++)
                 for (int fy = 0; fy < 8; fy++)
                 {
                     bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                    _renderBuffer[(((CursorY * 8) + fy) * Width) + (CursorX * 8) + fx] = draw ? fg : bg;
+                    _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx] = draw ? fg : bg;
                 }
-
-            _frameBuffer.RenderPartial(CursorX * 8, CursorY * 8, 8, 8, _renderBuffer);
-
-            //Marshal.Copy(bitmap, 0, data.Scan0, bitmap.Length);
-            //_bmp.UnlockBits(data);
-            //uxImage.Refresh();
         }
 
         public void Tick()
         {
-            throw new NotImplementedException();
+            RenderCursor(_cursorInverted);
+
+            _cursorInverted = !_cursorInverted;
         }
     }
 }

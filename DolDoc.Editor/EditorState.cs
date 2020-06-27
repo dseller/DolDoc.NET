@@ -77,7 +77,7 @@ namespace DolDoc.Editor
                 CursorPosition = maxLength;
             
 
-            Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
+            // Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
 
             if (update)
                 OnUpdate(_pieceTable.ToString());
@@ -125,9 +125,9 @@ namespace DolDoc.Editor
 
         private void OutputTableToConsole(string data)
         {
-            /*Console.Clear();
-            Console.Write(data);
-            Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);*/
+            //Console.Clear();
+            //Console.Write(data);
+            //Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
         }
 
         public void Kick()
