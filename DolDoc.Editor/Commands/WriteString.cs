@@ -53,7 +53,6 @@ namespace DolDoc.Editor.Commands
                 else
                     charsWritten++;
 
-                //var chFlags = ctx.Underline ? CharacterFlags.Underline : CharacterFlags.None;
                 var chFlags = CharacterFlags.None;
                 if (ctx.Underline)
                     chFlags |= CharacterFlags.Underline;

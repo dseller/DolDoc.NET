@@ -15,8 +15,6 @@ namespace DolDoc.Win32Host
     {
         private Bitmap _bmp;
         private string _providedFileName;
-
-        private EditorState _editorState;
         private ViewerState _viewerState;
 
         public MainForm()
@@ -110,9 +108,6 @@ Char info:
   Char: {_viewerState.Pages[_viewerState.CursorPosition].Char}
   TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].AbsoluteTextOffset}
   Page: {_viewerState.Pages.GetOrCreatePage(_viewerState.CursorPosition).PageNumber}
-
-EditorState:
-Cursor {_editorState.CursorPosition}
 ";
         }
 
@@ -139,10 +134,9 @@ Cursor {_editorState.CursorPosition}
             using (var reader = new StreamReader(stream))
             {
                 var content = reader.ReadToEnd();
-                var document = new Document(content);
-                _editorState = new EditorState(document, content);
-                _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480);
-                _editorState.Kick();
+                var document = new Document(content, defaultFgColor: EgaColor.White);
+                _viewerState = new ViewerState(this, document, 640, 480);
+                document.Refresh();
             }
         }
 
@@ -183,7 +177,7 @@ Cursor {_editorState.CursorPosition}
 
             if (translation.TryGetValue(e.KeyCode, out var key))
             {
-                _editorState.KeyDown(key);
+                // _editorState.KeyDown(key);
                 _viewerState.KeyDown(key);
             }
 
@@ -273,12 +267,11 @@ Cursor {_editorState.CursorPosition}
         {
             _viewerState.RawMode = !_viewerState.RawMode;
             _viewerState.Pages.Clear();
-            _editorState.Kick();
         }
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
-            _editorState.KeyPress(e.KeyChar);
+            // _editorState.KeyPress(e.KeyChar);
             _viewerState.KeyPress(e.KeyChar);
 
             /*_editorState.KeyPress(e.KeyChar);
@@ -290,8 +283,7 @@ Cursor {_editorState.CursorPosition}
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var document = new Document();
-            _editorState = new EditorState(document);
-            _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480);
+            _viewerState = new ViewerState(this, document, 640, 480);
         }
     }
 }

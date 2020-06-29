@@ -8,7 +8,7 @@ namespace DolDoc.Editor.Core
             new Dictionary<string, DocumentCommand>()
             {
                 { "BG", DocumentCommand.Background },
-                { "BL", DocumentCommand.Blink },
+                { "BK", DocumentCommand.Blink },
                 { "CL", DocumentCommand.Clear },
                 { "CM", DocumentCommand.MoveCursor },
                 { "FG", DocumentCommand.Foreground },

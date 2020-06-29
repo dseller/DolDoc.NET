@@ -1,8 +1,5 @@
 ﻿using DolDoc.Editor.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Tests.Core
 {
@@ -10,11 +7,31 @@ namespace DolDoc.Tests.Core
     public class CombinedColorTests
     {
         [TestMethod]
-        public void CorrectlySetsTheValue()
+        public void CorrectlySetsTheInitialValue()
         {
             var color = new CombinedColor(EgaColor.LtBlue, EgaColor.Cyan);
 
             Assert.AreEqual(EgaColor.Cyan, color.Foreground);
+            Assert.AreEqual(EgaColor.LtBlue, color.Background);
+        }
+
+        [TestMethod]
+        public void CorrectlySetsTheBackgroundColor()
+        {
+            var color = new CombinedColor(EgaColor.LtBlue, EgaColor.Cyan);
+            color.Background = EgaColor.Yellow;
+
+            Assert.AreEqual(EgaColor.Cyan, color.Foreground);
+            Assert.AreEqual(EgaColor.Yellow, color.Background);
+        }
+
+        [TestMethod]
+        public void CorrectlySetsTheForegroundColor()
+        {
+            var color = new CombinedColor(EgaColor.LtBlue, EgaColor.Cyan);
+            color.Foreground = EgaColor.Yellow;
+
+            Assert.AreEqual(EgaColor.Yellow, color.Foreground);
             Assert.AreEqual(EgaColor.LtBlue, color.Background);
         }
     }

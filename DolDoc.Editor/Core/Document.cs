@@ -1,15 +1,18 @@
 ﻿using DolDoc.Core.Parser;
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace DolDoc.Editor.Core
 {
     public class Document
     {
         private IDolDocParser _parser;
-        private LinkedList<DocumentEntry> _entries;
 
-        public Document(string content)
-            : this()
+        public event Action<Document> OnUpdate;
+
+        public Document(string content, int columns = 80, int rows = 60, EgaColor defaultBgColor = EgaColor.White, EgaColor defaultFgColor = EgaColor.Black)
+            : this(columns, rows, defaultBgColor, defaultFgColor)
         {
             Load(content);
         }
@@ -20,16 +23,26 @@ namespace DolDoc.Editor.Core
             Columns = columns;
 
             _parser = new LegacyParser();
-            _entries = new LinkedList<DocumentEntry>();
+            Entries = new LinkedList<DocumentEntry>();
         }
 
         public int Columns { get; }
 
         public int Rows { get; }
 
+        public LinkedList<DocumentEntry> Entries { get; private set; }
+
         public void Load(string contents)
         {
-            _entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
+            Entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
+            OnUpdate?.Invoke(this);
+        }
+
+        public void Refresh() => OnUpdate?.Invoke(this);
+
+        public string ToPlainText()
+        {
+            return "TODO";
         }
     }
 }

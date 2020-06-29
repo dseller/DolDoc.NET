@@ -8,6 +8,8 @@ namespace DolDoc.Editor.Commands
 {
     public class CommandContext
     {
+        public Document Document { get; set; }
+
         public ViewerState State { get; set; }
 
         public int TextOffset { get; set; }

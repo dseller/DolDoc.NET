@@ -47,7 +47,7 @@ namespace DolDoc.Editor.Core
         /// </summary>
         public int RelativeTextOffset { get; }
 
-        public int AbsoluteTextOffset => Entry.TextOffset + RelativeTextOffset;
+        public int AbsoluteTextOffset => (Entry?.TextOffset ?? 0) + RelativeTextOffset;
 
         public bool HasEntry => Entry != null;
 

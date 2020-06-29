@@ -19,15 +19,11 @@ namespace DolDoc.Editor
         private Document _document;
 
         private bool _cursorInverted;
-        private EditorState _editor;
         private IFrameBuffer _frameBuffer;
         private byte[] _renderBuffer;
-        private IDolDocParser _parser;
 
-        public ViewerState(IDolDocParser parser, EditorState editor, IFrameBuffer frameBuffer, Document doc, int width, int height)
+        public ViewerState(IFrameBuffer frameBuffer, Document doc, int width, int height)
         {
-            _editor = editor;
-            _parser = parser;
             _document = doc;
             _frameBuffer = frameBuffer;
             _renderBuffer = new byte[width * height];
@@ -38,17 +34,18 @@ namespace DolDoc.Editor
             ViewLine = 0;
             _cursorInverted = false;
 
-            RawMode = true;
+            RawMode = false;
 
-            editor.OnUpdate += Editor_OnUpdate;
+            doc.OnUpdate += Document_OnUpdate;
 
             Pages = new CharacterPageDirectory(Columns, Rows);
         }
 
-        private void Editor_OnUpdate(string obj)
+        private void Document_OnUpdate(Document document)
         {
             var ctx = new CommandContext
             {
+                Document = document,
                 ForegroundColor = DefaultForegroundColor,
                 BackgroundColor = DefaultBackgroundColor,
                 DefaultBackgroundColor = DefaultBackgroundColor,
@@ -59,17 +56,22 @@ namespace DolDoc.Editor
 
             if (!RawMode)
             {
-                var entries = _parser.Parse(obj);
-                foreach (var entry in entries)
+                foreach (var entry in document.Entries)
                 {
                     ctx.TextOffset = entry.TextOffset;
 
                     var result = CommandHelper.Execute(entry, ctx);
+                    if (result.RefreshRequested)
+                    {
+                        document.Refresh();
+                        return;
+                    }
+
                     ctx.RenderPosition += result?.WrittenCharacters ?? 0;
                 }
             }
             else
-                CommandHelper.Execute(DocumentEntry.CreateTextCommand(0, new Flag[0], obj), ctx);
+                CommandHelper.Execute(DocumentEntry.CreateTextCommand(0, new Flag[0], document.ToPlainText()), ctx);
 
             Render();
         }
@@ -97,7 +99,7 @@ namespace DolDoc.Editor
                 CursorX = value % Columns;
                 CursorY = value / Columns;
 
-                _editor.SetCursorPosition(Pages[value].AbsoluteTextOffset);
+                //_editor.SetCursorPosition(Pages[value].AbsoluteTextOffset);
             }
         }
 
@@ -207,20 +209,22 @@ namespace DolDoc.Editor
                         CursorPosition = 0;
 
                     break;
-
-                case ConsoleKey.Backspace:
-                    if (CursorPosition - 1 < 0)
-                        break;
-
-                    CursorPosition--;
-                    break;
             }
+
+            var ch = Pages[CursorPosition];
+            ch.Entry.KeyPress(this, key, ch.RelativeTextOffset);
+            _document.Refresh();
         }
 
         public void KeyPress(char key)
         {
             if (!char.IsControl(key))
-                CursorPosition++;
+            {
+                // Get the entry of the current cursor position.
+                var ch = Pages[CursorPosition];
+                ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
+                _document.Refresh();
+            }
         }
 
         public void KeyUp(ConsoleKey key)
@@ -318,7 +322,7 @@ namespace DolDoc.Editor
                 for (int x = 0; x < Columns; x++)
                     RenderCharacter(x, y, Pages[x, y + ViewLine]);
 
-            _frameBuffer.Render(_renderBuffer);
+            _frameBuffer?.Render(_renderBuffer);
         }
 
         private void RenderCursor(bool inverted)
@@ -342,6 +346,9 @@ namespace DolDoc.Editor
 
         private void RenderCharacter(int column, int row, Character ch, bool inverted = false)
         {
+            if (ch.Entry == null)
+                return;
+
             if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
                 inverted = true;
 

@@ -6,9 +6,9 @@ namespace DolDoc.Editor.Core
 {
     public class Argument
     {
-        public string Key { get; }
+        public string Key { get; set; }
 
-        public string Value { get; }
+        public string Value { get; set; }
 
         public Argument(string key, string value)
         {
