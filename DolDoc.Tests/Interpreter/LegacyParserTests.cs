@@ -1,5 +1,6 @@
 ﻿using DolDoc.Core.Parser;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -22,7 +23,7 @@ namespace DolDoc.Tests.Interpreter
             const string text = "Hello World!";
             var result = _parser.Parse(text).ToArray();
 
-            Assert.AreEqual(DocumentCommand.Text, result[0].Command);
+            Assert.IsInstanceOfType(result[0], typeof(Text));
             Assert.AreEqual("Hello World!", result[0].Arguments[0].Value);
         }
 
@@ -42,9 +43,9 @@ namespace DolDoc.Tests.Interpreter
             var results = _parser.Parse(text).ToArray();
 
             Assert.AreEqual(3, results.Length);
-            Assert.AreEqual(DocumentCommand.Foreground, results[0].Command);
+            Assert.IsInstanceOfType(results[0], typeof(Foreground));
             Assert.AreEqual("BLUE", results[0].Arguments.ElementAt(0).Value);
-            Assert.AreEqual(DocumentCommand.Background, results[2].Command);
+            Assert.IsInstanceOfType(results[2], typeof(Background));
             Assert.AreEqual("RED", results[2].Arguments.ElementAt(0).Value);
         }
 
@@ -54,7 +55,7 @@ namespace DolDoc.Tests.Interpreter
             const string text = "$LK,\"Test Quoted String\",\"Another\"$";
             var results = _parser.Parse(text).ToArray();
 
-            Assert.AreEqual(DocumentCommand.Link, results[0].Command);
+            Assert.IsInstanceOfType(results[0], typeof(Link));
             Assert.AreEqual("Test Quoted String", results[0].Arguments.ElementAt(0).Value);
             Assert.AreEqual("Another", results[0].Arguments.ElementAt(1).Value);
         }
@@ -65,7 +66,7 @@ namespace DolDoc.Tests.Interpreter
             const string text = "$TX+CX+DX$";
             var results = _parser.Parse(text).ToArray();
 
-            Assert.AreEqual(DocumentCommand.Text, results[0].Command);
+            Assert.IsInstanceOfType(results[0], typeof(Text));
             Assert.AreEqual(true, results[0].Flags.ElementAt(0).Status);
             Assert.AreEqual("CX", results[0].Flags.ElementAt(0).Value);
             Assert.AreEqual(true, results[0].Flags.ElementAt(1).Status);
@@ -78,7 +79,7 @@ namespace DolDoc.Tests.Interpreter
             const string text = "$TX-CX-DX$";
             var results = _parser.Parse(text).ToArray();
 
-            Assert.AreEqual(DocumentCommand.Text, results[0].Command);
+            Assert.IsInstanceOfType(results[0], typeof(Text));
             Assert.AreEqual(false, results[0].Flags.ElementAt(0).Status);
             Assert.AreEqual("CX", results[0].Flags.ElementAt(0).Value);
             Assert.AreEqual(false, results[0].Flags.ElementAt(1).Status);

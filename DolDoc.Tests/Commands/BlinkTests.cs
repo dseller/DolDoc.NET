@@ -1,9 +1,7 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Tests.Commands
 {
@@ -13,11 +11,10 @@ namespace DolDoc.Tests.Commands
         [TestMethod]
         public void EnablesBlinkMode()
         {
-            var entry = new DocumentEntry(DocumentCommand.Blink, 0, null, new[] { new Argument(null, "1") });
-            var cmd = new Blink();
-            var ctx = new CommandContext { Blink = false };
+            var entry = new Blink(0, null, new[] { new Argument(null, "1") });
+            var ctx = new EntryRenderContext { Blink = false };
 
-            cmd.Execute(entry, ctx);
+            entry.Evaluate(ctx);
 
             Assert.AreEqual(true, ctx.Blink);
         }
@@ -25,11 +22,10 @@ namespace DolDoc.Tests.Commands
         [TestMethod]
         public void DisablesBlinkMode()
         {
-            var entry = new DocumentEntry(DocumentCommand.Blink, 0, null, new[] { new Argument(null, "0") });
-            var cmd = new Blink();
-            var ctx = new CommandContext { Blink = true };
+            var entry = new Blink(0, null, new[] { new Argument(null, "0") });
+            var ctx = new EntryRenderContext { Blink = true };
 
-            cmd.Execute(entry, ctx);
+            entry.Evaluate(ctx);
 
             Assert.AreEqual(false, ctx.Blink);
         }

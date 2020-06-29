@@ -1,12 +1,8 @@
-﻿using DolDoc.Core.Parser;
-using DolDoc.Editor;
+﻿using DolDoc.Editor;
 using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DolDoc.Tests.Commands
 {
@@ -14,13 +10,13 @@ namespace DolDoc.Tests.Commands
     public class WriteStringTests
     {
         private Document _document;
-        private CommandContext _commandContext;
+        private EntryRenderContext _commandContext;
 
         [TestInitialize]
         public void Setup()
         {
             _document = new Document();
-            _commandContext = new CommandContext
+            _commandContext = new EntryRenderContext
             {
                 State = new ViewerState(null, _document, 640, 480)
             };
@@ -33,20 +29,17 @@ namespace DolDoc.Tests.Commands
 
             _document.Load(str);
 
-            var ws = new WriteString();
-            var result = ws.Execute(_document.Entries.First(), _commandContext);
+            var ws = _document.Entries.First;
+            var result = ws.Value.Evaluate(_commandContext);
 
             Assert.AreEqual(true, result.Success);
             Assert.AreEqual(str.Length, result.WrittenCharacters);
-            // Assert.AreEqual(str.Length, _commandContext.State.CursorPosition);
 
             for (var i = 0; i < str.Length; i++)
             {
                 Assert.AreEqual(_document.Entries.First(), _commandContext.State.Pages[i].Entry);
                 Assert.AreEqual((byte)str[i], _commandContext.State.Pages[i].Char);
             }
-
-
         }
     }
 }

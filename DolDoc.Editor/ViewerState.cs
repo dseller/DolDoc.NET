@@ -1,9 +1,7 @@
-﻿using DolDoc.Core.Parser;
-using DolDoc.Editor.Commands;
+﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
-using DolDoc.Interpreter.Commands;
 using System;
 
 namespace DolDoc.Editor
@@ -43,7 +41,7 @@ namespace DolDoc.Editor
 
         private void Document_OnUpdate(Document document)
         {
-            var ctx = new CommandContext
+            var ctx = new EntryRenderContext
             {
                 Document = document,
                 ForegroundColor = DefaultForegroundColor,
@@ -60,7 +58,7 @@ namespace DolDoc.Editor
                 {
                     ctx.TextOffset = entry.TextOffset;
 
-                    var result = CommandHelper.Execute(entry, ctx);
+                    var result = entry.Evaluate(ctx);
                     if (result.RefreshRequested)
                     {
                         document.Refresh();
@@ -71,7 +69,7 @@ namespace DolDoc.Editor
                 }
             }
             else
-                CommandHelper.Execute(DocumentEntry.CreateTextCommand(0, new Flag[0], document.ToPlainText()), ctx);
+                DocumentEntry.CreateTextCommand(0, new Flag[0], document.ToPlainText()).Evaluate(ctx);
 
             Render();
         }

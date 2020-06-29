@@ -1,4 +1,5 @@
 ﻿using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DolDoc.Tests.Core
@@ -47,7 +48,7 @@ namespace DolDoc.Tests.Core
         public void ItNormalizesLocalPageCoordinates()
         {
             var pd = new CharacterPageDirectory(10, 1);
-            pd[5, 6] = new Character(new DocumentEntry(DocumentCommand.Text, 0, null, null), 0, 0xFF, null, CharacterFlags.None);
+            pd[5, 6] = new Character(new Text(0, null, null), 0, 0xFF, null, CharacterFlags.None);
 
             Assert.AreEqual(7, pd.PageCount);
             Assert.AreEqual(0, pd.Get(6)[4, 0].Char);
@@ -58,7 +59,7 @@ namespace DolDoc.Tests.Core
         public void ItNormalizesLocalPagePosition()
         {
             var pd = new CharacterPageDirectory(80, 60);
-            pd[3601] = new Character(new DocumentEntry(DocumentCommand.Text, 0, null, null), 0, 0xFF, null, CharacterFlags.None);
+            pd[3601] = new Character(new Text(0, null, null), 0, 0xFF, null, CharacterFlags.None);
 
             Assert.AreEqual(2, pd.PageCount);
             Assert.AreEqual(0, pd.Get(1)[0, 59].Char);
@@ -69,7 +70,7 @@ namespace DolDoc.Tests.Core
         public void PageCoordinatesAndPositionsMatch()
         {
             var pd = new CharacterPageDirectory(80, 60);
-            pd[0, 60] = new Character(new DocumentEntry(DocumentCommand.Text, 0, null, null), 0, 0xFF, null, CharacterFlags.None);
+            pd[0, 60] = new Character(new Text(0, null, null), 0, 0xFF, null, CharacterFlags.None);
 
             Assert.AreEqual(2, pd.GetOrCreatePage(60 * 80).PageNumber);
             Assert.AreEqual(0xFF, pd.Get(1)[0].Char);
@@ -82,9 +83,9 @@ namespace DolDoc.Tests.Core
             var pd = new CharacterPageDirectory(80, 60);
 
             for (int i = 0; i < 80 * 60; i++)
-                pd[i] = new Character(new DocumentEntry(DocumentCommand.Text, 0, null, null), 0, (byte)'A', null, CharacterFlags.None);
+                pd[i] = new Character(new Text(0, null, null), 0, (byte)'A', null, CharacterFlags.None);
             for (int i = 80*60; i < (80*60)*2; i++)
-                pd[i] = new Character(new DocumentEntry(DocumentCommand.Text, 0, null, null), 0, (byte)'B', null, CharacterFlags.None);
+                pd[i] = new Character(new Text(0, null, null), 0, (byte)'B', null, CharacterFlags.None);
 
             for (int i = 0; i < 80 * 60; i++)
                 Assert.AreEqual((byte)'A', pd[i].Char);

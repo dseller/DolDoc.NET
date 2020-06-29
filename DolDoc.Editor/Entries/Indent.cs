@@ -1,0 +1,27 @@
+﻿using DolDoc.Editor.Commands;
+using DolDoc.Editor.Core;
+using System.Collections.Generic;
+
+namespace DolDoc.Editor.Entries
+{
+    public class Indent : DocumentEntry
+    {
+        public Indent(int textOffset, IList<Flag> flags, IList<Argument> args) 
+            : base(textOffset, flags, args)
+        {
+        }
+
+        public override CommandResult Evaluate(EntryRenderContext ctx)
+        {
+            var value = int.Parse(Tag);
+
+            ctx.Indentation += value;
+            if (ctx.Indentation < 0)
+                ctx.Indentation = 0;
+
+            return new CommandResult(true);
+        }
+
+        public override string ToString() => $"$ID,{Tag}$";
+    }
+}

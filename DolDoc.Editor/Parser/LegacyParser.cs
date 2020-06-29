@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 
 namespace DolDoc.Core.Parser
 {
@@ -23,7 +24,7 @@ namespace DolDoc.Core.Parser
                     if (content[i] == '$')
                     {
                         // OnWriteCharacter?.Invoke(content[i]);
-                        result.Add(new DocumentEntry(DocumentCommand.Text, offset, flags, new[] { new Argument(null, new string(content[i], 1)) }));
+                        result.Add(DocumentEntry.CreateTextCommand(offset, flags, new string(content[i], 1)));
                         continue;
                     }
 
@@ -87,7 +88,8 @@ namespace DolDoc.Core.Parser
                         }
                     }
 
-                    result.Add(new DocumentEntry(DocumentCommandLookup.Get(cmd), offset, flags, arguments));
+                    //result.Add(new DocumentEntry(DocumentCommandLookup.Get(cmd), offset, flags, arguments));
+                    result.Add(EntryFactory.Create(cmd, offset, flags, arguments));
                 }
                 else
                 {

@@ -1,12 +1,8 @@
 ﻿using DolDoc.Editor.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DolDoc.Editor.Commands
 {
-    public class CommandContext
+    public class EntryRenderContext
     {
         public Document Document { get; set; }
 
@@ -15,9 +11,6 @@ namespace DolDoc.Editor.Commands
         public int TextOffset { get; set; }
 
         public int RenderPosition { get; set; }
-
-        //public IList<Flag> Flags { get; set; }
-        //public IList<Argument> Arguments { get; set; }
 
         public EgaColor ForegroundColor { get; set; }
 
@@ -36,11 +29,5 @@ namespace DolDoc.Editor.Commands
         public bool Inverted { get; set; }
 
         public int Indentation { get; set; }
-
-        // public DocumentEntry Entry { get; set; }
-
-        /*public bool HasFlag(string flag) =>
-            Entry.Flags.Any(f => f.Value == flag && f.Status);*/
-        
     }
 }

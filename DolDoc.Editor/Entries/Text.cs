@@ -1,19 +1,32 @@
-﻿using DolDoc.Editor.Core;
+﻿using DolDoc.Editor.Commands;
+using DolDoc.Editor.Core;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
-namespace DolDoc.Editor.Commands
+namespace DolDoc.Editor.Entries
 {
-    public class WriteString : IDolDocCommand
+    public class Text : DocumentEntry
     {
-        public virtual CommandResult Execute(DocumentEntry entry, CommandContext ctx)
+        public Text(int textOffset, IList<Flag> flags, IList<Argument> args) 
+            : base(textOffset, flags, args)
+        {
+        }
+
+        public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             // TODO:
             //else if ((data.Flags & CharacterFlags.Right) == CharacterFlags.Right)
             //    CursorX = Columns - data.Data.Length;
 
-            var str = entry.Arguments[0].Value;
+            return new CommandResult(true, WriteString(ctx, Tag));
+        }
+
+        protected int WriteString(EntryRenderContext ctx, string str)
+        {
             int charsWritten = 0, renderPosition = ctx.RenderPosition;
-            if (entry.HasFlag("CX"))
+            if (HasFlag("CX"))
             {
                 renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + ((ctx.State.Columns / 2) - (str.Length / 2));
                 charsWritten = ctx.State.Columns - (renderPosition - (renderPosition % ctx.State.Columns));
@@ -27,7 +40,7 @@ namespace DolDoc.Editor.Commands
                 if (renderPosition % ctx.State.Columns == 0)
                 {
                     for (int indent = 0; indent < ctx.Indentation; indent++)
-                        ctx.State.Pages[indent] = new Character(entry, 0, (byte)' ', new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+                        ctx.State.Pages[indent] = new Character(this, 0, (byte)' ', new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
 
                     renderPosition += ctx.Indentation;
                     charsWritten += ctx.Indentation;
@@ -36,7 +49,7 @@ namespace DolDoc.Editor.Commands
                 if (ch == '\n')
                 {
                     ctx.State.Pages[renderPosition] =
-                       new Character(entry, i, (byte)' ', new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+                       new Character(this, i, (byte)' ', new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
 
                     var charsUntilEndOfLine = ctx.State.Columns - (renderPosition % ctx.State.Columns);
                     renderPosition += charsUntilEndOfLine;
@@ -60,23 +73,28 @@ namespace DolDoc.Editor.Commands
                     chFlags |= CharacterFlags.Blink;
                 if (ctx.Inverted)
                     chFlags |= CharacterFlags.Inverted;
-                if (entry.HasFlag("H"))
+                if (HasFlag("H"))
                     chFlags |= CharacterFlags.Hold;
 
                 byte shiftX = 0, shiftY = 0;
-                if (entry.Arguments.Any(arg => arg.Key == "SX"))
-                    shiftX = byte.Parse(entry.Arguments.First(arg => arg.Key == "SX").Value);
+                if (Arguments.Any(arg => arg.Key == "SX"))
+                    shiftX = byte.Parse(Arguments.First(arg => arg.Key == "SX").Value);
 
                 ctx.State.Pages[renderPosition++] = new Character(
-                    entry,
+                    this,
                     i,
                     (byte)str[i],
-                    new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), 
+                    new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor),
                     chFlags
                 );
             }
 
-            return new CommandResult(true, charsWritten);
+            return charsWritten;
+        }
+
+        public override string ToString()
+        {
+            return $"$TX,\"{Tag}\"$";
         }
     }
 }

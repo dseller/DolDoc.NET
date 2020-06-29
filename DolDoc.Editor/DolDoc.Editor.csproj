@@ -8,4 +8,8 @@
     <ProjectReference Include="..\DolDoc.Core\DolDoc.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Commands\" />
+  </ItemGroup>
+
 </Project>

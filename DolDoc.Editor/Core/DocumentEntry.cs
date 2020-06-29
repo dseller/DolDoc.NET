@@ -1,17 +1,13 @@
-﻿using System;
+﻿using DolDoc.Editor.Commands;
+using DolDoc.Editor.Entries;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace DolDoc.Editor.Core
 {
-    public class DocumentEntry
+    public abstract class DocumentEntry
     {
-        /// <summary>
-        /// The command for this entry.
-        /// </summary>
-        public DocumentCommand Command { get; }
-
         /// <summary>
         /// 
         /// </summary>
@@ -24,26 +20,27 @@ namespace DolDoc.Editor.Core
         /// </summary>
         public int TextOffset { get; }
 
-        public DocumentEntry(DocumentCommand cmd, int textOffset, IList<Flag> flags, IList<Argument> args)
+        public string Tag => Arguments.FirstOrDefault(arg => arg.Key == "T" || arg.Key == null)?.Value;
+
+        public DocumentEntry(int textOffset, IList<Flag> flags, IList<Argument> args)
         {
             Flags = flags;
-            Command = cmd;
             Arguments = args;
             TextOffset = textOffset;
         }
 
         public static DocumentEntry CreateTextCommand(int textOffset, IList<Flag> flags, string value) =>
-            new DocumentEntry(DocumentCommand.Text, textOffset, flags, new[] { new Argument(null, value) });
+            new Text(textOffset, flags, new[] { new Argument(null, value) });
 
         public bool HasFlag(string flag) => Flags.Any(f => f.Value == flag && f.Status);
 
-        public void CharKeyPress(ViewerState state, char key, int relativeOffset)
+        public virtual void CharKeyPress(ViewerState state, char key, int relativeOffset)
         {
             Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string(key, 1));
             state.CursorPosition++;
         }
 
-        public void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
+        public virtual void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
         {
             switch (key)
             {
@@ -58,5 +55,9 @@ namespace DolDoc.Editor.Core
                     break;
             }
         }
+
+        public abstract CommandResult Evaluate(EntryRenderContext ctx);
+
+        public abstract override string ToString();
     }
 }

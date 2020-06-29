@@ -1,11 +1,16 @@
-﻿using DolDoc.Editor.Core;
+﻿using DolDoc.Editor.Commands;
+using DolDoc.Editor.Core;
 using System.Collections.Generic;
 
-namespace DolDoc.Editor.Commands
+namespace DolDoc.Editor.Entries
 {
-    public class Clear : IDolDocCommand
+    public class Clear : DocumentEntry
     {
-        public CommandResult Execute(DocumentEntry entry, CommandContext ctx)
+        public Clear(int textOffset, IList<Flag> flags, IList<Argument> args) : base(textOffset, flags, args)
+        {
+        }
+
+        public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             var toRemove = new List<DocumentEntry>();
 
@@ -14,7 +19,7 @@ namespace DolDoc.Editor.Commands
                 if (!e.HasFlag("H"))
                     toRemove.Add(e);
 
-                if (e == entry)
+                if (e == this)
                     break;
             }
 
@@ -23,5 +28,7 @@ namespace DolDoc.Editor.Commands
 
             return new CommandResult(true, refreshRequested: true);
         }
+
+        public override string ToString() => "$CL$";
     }
 }
