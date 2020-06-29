@@ -14,9 +14,8 @@ namespace DolDoc.Editor.Commands
 
         public int RenderPosition { get; set; }
 
-        public IList<Flag> Flags { get; set; }
-
-        public IList<Argument> Arguments { get; set; }
+        //public IList<Flag> Flags { get; set; }
+        //public IList<Argument> Arguments { get; set; }
 
         public EgaColor ForegroundColor { get; set; }
 
@@ -36,8 +35,10 @@ namespace DolDoc.Editor.Commands
 
         public int Indentation { get; set; }
 
-        public bool HasFlag(string flag) =>
-            Flags.Any(f => f.Value == flag && f.Status);
+        // public DocumentEntry Entry { get; set; }
+
+        /*public bool HasFlag(string flag) =>
+            Entry.Flags.Any(f => f.Value == flag && f.Status);*/
         
     }
 }

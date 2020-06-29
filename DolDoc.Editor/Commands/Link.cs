@@ -7,7 +7,7 @@ namespace DolDoc.Editor.Commands
 {
     public class Link : WriteString
     {
-        public override CommandResult Execute(CommandContext ctx)
+        public override CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
             var oldFg = ctx.ForegroundColor;
             var oldUl = ctx.Underline;
@@ -15,7 +15,7 @@ namespace DolDoc.Editor.Commands
             ctx.ForegroundColor = EgaColor.Red;
             ctx.Underline = true;
 
-            var result = base.Execute(ctx);
+            var result = base.Execute(entry, ctx);
 
             ctx.ForegroundColor = oldFg;
             ctx.Underline = oldUl;

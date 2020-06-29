@@ -16,22 +16,25 @@ namespace DolDoc.Editor
         private const EgaColor DefaultBackgroundColor = EgaColor.White;
         private const EgaColor DefaultForegroundColor = EgaColor.Black;
 
+        private Document _document;
+
         private bool _cursorInverted;
         private EditorState _editor;
         private IFrameBuffer _frameBuffer;
         private byte[] _renderBuffer;
         private IDolDocParser _parser;
 
-        public ViewerState(IDolDocParser parser, EditorState editor, IFrameBuffer frameBuffer, Document doc, int width, int height, int columns, int rows)
+        public ViewerState(IDolDocParser parser, EditorState editor, IFrameBuffer frameBuffer, Document doc, int width, int height)
         {
             _editor = editor;
             _parser = parser;
+            _document = doc;
             _frameBuffer = frameBuffer;
             _renderBuffer = new byte[width * height];
-            Rows = rows;
+            Rows = doc.Rows;
             Width = width;
             Height = height;
-            Columns = columns;
+            Columns = doc.Columns;
             ViewLine = 0;
             _cursorInverted = false;
 
@@ -39,7 +42,7 @@ namespace DolDoc.Editor
 
             editor.OnUpdate += Editor_OnUpdate;
 
-            Pages = new CharacterPageDirectory(columns, rows);
+            Pages = new CharacterPageDirectory(Columns, Rows);
         }
 
         private void Editor_OnUpdate(string obj)
@@ -56,24 +59,17 @@ namespace DolDoc.Editor
 
             if (!RawMode)
             {
-                var commands = _parser.Parse(obj);
-                foreach (var command in commands)
+                var entries = _parser.Parse(obj);
+                foreach (var entry in entries)
                 {
-                    ctx.Flags = command.Flags;
-                    ctx.Arguments = command.Arguments;
-                    ctx.TextOffset = command.TextOffset;
+                    ctx.TextOffset = entry.TextOffset;
 
-                    var result = CommandHelper.Execute(command, ctx);
+                    var result = CommandHelper.Execute(entry, ctx);
                     ctx.RenderPosition += result?.WrittenCharacters ?? 0;
                 }
             }
             else
-            {
-                var cmd = Command.CreateTextCommand(0, new Flag[0], obj);
-                ctx.Arguments = cmd.Arguments;
-                ctx.Flags = cmd.Flags;
-                CommandHelper.Execute(cmd, ctx);
-            }
+                CommandHelper.Execute(DocumentEntry.CreateTextCommand(0, new Flag[0], obj), ctx);
 
             Render();
         }
@@ -101,7 +97,7 @@ namespace DolDoc.Editor
                 CursorX = value % Columns;
                 CursorY = value / Columns;
 
-                _editor.SetCursorPosition(Pages[value].TextOffset ?? 0);
+                _editor.SetCursorPosition(Pages[value].AbsoluteTextOffset);
             }
         }
 
@@ -122,7 +118,7 @@ namespace DolDoc.Editor
                     break;
 
                 case ConsoleKey.RightArrow:
-                    if (Pages[CursorPosition + 1].TextOffset == null)
+                    if (!Pages[CursorPosition + 1].HasEntry)
                     {
                         do
                         {
@@ -131,7 +127,7 @@ namespace DolDoc.Editor
                                 break;*/
 
                             CursorPosition++;
-                        } while (Pages[CursorPosition].TextOffset == null);
+                        } while (!Pages[CursorPosition].HasEntry);
                     }
                     else
                         CursorPosition++;
@@ -142,7 +138,7 @@ namespace DolDoc.Editor
                     if (CursorPosition == 0)
                         break;
 
-                    if (Pages[CursorPosition - 1].TextOffset == null && CursorY > 0)
+                    if (!Pages[CursorPosition - 1].HasEntry && CursorY > 0)
                     {
                         do
                         {
@@ -150,7 +146,7 @@ namespace DolDoc.Editor
                                 break;
 
                             CursorPosition--;
-                        } while (Pages[CursorPosition].TextOffset == null);
+                        } while (!Pages[CursorPosition].HasEntry);
                     }
                     else
                         CursorPosition--;
@@ -163,7 +159,7 @@ namespace DolDoc.Editor
                 case ConsoleKey.DownArrow:
                     CursorPosition += Columns;
 
-                    if (Pages[CursorPosition].TextOffset == null)
+                    if (!Pages[CursorPosition].HasEntry)
                     {
 
                         do
@@ -176,7 +172,7 @@ namespace DolDoc.Editor
                             //}
 
                             CursorPosition--;
-                        } while (Pages[CursorPosition].TextOffset == null);
+                        } while (!Pages[CursorPosition].HasEntry);
                     }
 
 
@@ -188,7 +184,7 @@ namespace DolDoc.Editor
 
                     CursorPosition -= Columns;
 
-                    if (Pages[CursorPosition].TextOffset == null)
+                    if (!Pages[CursorPosition].HasEntry)
                     {
 
                         do
@@ -204,7 +200,7 @@ namespace DolDoc.Editor
                             //}
 
                             CursorPosition--;
-                        } while (Pages[CursorPosition].TextOffset == null);
+                        } while (!Pages[CursorPosition].HasEntry);
                     }
 
                     if (CursorPosition < 0)
@@ -349,20 +345,20 @@ namespace DolDoc.Editor
             if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
                 inverted = true;
 
-            var bg = inverted ? (byte)((ch.Color >> 4) & 0x0F) : (byte)(ch.Color & 0x0F);
-            var fg = inverted ? (byte)(ch.Color & 0x0F) : (byte)((ch.Color >> 4) & 0x0F);
+            var bg = inverted ? ch.Color.Foreground : ch.Color.Background;
+            var fg = inverted ? ch.Color.Background : ch.Color.Foreground;
             var character = SysFont.Font[ch.Char];
             for (int fx = 0; fx < 8; fx++)
                 for (int fy = 0; fy < 8; fy++)
                 {
                     bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                    _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx + ch.ShiftX] = draw ? fg : bg;
+                    _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
                 }
 
             if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
             {
                 for (int i = 0; i < 8; i++)
-                    _renderBuffer[(((row * 8) + (8 - 1)) * Width) + (column * 8) + i] = fg;
+                    _renderBuffer[(((row * 8) + (8 - 1)) * Width) + (column * 8) + i] = (byte)fg;
             }
         }
 

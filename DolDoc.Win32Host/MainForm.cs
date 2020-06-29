@@ -108,7 +108,7 @@ namespace DolDoc.Win32Host
 Cursor {_viewerState.CursorX},{_viewerState.CursorY} ({_viewerState.CursorPosition})
 Char info:
   Char: {_viewerState.Pages[_viewerState.CursorPosition].Char}
-  TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].TextOffset}
+  TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].AbsoluteTextOffset}
   Page: {_viewerState.Pages.GetOrCreatePage(_viewerState.CursorPosition).PageNumber}
 
 EditorState:
@@ -139,11 +139,9 @@ Cursor {_editorState.CursorPosition}
             using (var reader = new StreamReader(stream))
             {
                 var content = reader.ReadToEnd();
-                var document = new Document(80, 60, EgaColor.White, EgaColor.Black);
-                document.Load(content);
-
-                _editorState = new EditorState(document, 80, 60, content);
-                _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
+                var document = new Document(content);
+                _editorState = new EditorState(document, content);
+                _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480);
                 _editorState.Kick();
             }
         }
@@ -291,13 +289,9 @@ Cursor {_editorState.CursorPosition}
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var document = new Document(80, 60, EgaColor.White, EgaColor.Black);
-            document.Load(string.Empty, false);
-
-            _editorState = new EditorState(document, 80, 60);
-            _editorState.OnUpdate += data => document.Load(data, true);
-            _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
-            //_document.Load(string.Empty, false);
+            var document = new Document();
+            _editorState = new EditorState(document);
+            _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480);
         }
     }
 }

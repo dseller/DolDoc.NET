@@ -1,34 +1,25 @@
 ﻿using DolDoc.Editor.Core;
 using DolDoc.Editor.Input;
-using DolDoc.Editor.Rendering;
-using DolDoc.Editor.UI;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace DolDoc.Editor
 {
     public class EditorState : IInputListener
     {
         private readonly PieceTable _pieceTable;
-        private int _columns, _rows;
 
-        public event Action<string> OnUpdate;
-
-        public EditorState(Document doc, int columns, int rows, string content = null)
+        public EditorState(Document doc, string content = null)
         {
             Document = doc;
-            _rows = rows;
-            _columns = columns;
             _pieceTable = new PieceTable(content);
 
-            //Console.SetWindowSize(_columns, _rows);
-            //Console.SetBufferSize(_columns, _rows);
-
             OnUpdate += OutputTableToConsole;
+            OnUpdate += UpdateDocument;
             OnUpdate(content);
         }
+
+        public event Action<string> OnUpdate;
 
         public int CursorPosition { get; private set; }
 
@@ -76,15 +67,10 @@ namespace DolDoc.Editor
                 CursorPosition = 0;
             if (CursorPosition > maxLength)
                 CursorPosition = maxLength;
-            
-
-            // Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
 
             if (update)
                 OnUpdate(_pieceTable.ToString());
         }
-
-        // public int CursorX => _cursorPosition % Console.
 
         public void KeyPress(char key)
         {
@@ -123,7 +109,7 @@ namespace DolDoc.Editor
             CursorPosition = position;
 
             if (!Debugger.IsAttached)
-            Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
+                Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
         }
 
         private void OutputTableToConsole(string data)
@@ -134,6 +120,11 @@ namespace DolDoc.Editor
                 Console.Write(data);
                 Console.SetCursorPosition(CursorPosition % Console.WindowWidth, CursorPosition / Console.WindowWidth);
             }
+        }
+
+        private void UpdateDocument(string data)
+        {
+            Document.Load(data);
         }
 
         public void Kick()

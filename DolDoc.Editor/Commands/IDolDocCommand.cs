@@ -5,6 +5,6 @@ namespace DolDoc.Editor.Commands
 {
     public interface IDolDocCommand
     {
-        CommandResult Execute(CommandContext ctx);
+        CommandResult Execute(DocumentEntry entry, CommandContext ctx);
     }
 }

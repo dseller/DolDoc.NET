@@ -7,15 +7,15 @@ namespace DolDoc.Editor.Commands
 {
     public class Tree : WriteString
     {
-        public override CommandResult Execute(CommandContext ctx)
+        public override CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
             var fgColor = ctx.ForegroundColor;
             var ul = ctx.Underline;
             ctx.Underline = true;
             ctx.ForegroundColor = EgaColor.Purple;
 
-            ctx.Arguments[0] = new Argument(null, $"-] {ctx.Arguments[0].Value}");
-            var result = base.Execute(ctx);
+            //entry.Arguments[0] = new Argument(null, $"-] {entry.Arguments[0].Value}");
+            var result = base.Execute(entry, ctx);
 
             ctx.ForegroundColor = fgColor;
             ctx.Underline = ul;

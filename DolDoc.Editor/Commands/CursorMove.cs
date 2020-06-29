@@ -1,30 +1,27 @@
 ﻿using DolDoc.Editor.Core;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Editor.Commands
 {
     public class CursorMove : IDolDocCommand
     {
-        public CommandResult Execute(CommandContext ctx)
+        public CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
-            var columns = int.Parse(ctx.Arguments[0].Value);
-            var rows = int.Parse(ctx.Arguments[1].Value);
+            var columns = int.Parse(entry.Arguments[0].Value);
+            var rows = int.Parse(entry.Arguments[1].Value);
 
             int originX = ctx.RenderPosition % ctx.State.Columns, originY = ctx.RenderPosition / ctx.State.Columns;
-            if (ctx.HasFlag("LX"))
+            if (entry.HasFlag("LX"))
                 originX = 0;
-            else if (ctx.HasFlag("RX"))
+            else if (entry.HasFlag("RX"))
                 originX = ctx.State.Columns;
-            else if (ctx.HasFlag("CX"))
+            else if (entry.HasFlag("CX"))
                 originX = ctx.State.Columns / 2;
 
-            if (ctx.HasFlag("TY"))
+            if (entry.HasFlag("TY"))
                 originY = 0;
-            else if (ctx.HasFlag("BY"))
+            else if (entry.HasFlag("BY"))
                 originY = ctx.State.Rows - 1;
-            else if (ctx.HasFlag("CY"))
+            else if (entry.HasFlag("CY"))
                 originY = (ctx.State.Rows - 1) / 2;
 
             ctx.RenderPosition = (originX + columns) + ((originY + rows) * ctx.State.Columns);

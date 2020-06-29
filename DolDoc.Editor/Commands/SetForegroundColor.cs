@@ -5,12 +5,12 @@ namespace DolDoc.Editor.Commands
 {
     public class SetForegroundColor : IDolDocCommand
     {
-        public CommandResult Execute(CommandContext ctx)
+        public CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
-            if (ctx.Arguments.Count == 0)
+            if (entry.Arguments.Count == 0)
                 ctx.ForegroundColor = ctx.DefaultForegroundColor;
             else
-                ctx.ForegroundColor = (EgaColor)Enum.Parse(typeof(EgaColor), ctx.Arguments[0].Value, true);
+                ctx.ForegroundColor = (EgaColor)Enum.Parse(typeof(EgaColor), entry.Arguments[0].Value, true);
 
             return new CommandResult(true);
         }

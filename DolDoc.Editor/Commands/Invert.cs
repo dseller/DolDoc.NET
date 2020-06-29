@@ -4,9 +4,9 @@ namespace DolDoc.Editor.Commands
 {
     public class Invert : IDolDocCommand
     {
-        public CommandResult Execute(CommandContext ctx)
+        public CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
-            ctx.Inverted = ctx.Arguments[0].Value == "1";
+            ctx.Inverted = entry.Arguments[0].Value == "1";
 
             return new CommandResult(true);
         }

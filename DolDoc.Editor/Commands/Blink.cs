@@ -4,9 +4,9 @@ namespace DolDoc.Editor.Commands
 {
     public class Blink : IDolDocCommand
     {
-        public CommandResult Execute(CommandContext ctx)
+        public CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
-            ctx.Blink = ctx.Arguments[0].Value == "1";
+            ctx.Blink = entry.Arguments[0].Value == "1";
 
             return new CommandResult(true);
         }

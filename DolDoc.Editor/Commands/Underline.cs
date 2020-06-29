@@ -4,9 +4,9 @@ namespace DolDoc.Editor.Commands
 {
     public class Underline : IDolDocCommand
     {
-        public CommandResult Execute(CommandContext ctx)
+        public CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
-            ctx.Underline = ctx.Arguments[0].Value == "1";
+            ctx.Underline = entry.Arguments[0].Value == "1";
 
             return new CommandResult(true);
         }

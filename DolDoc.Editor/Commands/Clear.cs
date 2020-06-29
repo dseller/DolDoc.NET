@@ -4,7 +4,7 @@ namespace DolDoc.Editor.Commands
 {
     public class Clear : IDolDocCommand
     {
-        public CommandResult Execute(CommandContext ctx)
+        public CommandResult Execute(DocumentEntry entry, CommandContext ctx)
         {
             ctx.State.Pages.Clear(ctx.BackgroundColor);
 
