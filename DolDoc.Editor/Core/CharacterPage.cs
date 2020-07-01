@@ -37,7 +37,7 @@
         {
             for (int i = 0; i < _characters.Length; i++)
                 if ((_characters[i].Flags & CharacterFlags.Hold) == 0)
-                    _characters[i] = new Character(null, 0, 0x00, null, CharacterFlags.None);
+                    _characters[i] = new Character(null, i, 0x00, new CombinedColor(EgaColor.White, EgaColor.White), CharacterFlags.None);
         }
     }
 }

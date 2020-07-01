@@ -19,6 +19,10 @@ namespace DolDoc.Editor.Entries
             if (ctx.Indentation < 0)
                 ctx.Indentation = 0;
 
+            if (ctx.CollapsedTreeNodeIndentationLevel.HasValue && 
+                ctx.CollapsedTreeNodeIndentationLevel.Value == ctx.Indentation)
+                    ctx.CollapsedTreeNodeIndentationLevel = null;
+
             return new CommandResult(true);
         }
 

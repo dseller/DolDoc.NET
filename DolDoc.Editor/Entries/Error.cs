@@ -16,7 +16,8 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
-            throw new Exception(_errorMessage);
+            Console.WriteLine("ERROR: " + _errorMessage);
+            return new CommandResult(true);
         }
 
         public override string ToString() => "$ER$";

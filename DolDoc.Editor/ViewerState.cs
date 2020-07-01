@@ -56,8 +56,6 @@ namespace DolDoc.Editor
             {
                 foreach (var entry in document.Entries)
                 {
-                    ctx.TextOffset = entry.TextOffset;
-
                     var result = entry.Evaluate(ctx);
                     if (result.RefreshRequested)
                     {
@@ -93,11 +91,8 @@ namespace DolDoc.Editor
             get => CursorX + (CursorY * Columns);
             set
             {
-                RenderCursor(false);
                 CursorX = value % Columns;
                 CursorY = value / Columns;
-
-                //_editor.SetCursorPosition(Pages[value].AbsoluteTextOffset);
             }
         }
 
@@ -132,6 +127,7 @@ namespace DolDoc.Editor
                     else
                         CursorPosition++;
 
+                    RenderCursor();
                     break;
 
                 case ConsoleKey.LeftArrow:
@@ -154,6 +150,7 @@ namespace DolDoc.Editor
                     if (CursorPosition < 0)
                         CursorPosition = 0;
 
+                    RenderCursor();
                     break;
 
                 case ConsoleKey.DownArrow:
@@ -175,7 +172,7 @@ namespace DolDoc.Editor
                         } while (!Pages[CursorPosition].HasEntry);
                     }
 
-
+                    RenderCursor();
                     break;
 
                 case ConsoleKey.UpArrow:
@@ -206,23 +203,25 @@ namespace DolDoc.Editor
                     if (CursorPosition < 0)
                         CursorPosition = 0;
 
+                    RenderCursor();
                     break;
             }
 
             var ch = Pages[CursorPosition];
-            ch.Entry.KeyPress(this, key, ch.RelativeTextOffset);
+            if (ch.Entry != null)
+                ch.Entry.KeyPress(this, key, ch.RelativeTextOffset);
             _document.Refresh();
         }
 
         public void KeyPress(char key)
         {
-            if (!char.IsControl(key))
-            {
-                // Get the entry of the current cursor position.
-                var ch = Pages[CursorPosition];
-                ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
-                _document.Refresh();
-            }
+            /*if (!char.IsControl(key) || key == '\r')
+            {*/
+            var ch = Pages[CursorPosition];
+            // Get the entry of the current cursor position.
+            ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
+            _document.Refresh();
+            //}
         }
 
         public void KeyUp(ConsoleKey key)
@@ -237,7 +236,13 @@ namespace DolDoc.Editor
 
         public void MousePress(int x, int y)
         {
-            throw new NotImplementedException();
+            CursorX = x / 8;
+            CursorY = y / 8;
+
+            if (Pages[CursorPosition].HasEntry)
+                Pages[CursorPosition].Entry.Click();
+
+            _document.Refresh();
         }
 
         public void MouseRelease(int x, int y)
@@ -275,43 +280,6 @@ namespace DolDoc.Editor
             Render();
         }
 
-        public void SetCursor(int x, int y)
-        {
-            bool update = false;
-
-            if (x < 0)
-                x = 0;
-
-            if (y < 0)
-            {
-                if (ViewLine > 0)
-                {
-                    ViewLine--;
-                    update = true;
-                }
-
-                y = 0;
-            }
-
-            if (x > Columns)
-            {
-                y += x / Columns;
-                x %= Columns;
-            }
-
-            if (y >= Rows)
-            {
-                ViewLine += (Rows - y) + 1;
-                y = Rows - 1;
-                update = true;
-            }
-
-            CursorX = x;
-            CursorY = y;
-            if (update)
-                Render();
-        }
-
         public void Render()
         {
             Array.Clear(_renderBuffer, 0, _renderBuffer.Length);
@@ -323,9 +291,12 @@ namespace DolDoc.Editor
             _frameBuffer?.Render(_renderBuffer);
         }
 
-        private void RenderCursor(bool inverted)
+        private void RenderCursor()
         {
-            RenderCharacter(CursorX, CursorY, Pages[CursorX, ViewLine + CursorY], inverted);
+            for (int fx = 0; fx < 8; fx++)
+                for (int fy = 0; fy < 8; fy++)
+                    _renderBuffer[((((CursorY * 8) + fy) * Width) + (CursorX * 8) + fx)] ^= 0x0F;
+
             _frameBuffer.RenderPartial(CursorX * 8, CursorY * 8, 8, 8, _renderBuffer);
         }
 
@@ -344,9 +315,6 @@ namespace DolDoc.Editor
 
         private void RenderCharacter(int column, int row, Character ch, bool inverted = false)
         {
-            if (ch.Entry == null)
-                return;
-
             if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
                 inverted = true;
 
@@ -369,8 +337,8 @@ namespace DolDoc.Editor
 
         public void Tick()
         {
-            DoBlink(_cursorInverted);
-            RenderCursor(_cursorInverted);
+            DoBlink(!_cursorInverted);
+            RenderCursor();
 
             _cursorInverted = !_cursorInverted;
         }

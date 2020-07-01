@@ -32,12 +32,19 @@ namespace DolDoc.Editor.Core
         public static DocumentEntry CreateTextCommand(int textOffset, IList<Flag> flags, string value) =>
             new Text(textOffset, flags, new[] { new Argument(null, value) });
 
-        public bool HasFlag(string flag) => Flags.Any(f => f.Value == flag && f.Status);
+        public bool HasFlag(string flag, bool status = true) => Flags.Any(f => f.Value == flag && f.Status == status);
 
         public virtual void CharKeyPress(ViewerState state, char key, int relativeOffset)
         {
-            Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string(key, 1));
-            state.CursorPosition++;
+            if (!char.IsControl(key))
+            {
+                Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string(key, 1));
+                state.CursorPosition++;
+            }
+            else if (key == '\r')
+            {
+                Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string('\n', 1));
+            }
         }
 
         public virtual void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
@@ -59,5 +66,10 @@ namespace DolDoc.Editor.Core
         public abstract CommandResult Evaluate(EntryRenderContext ctx);
 
         public abstract override string ToString();
+
+        public virtual void Click()
+        {
+            // Do nothing atm.
+        }
     }
 }

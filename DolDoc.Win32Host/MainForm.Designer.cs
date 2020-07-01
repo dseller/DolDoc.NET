@@ -53,6 +53,7 @@
             this.uxImage.Size = new System.Drawing.Size(640, 480);
             this.uxImage.TabIndex = 0;
             this.uxImage.TabStop = false;
+            this.uxImage.MouseDown += new System.Windows.Forms.MouseEventHandler(this.uxImage_MouseDown);
             // 
             // menuStrip1
             // 
