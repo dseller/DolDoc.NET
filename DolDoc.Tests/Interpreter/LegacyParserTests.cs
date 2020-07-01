@@ -93,8 +93,16 @@ namespace DolDoc.Tests.Interpreter
             var results = _parser.Parse("$TX,\"Hello\",SX=4$").ToArray();
 
             Assert.IsNull(results[0].Arguments.ElementAt(0).Key);
-            Assert.AreEqual("Hello", results[0].Arguments.ElementAt(0).Value);
+            Assert.AreEqual("Hello", results[0].Tag);
             Assert.AreEqual("SX", results[0].Arguments.ElementAt(1).Key);
+        }
+
+        [TestMethod]
+        public void ParsesEqualInQuotedString()
+        {
+            var results = _parser.Parse("$TX,\"Hello=great!\"$").ToArray();
+
+            Assert.AreEqual("Hello=great!", results[0].Tag);
         }
     }
 }

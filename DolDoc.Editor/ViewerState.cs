@@ -96,6 +96,11 @@ namespace DolDoc.Editor
             }
         }
 
+        public int CursorPositionWithViewlineOffset
+        {
+            get => CursorX + ((CursorY + ViewLine) * Columns);
+        }
+
         public int ViewLine { get; private set; }
 
         public bool RawMode { get; set; }
@@ -154,6 +159,12 @@ namespace DolDoc.Editor
                     break;
 
                 case ConsoleKey.DownArrow:
+                    if (CursorPosition + Columns > (Columns * Rows))
+                    {
+                        ViewLine++;
+                        break;
+                    }
+
                     CursorPosition += Columns;
 
                     if (!Pages[CursorPosition].HasEntry)
@@ -177,9 +188,14 @@ namespace DolDoc.Editor
 
                 case ConsoleKey.UpArrow:
                     if (CursorPosition - Columns < 0)
-                        break;
-
-                    CursorPosition -= Columns;
+                    {
+                        if (ViewLine > 0)
+                            ViewLine--;
+                        else
+                            break;
+                    }
+                    else
+                        CursorPosition -= Columns;
 
                     if (!Pages[CursorPosition].HasEntry)
                     {
@@ -207,7 +223,7 @@ namespace DolDoc.Editor
                     break;
             }
 
-            var ch = Pages[CursorPosition];
+            var ch = Pages[CursorPositionWithViewlineOffset];
             if (ch.Entry != null)
                 ch.Entry.KeyPress(this, key, ch.RelativeTextOffset);
             _document.Refresh();
@@ -217,7 +233,7 @@ namespace DolDoc.Editor
         {
             /*if (!char.IsControl(key) || key == '\r')
             {*/
-            var ch = Pages[CursorPosition];
+            var ch = Pages[CursorPositionWithViewlineOffset];
             // Get the entry of the current cursor position.
             ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
             _document.Refresh();
@@ -231,7 +247,7 @@ namespace DolDoc.Editor
 
         public void MouseMove(int x, int y)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void MousePress(int x, int y)
@@ -239,8 +255,8 @@ namespace DolDoc.Editor
             CursorX = x / 8;
             CursorY = y / 8;
 
-            if (Pages[CursorPosition].HasEntry)
-                Pages[CursorPosition].Entry.Click();
+            if (Pages[CursorPositionWithViewlineOffset].HasEntry)
+                Pages[CursorPositionWithViewlineOffset].Entry.Click();
 
             _document.Refresh();
         }

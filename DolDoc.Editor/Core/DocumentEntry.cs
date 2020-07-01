@@ -67,6 +67,8 @@ namespace DolDoc.Editor.Core
 
         public abstract override string ToString();
 
+        public virtual bool Clickable => false;
+
         public virtual void Click()
         {
             // Do nothing atm.

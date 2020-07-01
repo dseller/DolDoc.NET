@@ -51,6 +51,7 @@ namespace DolDoc.Core.Parser
                     {
                         if (content[i] == ',')
                         {
+                            bool isQuotedString = false;
                             StringBuilder builder = new StringBuilder();
 
                             i++; // comma
@@ -64,6 +65,8 @@ namespace DolDoc.Core.Parser
                                     builder.Append(content[i++]);
                                 }
                                 i++; // ending quote
+                                
+                                isQuotedString = true;
                             }
                             else
                             {
@@ -74,7 +77,7 @@ namespace DolDoc.Core.Parser
                             string arg = builder.ToString();
                             string key = null, value;
 
-                            if (arg.Contains("="))
+                            if (!isQuotedString && arg.Contains("="))
                             {
                                 var tokens = arg.Split('=');
                                 key = tokens[0];

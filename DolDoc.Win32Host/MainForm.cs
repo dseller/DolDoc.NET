@@ -14,6 +14,7 @@ namespace DolDoc.Win32Host
     public partial class MainForm : Form, IFrameBuffer
     {
         private Bitmap _bmp;
+        private Document _document;
         private string _providedFileName;
         private ViewerState _viewerState;
 
@@ -104,6 +105,8 @@ namespace DolDoc.Win32Host
             uxDebugView.Clear();
             uxDebugView.Text = $@"ViewerState:
 Cursor {_viewerState.CursorX},{_viewerState.CursorY} ({_viewerState.CursorPosition})
+ViewLine: {_viewerState.ViewLine}
+
 Char info:
   Char: {_viewerState.Pages[_viewerState.CursorPosition].Char}
   TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].AbsoluteTextOffset}
@@ -134,10 +137,10 @@ Char info:
             using (var reader = new StreamReader(stream))
             {
                 var content = reader.ReadToEnd();
-                var document = new Document(content, defaultFgColor: EgaColor.White);
-                _viewerState = new ViewerState(this, document, 640, 480);
+                _document = new Document(content, defaultFgColor: EgaColor.White);
+                _viewerState = new ViewerState(this, _document, 640, 480);
                 _viewerState.Pages.Clear();
-                document.Refresh();
+                _document.Refresh();
             }
         }
 
@@ -204,14 +207,32 @@ Char info:
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var document = new Document();
-            _viewerState = new ViewerState(this, document, 640, 480);
+            _document = new Document();
+            _viewerState = new ViewerState(this, _document, 640, 480);
         }
 
         private void uxImage_MouseDown(object sender, MouseEventArgs e)
         {
             Console.WriteLine("Click on {0}x{1}", e.X, e.Y);
             _viewerState.MousePress(e.X, e.Y);
+        }
+
+        private void redrawToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _document?.Refresh();
+        }
+
+        private void uxImage_MouseMove(object sender, MouseEventArgs e)
+        {
+            _viewerState.MouseMove(e.X, e.Y);
+
+            var pos = ((e.X / 8) + (((e.Y / 8) + _viewerState.ViewLine) * _viewerState.Columns));
+            if (_viewerState.Pages[pos].HasEntry &&
+                _viewerState.Pages[pos].Entry.Clickable &&
+                System.Windows.Forms.Cursor.Current != Cursors.Hand)
+                System.Windows.Forms.Cursor.Current = Cursors.Hand;
+            else
+                System.Windows.Forms.Cursor.Current = Cursors.Default;
         }
     }
 }

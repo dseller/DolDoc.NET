@@ -50,6 +50,8 @@ namespace DolDoc.Editor.Entries
 
         public override string ToString() => $"$TR,\"{Tag}\"$";
 
+        public override bool Clickable => true;
+
         private void Toggle()
         {
             if (HasFlag("C", false))

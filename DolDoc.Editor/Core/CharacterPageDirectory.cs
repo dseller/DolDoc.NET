@@ -61,6 +61,13 @@ namespace DolDoc.Editor.Core
                 page.Clear(color);
         }
 
+        public bool HasPageForPosition(int position)
+        {
+            int pageIndex = position / PageRows;
+
+            return pageIndex < _pages.Count;
+        }
+
         private CharacterPage GetOrCreatePageForPosition(int x, int y)
         {
             int pageIndex = y / PageRows;
