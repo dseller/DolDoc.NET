@@ -14,9 +14,8 @@ namespace DolDoc.Win32Host
     public partial class MainForm : Form, IFrameBuffer
     {
         private Bitmap _bmp;
+        private Document _document;
         private string _providedFileName;
-
-        private EditorState _editorState;
         private ViewerState _viewerState;
 
         public MainForm()
@@ -104,15 +103,16 @@ namespace DolDoc.Win32Host
         private void DebugDump()
         {
             uxDebugView.Clear();
-            uxDebugView.Text = $@"ViewerState:
-Cursor {_viewerState.CursorX},{_viewerState.CursorY} ({_viewerState.CursorPosition})
+            uxDebugView.Text = $@"Cursor:
+DocumentCursor: {_viewerState.Cursor.DocumentX},{_viewerState.Cursor.DocumentY} ({_viewerState.CursorPosition})
+WindowX: {_viewerState.Cursor.WindowX}
+WindowY: {_viewerState.Cursor.WindowY}
+ViewLine: {_viewerState.Cursor.ViewLine}
+CurrentEntry: {_viewerState.Cursor.SelectedEntry?.ToString()}
+
 Char info:
   Char: {_viewerState.Pages[_viewerState.CursorPosition].Char}
-  TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].TextOffset}
   Page: {_viewerState.Pages.GetOrCreatePage(_viewerState.CursorPosition).PageNumber}
-
-EditorState:
-Cursor {_editorState.CursorPosition}
 ";
         }
 
@@ -139,12 +139,10 @@ Cursor {_editorState.CursorPosition}
             using (var reader = new StreamReader(stream))
             {
                 var content = reader.ReadToEnd();
-                var document = new Document(80, 60, EgaColor.White, EgaColor.Black);
-                document.Load(content);
-
-                _editorState = new EditorState(document, 80, 60, content);
-                _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
-                _editorState.Kick();
+                _document = new Document(content, defaultFgColor: EgaColor.White);
+                _viewerState = new ViewerState(this, _document, 640, 480);
+                _viewerState.Pages.Clear();
+                _document.Refresh();
             }
         }
 
@@ -170,6 +168,8 @@ Cursor {_editorState.CursorPosition}
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
+            timer.Enabled = false;
+
             var translation = new Dictionary<Keys, ConsoleKey>
             {
                 { Keys.Down, ConsoleKey.DownArrow},
@@ -185,88 +185,11 @@ Cursor {_editorState.CursorPosition}
 
             if (translation.TryGetValue(e.KeyCode, out var key))
             {
-                _editorState.KeyDown(key);
+                // _editorState.KeyDown(key);
                 _viewerState.KeyDown(key);
             }
 
-            /*switch (e.KeyCode)
-            {
-                
-
-                case Keys.End:
-                    //_document.LastPage();
-                    for (int i = _document.CursorX; i < _document.Columns; i++)
-                        if (_document.Read(i, _document.CursorY).TextOffset == null)
-                        {
-                            _document.SetCursor(i, _document.CursorY);
-                            _editorState.SetCursorPosition(_document.Read(i - 1, _document.CursorY).TextOffset.Value + 1);
-                            break;
-                        }
-                    break;
-
-                case Keys.Home:
-                    RenderDocument();
-                    _document.SetCursor(0, _document.CursorY);
-                    _editorState.SetCursorPosition((_document.Read(0, _document.CursorY).TextOffset ?? 0));
-                    InvertCursor(false);
-                    break;
-
-                case Keys.Left:
-                    RenderDocument();
-                    _document.SetCursor(_document.CursorX - 1, _document.CursorY);
-                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
-                    InvertCursor(false);
-                    break;
-
-                case Keys.Right:
-                    RenderDocument();
-
-                    _document.SetCursor(_document.CursorX + 1, _document.CursorY);
-                    var cell = _document.Read(_document.CursorX, _document.CursorY);
-                    if (cell.TextOffset == null)
-                    {
-                        // Undo the cursor move if the destination character does not have a text offset.
-                        _document.SetCursor(_document.CursorX - 1, _document.CursorY);
-                        SystemSounds.Exclamation.Play();
-                        return;
-                    }
-
-                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
-                    InvertCursor(false);
-                    break;
-
-                case Keys.Up:
-                    RenderDocument();
-                    _document.SetCursor(_document.CursorX, _document.CursorY - 1);
-                    var upCell = _document.Read(_document.CursorX, _document.CursorY);
-                    if (upCell.TextOffset == null)
-                    {
-                        // Find a correct one
-                        var idx = _document.GetLastCharacterOnLine(_document.CursorY);
-                        if (!idx.HasValue)
-                            throw new Exception("yeahhh...");
-
-                        _document.SetCursor(idx.Value, _document.CursorY);
-                    }
-
-
-                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
-                    InvertCursor(false);
-                    break;
-
-                case Keys.Down:
-                    RenderDocument();
-                    _document.SetCursor(_document.CursorX, _document.CursorY + 1);
-                    _editorState.SetCursorPosition(_document.Read(_document.CursorX, _document.CursorY).TextOffset.Value);
-                    InvertCursor(false);
-                    break;
-
-                case Keys.Enter:
-                    _document.SetCursor(0, _document.CursorY + 1);
-                    break;
-            }*/
-
-            
+            timer.Enabled = true;
 
             DebugDump();
         }
@@ -275,29 +198,43 @@ Cursor {_editorState.CursorPosition}
         {
             _viewerState.RawMode = !_viewerState.RawMode;
             _viewerState.Pages.Clear();
-            _editorState.Kick();
         }
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
-            _editorState.KeyPress(e.KeyChar);
+            timer.Enabled = false;
             _viewerState.KeyPress(e.KeyChar);
-
-            /*_editorState.KeyPress(e.KeyChar);
-
-            if (!char.IsControl(e.KeyChar))
-                _document.SetCursor(_document.CursorX + 1, _document.CursorY);*/
+            timer.Enabled = true;
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var document = new Document(80, 60, EgaColor.White, EgaColor.Black);
-            document.Load(string.Empty, false);
+            _document = new Document();
+            _viewerState = new ViewerState(this, _document, 640, 480);
+        }
 
-            _editorState = new EditorState(document, 80, 60);
-            _editorState.OnUpdate += data => document.Load(data, true);
-            _viewerState = new ViewerState(new Core.Parser.LegacyParser(), _editorState, this, document, 640, 480, 80, 60);
-            //_document.Load(string.Empty, false);
+        private void uxImage_MouseDown(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine("Click on {0}x{1}", e.X, e.Y);
+            _viewerState.MousePress(e.X, e.Y);
+        }
+
+        private void redrawToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _document?.Refresh();
+        }
+
+        private void uxImage_MouseMove(object sender, MouseEventArgs e)
+        {
+            _viewerState.MouseMove(e.X, e.Y);
+
+            var pos = ((e.X / 8) + (((e.Y / 8) + _viewerState.Cursor.ViewLine) * _viewerState.Columns));
+            if (_viewerState.Pages[pos].HasEntry &&
+                _viewerState.Pages[pos].Entry.Clickable &&
+                System.Windows.Forms.Cursor.Current != Cursors.Hand)
+                System.Windows.Forms.Cursor.Current = Cursors.Hand;
+            else
+                System.Windows.Forms.Cursor.Current = Cursors.Default;
         }
     }
 }

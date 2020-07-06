@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 
 namespace DolDoc.Core.Parser
 {
     public class LegacyParser : IDolDocParser
     {
-        public IEnumerable<Command> Parse(string content)
+        public IEnumerable<DocumentEntry> Parse(string content)
         {
-            var result = new List<Command>();
+            var result = new List<DocumentEntry>();
 
             for (int i = 0; i < content.Length; i++)
             {
@@ -22,8 +23,7 @@ namespace DolDoc.Core.Parser
                     i++;
                     if (content[i] == '$')
                     {
-                        // OnWriteCharacter?.Invoke(content[i]);
-                        result.Add(new Command(offset, "TX", flags, new[] { new Argument(null, new string(content[i], 1)) }));
+                        result.Add(DocumentEntry.CreateTextCommand(flags, new string(content[i], 1)));
                         continue;
                     }
 
@@ -51,6 +51,7 @@ namespace DolDoc.Core.Parser
                     {
                         if (content[i] == ',')
                         {
+                            bool isQuotedString = false;
                             StringBuilder builder = new StringBuilder();
 
                             i++; // comma
@@ -64,6 +65,8 @@ namespace DolDoc.Core.Parser
                                     builder.Append(content[i++]);
                                 }
                                 i++; // ending quote
+                                
+                                isQuotedString = true;
                             }
                             else
                             {
@@ -74,7 +77,7 @@ namespace DolDoc.Core.Parser
                             string arg = builder.ToString();
                             string key = null, value;
 
-                            if (arg.Contains("="))
+                            if (!isQuotedString && arg.Contains("="))
                             {
                                 var tokens = arg.Split('=');
                                 key = tokens[0];
@@ -87,8 +90,7 @@ namespace DolDoc.Core.Parser
                         }
                     }
 
-                    // OnCommand?.Invoke(new Command(cmd, flags, arguments));
-                    result.Add(new Command(offset, cmd, flags, arguments));
+                    result.Add(EntryFactory.Create(cmd, flags, arguments));
                 }
                 else
                 {
@@ -99,8 +101,7 @@ namespace DolDoc.Core.Parser
                     if (i < content.Length && content[i] == '$')
                         i--;
 
-                    // OnWriteString?.Invoke(builder.ToString());
-                    result.Add(Command.CreateTextCommand(offset, new Flag[0], builder.ToString()));
+                    result.Add(DocumentEntry.CreateTextCommand(new Flag[0], builder.ToString()));
                 }
             }
 

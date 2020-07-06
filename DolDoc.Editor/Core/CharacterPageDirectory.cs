@@ -25,14 +25,13 @@ namespace DolDoc.Editor.Core
         {
             get 
             {
-                var page = GetOrCreatePageForPosition(position % PageColumns, position / PageRows);
+                var page = GetPageForPosition(position % PageColumns, position / PageColumns);
                 return page[position % (page.Columns * page.Rows)];
             }
 
             set
             {
-                var page = GetOrCreatePageForPosition(position % PageColumns, position / PageRows);
-                // page[((page.PageNumber - 1) * page.Columns * page.Rows) - position] = value;
+                var page = GetOrCreatePageForPosition(position % PageColumns, position / PageColumns);
                 page[position % (page.Columns * page.Rows)] = value;
             }
         }
@@ -61,6 +60,18 @@ namespace DolDoc.Editor.Core
                 page.Clear(color);
         }
 
+        public bool HasPageForPosition(int position)
+        {
+            int pageIndex = position / PageRows / PageColumns;
+            return pageIndex < _pages.Count;
+        }
+
+        public bool HasPageForPosition(int x, int y)
+        {
+            int pageIndex = y / PageRows;
+            return pageIndex < _pages.Count;
+        }
+
         private CharacterPage GetOrCreatePageForPosition(int x, int y)
         {
             int pageIndex = y / PageRows;
@@ -76,6 +87,16 @@ namespace DolDoc.Editor.Core
                 for (int i = 1; i <= pagesToCreate; i++)
                     _pages.Add(new CharacterPage(originalPages + i, PageColumns, PageRows));
             }
+
+            return _pages[pageIndex];
+        }
+
+        private CharacterPage GetPageForPosition(int x, int y)
+        {
+            int pageIndex = y / PageRows;
+
+            if (pageIndex < 0 || pageIndex >= _pages.Count)
+                return null;
 
             return _pages[pageIndex];
         }

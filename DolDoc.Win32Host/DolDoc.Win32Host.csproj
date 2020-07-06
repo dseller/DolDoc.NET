@@ -76,6 +76,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="Examples\CharMap.DD">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Examples\DolDocOverview.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -88,7 +91,9 @@
     <None Include="Examples\Welcome.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Examples\What.DD" />
+    <None Include="Examples\What.DD">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -104,10 +109,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DolDoc.Core\DolDoc.Core.csproj">
-      <Project>{848836D4-02AC-4EF6-AC88-7FFC1050174F}</Project>
-      <Name>DolDoc.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DolDoc.Editor\DolDoc.Editor.csproj">
       <Project>{7AF51E57-0552-4E47-B72E-E53C36BFBE38}</Project>
       <Name>DolDoc.Editor</Name>

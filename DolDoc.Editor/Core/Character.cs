@@ -8,7 +8,10 @@ namespace DolDoc.Editor.Core
     [StructLayout(LayoutKind.Sequential)]
     public struct Character
     {
-        public CharacterFlags Flags;
+        /// <summary>
+        /// The flags for this character (e.g. underlined, blink, etc.)
+        /// </summary>
+        public CharacterFlags Flags { get; }
 
         private byte _shiftPosition;
 
@@ -24,7 +27,10 @@ namespace DolDoc.Editor.Core
             set => _shiftPosition |= (byte)((value << 4) & 0xF0);
         }
 
-        public byte Color;
+        /// <summary>
+        /// Combined color byte, upper half is background color, lower half is foreground color.
+        /// </summary>
+        public CombinedColor Color;
 
         /// <summary>
         /// The actual character value.
@@ -32,17 +38,27 @@ namespace DolDoc.Editor.Core
         public byte Char;
 
         /// <summary>
-        /// Represents the offset in the raw text buffer for this character.
+        /// Points to the <see cref="DocumentEntry"/> for this character.
         /// </summary>
-        public int? TextOffset;
+        public DocumentEntry Entry { get; }
 
-        public Character(byte ch, byte color, int? textOffset, CharacterFlags flags, byte shiftX = 0, byte shiftY = 0)
+        /// <summary>
+        /// The relative text offset, relative to the entry's text offset.
+        /// </summary>
+        public int RelativeTextOffset { get; }
+
+        public bool HasEntry => Entry != null;
+
+        public Character(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte shiftX = 0, byte shiftY = 0)
         {
             _shiftPosition = 0;
+            
             Char = ch;
             Color = color;
+            Entry = entry;
             Flags = flags;
-            TextOffset = textOffset;
+            RelativeTextOffset = relativeTextOffset;
+
             ShiftX = shiftX;
             ShiftY = shiftY;
         }

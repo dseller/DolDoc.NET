@@ -5,6 +5,6 @@ namespace DolDoc.Core.Parser
 {
     public interface IDolDocParser
     {
-        IEnumerable<Command> Parse(string input);
+        IEnumerable<DocumentEntry> Parse(string input);
     }
 }

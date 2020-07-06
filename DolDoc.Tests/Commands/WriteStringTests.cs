@@ -1,20 +1,45 @@
-﻿using DolDoc.Core.Parser;
-using DolDoc.Editor;
+﻿using DolDoc.Editor;
 using DolDoc.Editor.Commands;
+using DolDoc.Editor.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace DolDoc.Tests.Commands
 {
     [TestClass]
     public class WriteStringTests
     {
-        [TestMethod]
-        public void Test()
+        private Document _document;
+        private EntryRenderContext _commandContext;
+
+        [TestInitialize]
+        public void Setup()
         {
-            
+            _document = new Document();
+            _commandContext = new EntryRenderContext
+            {
+                State = new ViewerState(null, _document, 640, 480)
+            };
+        }
+
+        [TestMethod]
+        public void WritesSimpleString()
+        {
+            const string str = "Hello World!";
+
+            _document.Load(str);
+
+            var ws = _document.Entries.First;
+            var result = ws.Value.Evaluate(_commandContext);
+
+            Assert.AreEqual(true, result.Success);
+            Assert.AreEqual(str.Length, result.WrittenCharacters);
+
+            for (var i = 0; i < str.Length; i++)
+            {
+                Assert.AreEqual(_document.Entries.First(), _commandContext.State.Pages[i].Entry);
+                Assert.AreEqual((byte)str[i], _commandContext.State.Pages[i].Char);
+            }
         }
     }
 }

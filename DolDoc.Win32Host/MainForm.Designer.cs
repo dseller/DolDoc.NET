@@ -41,6 +41,7 @@
             this.toggleRawModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.uxDebugView = new System.Windows.Forms.TextBox();
+            this.redrawToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.uxImage)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -53,6 +54,8 @@
             this.uxImage.Size = new System.Drawing.Size(640, 480);
             this.uxImage.TabIndex = 0;
             this.uxImage.TabStop = false;
+            this.uxImage.MouseDown += new System.Windows.Forms.MouseEventHandler(this.uxImage_MouseDown);
+            this.uxImage.MouseMove += new System.Windows.Forms.MouseEventHandler(this.uxImage_MouseMove);
             // 
             // menuStrip1
             // 
@@ -111,7 +114,8 @@
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toggleRawModeToolStripMenuItem});
+            this.toggleRawModeToolStripMenuItem,
+            this.redrawToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -137,6 +141,13 @@
             this.uxDebugView.ReadOnly = true;
             this.uxDebugView.Size = new System.Drawing.Size(214, 480);
             this.uxDebugView.TabIndex = 2;
+            // 
+            // redrawToolStripMenuItem
+            // 
+            this.redrawToolStripMenuItem.Name = "redrawToolStripMenuItem";
+            this.redrawToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.redrawToolStripMenuItem.Text = "Redraw";
+            this.redrawToolStripMenuItem.Click += new System.EventHandler(this.redrawToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -175,6 +186,7 @@
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toggleRawModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem redrawToolStripMenuItem;
     }
 }
 

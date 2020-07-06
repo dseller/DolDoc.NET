@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DolDoc.Core\DolDoc.Core.csproj" />
+    <Folder Include="Commands\" />
   </ItemGroup>
 
 </Project>

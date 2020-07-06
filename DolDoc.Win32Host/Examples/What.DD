@@ -1,5 +1,7 @@
 $TX+H,"Hold this"$
-$BG,RED$$FG,WHITE$$CL$Hello $FG,YELLOW$world.$FG,WHITE$
+$BG,RED$$FG,WHITE$Cantseeme
+
+$CL$$FG,YELLOW$world.$FG,BLACK$$BG,WHITE$
 This is a $UL,1$underlined test$UL,0$.
 $BK,1$This is blinking text$BK,0$
 $BG,BLACK$$FG,GREEN$And this is an $IV,1$inverted text$IV,0$$CM,2,2$This is 2x2 moved

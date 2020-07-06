@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DolDoc.Editor.Core
+﻿namespace DolDoc.Editor.Core
 {
     public class CommandResult
     {
@@ -10,9 +6,12 @@ namespace DolDoc.Editor.Core
 
         public int WrittenCharacters { get; }
 
-        public CommandResult(bool success, int writtenCharacters = 0)
+        public bool RefreshRequested { get; }
+
+        public CommandResult(bool success, int writtenCharacters = 0, bool refreshRequested = false)
         {
             Success = success;
+            RefreshRequested = refreshRequested;
             WrittenCharacters = writtenCharacters;
         }
     }
