@@ -11,7 +11,7 @@ namespace DolDoc.Tests.Commands
         [TestMethod]
         public void EnablesBlinkMode()
         {
-            var entry = new Blink(0, null, new[] { new Argument(null, "1") });
+            var entry = new Blink(null, new[] { new Argument(null, "1") });
             var ctx = new EntryRenderContext { Blink = false };
 
             entry.Evaluate(ctx);
@@ -22,7 +22,7 @@ namespace DolDoc.Tests.Commands
         [TestMethod]
         public void DisablesBlinkMode()
         {
-            var entry = new Blink(0, null, new[] { new Argument(null, "0") });
+            var entry = new Blink(null, new[] { new Argument(null, "0") });
             var ctx = new EntryRenderContext { Blink = true };
 
             entry.Evaluate(ctx);
