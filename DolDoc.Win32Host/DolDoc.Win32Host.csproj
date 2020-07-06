@@ -76,6 +76,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="Examples\CharMap.DD">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Examples\DolDocOverview.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

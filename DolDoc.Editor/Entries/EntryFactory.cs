@@ -11,6 +11,7 @@ namespace DolDoc.Editor.Entries
             {
                 case "BG": return new Background(flags, args);
                 case "BK": return new Blink(flags, args);
+                case "CH": return new Char(flags, args);
                 case "CL": return new Clear(flags, args);
                 case "CM": return new CursorMove(flags, args);
                 case "ER": return new Error(null);
