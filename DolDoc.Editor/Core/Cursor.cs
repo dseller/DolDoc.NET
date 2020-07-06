@@ -24,30 +24,32 @@ namespace DolDoc.Editor.Core
             _viewerState = viewerState;
         }
 
-        /// <summary>
-        /// The column of the cursor in the window (not adjusted to the ViewLine)
-        /// </summary>
-        public int WindowX { get; set; }
+        ///// <summary>
+        ///// The column of the cursor in the window (not adjusted to the ViewLine)
+        ///// </summary>
+        //public int WindowX { get; set; }
 
-        /// <summary>
-        /// The row of the cursor in the window (not adjusted to the ViewLine)
-        /// </summary>
-        public int WindowY { get; set; }
+        ///// <summary>
+        ///// The row of the cursor in the window (not adjusted to the ViewLine)
+        ///// </summary>
+        //public int WindowY { get; set; }
 
-        /// <summary>
-        /// The index of the cursor in the window (not adjusted to the ViewLine)
-        /// </summary>
-        public int WindowPosition { get; set; }
+        ///// <summary>
+        ///// The index of the cursor in the window (not adjusted to the ViewLine)
+        ///// </summary>
+        //public int WindowPosition { get; set; }
+
+        public int ViewLine { get; private set; }
 
         /// <summary>
         /// The selected column within the document (adjusted to the ViewLine)
         /// </summary>
-        public int DocumentX { get; set; }
+        public int DocumentX => DocumentPosition % _viewerState.Columns;
 
         /// <summary>
         /// The selected row within the document (adjusted to the ViewLine)
         /// </summary>
-        public int DocumentY { get; set; }
+        public int DocumentY => DocumentPosition / _viewerState.Columns;
 
         /// <summary>
         /// The index of the cursor in the document (adjusted to the ViewLine)
@@ -68,10 +70,11 @@ namespace DolDoc.Editor.Core
             if (_viewerState.Pages[DocumentPosition + 1].HasEntry)
                 DocumentPosition++;
             else
+                DocumentPosition = FindNearestEntry(Direction.Right) ?? DocumentPosition;
+
+            if (DocumentY > ViewLine + _viewerState.Rows)
             {
-                var position = FindNearestEntry(Direction.Right);
-                if (position != null)
-                    DocumentPosition = position.Value;
+                ViewLine += (DocumentY - (ViewLine + _viewerState.Rows));
             }
         }
 
@@ -81,17 +84,40 @@ namespace DolDoc.Editor.Core
         /// <param name="characters"></param>
         public void Left()
         {
+            if (DocumentPosition == 0)
+                return;
 
+            if (_viewerState.Pages[DocumentPosition - 1].HasEntry)
+                DocumentPosition--;
+            else
+                DocumentPosition = FindNearestEntry(Direction.Left) ?? DocumentPosition;
         }
 
         public void Up()
         {
+            if (DocumentPosition < _viewerState.Columns)
+                return;
 
+            if (_viewerState.Pages[DocumentPosition - _viewerState.Columns].HasEntry)
+                DocumentPosition -= _viewerState.Columns;
+            else
+                DocumentPosition = FindNearestEntry(Direction.Up) ?? DocumentPosition;
         }
 
         public void Down()
         {
+            if (!_viewerState.Pages.HasPageForPosition(DocumentPosition + _viewerState.Columns))
+                return;
 
+            if (_viewerState.Pages[DocumentPosition + _viewerState.Columns].HasEntry)
+                DocumentPosition += _viewerState.Columns;
+            else
+                DocumentPosition = FindNearestEntry(Direction.Down) ?? DocumentPosition;
+
+            if (DocumentY > ViewLine + _viewerState.Rows)
+            {
+                ViewLine += (DocumentY - (ViewLine + _viewerState.Rows));
+            }
         }
 
         /// <summary>
@@ -104,10 +130,25 @@ namespace DolDoc.Editor.Core
         {
             int position = DocumentPosition + (offset ?? 0);
 
+            if (dir == Direction.Up)
+            {
+                position -= (position % _viewerState.Columns);
+                if (position < 0)
+                    return null;
+            }
+            else if (dir == Direction.Down)
+                position += (_viewerState.Columns - (position % _viewerState.Columns));
+
             do
             {
                 switch (dir)
                 {
+                    case Direction.Up:
+                    case Direction.Left:
+                        position--;
+                        break;
+
+                    case Direction.Down:
                     case Direction.Right:
                         position++;
                         break;

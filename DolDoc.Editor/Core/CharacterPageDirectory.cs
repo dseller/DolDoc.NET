@@ -63,7 +63,7 @@ namespace DolDoc.Editor.Core
 
         public bool HasPageForPosition(int position)
         {
-            int pageIndex = position / PageRows;
+            int pageIndex = position / PageRows / PageColumns;
 
             return pageIndex < _pages.Count;
         }
