@@ -47,8 +47,6 @@ namespace DolDoc.Editor.Core
         /// </summary>
         public int RelativeTextOffset { get; }
 
-        public int AbsoluteTextOffset => (Entry?.TextOffset ?? 0) + RelativeTextOffset;
-
         public bool HasEntry => Entry != null;
 
         public Character(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte shiftX = 0, byte shiftY = 0)

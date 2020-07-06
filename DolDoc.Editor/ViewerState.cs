@@ -1,5 +1,6 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
@@ -14,7 +15,9 @@ namespace DolDoc.Editor
         private const EgaColor DefaultBackgroundColor = EgaColor.White;
         private const EgaColor DefaultForegroundColor = EgaColor.Black;
 
-        private Document _document;
+        public Document Document { get; }
+
+        public Cursor Cursor { get; }
 
         private bool _cursorInverted;
         private IFrameBuffer _frameBuffer;
@@ -22,14 +25,14 @@ namespace DolDoc.Editor
 
         public ViewerState(IFrameBuffer frameBuffer, Document doc, int width, int height)
         {
-            _document = doc;
+            Cursor = new Cursor(this);
+            Document = doc;
             _frameBuffer = frameBuffer;
             _renderBuffer = new byte[width * height];
             Rows = doc.Rows;
             Width = width;
             Height = height;
             Columns = doc.Columns;
-            ViewLine = 0;
             _cursorInverted = false;
 
             RawMode = false;
@@ -52,6 +55,8 @@ namespace DolDoc.Editor
                 State = this
             };
 
+            var stack = new EntryRenderContextStack(ctx);
+
             if (!RawMode)
             {
                 foreach (var entry in document.Entries)
@@ -67,7 +72,7 @@ namespace DolDoc.Editor
                 }
             }
             else
-                DocumentEntry.CreateTextCommand(0, new Flag[0], document.ToPlainText()).Evaluate(ctx);
+                DocumentEntry.CreateTextCommand(new Flag[0], document.ToPlainText()).Evaluate(ctx);
 
             Render();
         }
@@ -82,26 +87,7 @@ namespace DolDoc.Editor
 
         public int Rows { get; private set; }
 
-        public int CursorX { get; private set; }
-
-        public int CursorY { get; private set; }
-
-        public int CursorPosition
-        {
-            get => CursorX + (CursorY * Columns);
-            set
-            {
-                CursorX = value % Columns;
-                CursorY = value / Columns;
-            }
-        }
-
-        public int CursorPositionWithViewlineOffset
-        {
-            get => CursorX + ((CursorY + ViewLine) * Columns);
-        }
-
-        public int ViewLine { get; private set; }
+        public int CursorPosition => Cursor.DocumentPosition;
 
         public bool RawMode { get; set; }
 
@@ -118,126 +104,38 @@ namespace DolDoc.Editor
                     break;
 
                 case ConsoleKey.RightArrow:
-                    if (!Pages[CursorPosition + 1].HasEntry)
-                    {
-                        do
-                        {
-                            // TODO: endoffile is not the correct position in the character buffer, it's the raw text position EOF.
-                            /*if (CursorPosition >= _endOfFile)
-                                break;*/
-
-                            CursorPosition++;
-                        } while (!Pages[CursorPosition].HasEntry);
-                    }
-                    else
-                        CursorPosition++;
-
+                    Cursor.Right();
                     RenderCursor();
                     break;
 
                 case ConsoleKey.LeftArrow:
-                    if (CursorPosition == 0)
-                        break;
-
-                    if (!Pages[CursorPosition - 1].HasEntry && CursorY > 0)
-                    {
-                        do
-                        {
-                            if (CursorPosition <= 0)
-                                break;
-
-                            CursorPosition--;
-                        } while (!Pages[CursorPosition].HasEntry);
-                    }
-                    else
-                        CursorPosition--;
-
-                    if (CursorPosition < 0)
-                        CursorPosition = 0;
-
+                    Cursor.Left();
                     RenderCursor();
                     break;
 
                 case ConsoleKey.DownArrow:
-                    if (CursorPosition + Columns > (Columns * Rows))
-                    {
-                        ViewLine++;
-                        break;
-                    }
-
-                    CursorPosition += Columns;
-
-                    if (!Pages[CursorPosition].HasEntry)
-                    {
-
-                        do
-                        {
-                            // TODO: endoffile is not the correct position in the character buffer, it's the raw text position EOF.
-                            //if (CursorPosition >= _endOfFile)
-                            //{
-                            //    CursorPosition = _endOfFile;
-                            //    break;
-                            //}
-
-                            CursorPosition--;
-                        } while (!Pages[CursorPosition].HasEntry);
-                    }
-
+                    Cursor.Down();
                     RenderCursor();
                     break;
 
                 case ConsoleKey.UpArrow:
-                    if (CursorPosition - Columns < 0)
-                    {
-                        if (ViewLine > 0)
-                            ViewLine--;
-                        else
-                            break;
-                    }
-                    else
-                        CursorPosition -= Columns;
-
-                    if (!Pages[CursorPosition].HasEntry)
-                    {
-
-                        do
-                        {
-                            if (CursorPosition <= 0)
-                                break;
-
-                            // TODO: endoffile is not the correct position in the character buffer, it's the raw text position EOF.
-                            //if (CursorPosition >= _endOfFile)
-                            //{
-                            //    CursorPosition = _endOfFile;
-                            //    break;
-                            //}
-
-                            CursorPosition--;
-                        } while (!Pages[CursorPosition].HasEntry);
-                    }
-
-                    if (CursorPosition < 0)
-                        CursorPosition = 0;
-
+                    Cursor.Up();
                     RenderCursor();
                     break;
             }
 
-            var ch = Pages[CursorPositionWithViewlineOffset];
+            var ch = Pages[Cursor.DocumentPosition];
             if (ch.Entry != null)
                 ch.Entry.KeyPress(this, key, ch.RelativeTextOffset);
-            _document.Refresh();
+            Document.Refresh();
         }
 
         public void KeyPress(char key)
         {
-            /*if (!char.IsControl(key) || key == '\r')
-            {*/
-            var ch = Pages[CursorPositionWithViewlineOffset];
+            var ch = Pages[Cursor.DocumentPosition];
             // Get the entry of the current cursor position.
             ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
-            _document.Refresh();
-            //}
+            Document.Refresh();
         }
 
         public void KeyUp(ConsoleKey key)
@@ -252,13 +150,13 @@ namespace DolDoc.Editor
 
         public void MousePress(int x, int y)
         {
-            CursorX = x / 8;
-            CursorY = y / 8;
+            //CursorX = x / 8;
+            //CursorY = y / 8;
 
-            if (Pages[CursorPositionWithViewlineOffset].HasEntry)
-                Pages[CursorPositionWithViewlineOffset].Entry.Click();
+            //if (Pages[CursorPositionWithViewlineOffset].HasEntry)
+            //    Pages[CursorPositionWithViewlineOffset].Entry.Click();
 
-            _document.Refresh();
+            //Document.Refresh();
         }
 
         public void MouseRelease(int x, int y)
@@ -268,14 +166,14 @@ namespace DolDoc.Editor
 
         public void PreviousPage()
         {
-            if (ViewLine == 0)
-                return;
+            //if (ViewLine == 0)
+            //    return;
 
-            ViewLine -= Rows;
-            if (ViewLine < 0)
-                ViewLine = 0;
+            //ViewLine -= Rows;
+            //if (ViewLine < 0)
+            //    ViewLine = 0;
 
-            Render();
+            //Render();
         }
 
         public void NextPage()
@@ -283,8 +181,8 @@ namespace DolDoc.Editor
             /*if (ViewOffset == _pages.Count - 1)
                 return;*/
 
-            ViewLine += Rows;
-            Render();
+            //ViewLine += Rows;
+            //Render();
         }
 
         public void LastPage()
@@ -302,7 +200,12 @@ namespace DolDoc.Editor
 
             for (int y = 0; y < Rows; y++)
                 for (int x = 0; x < Columns; x++)
-                    RenderCharacter(x, y, Pages[x, y + ViewLine]);
+                {
+                    if (!Pages.HasPageForPosition(x, y + Cursor.ViewLine))
+                        Pages.GetOrCreatePage(x, y + Cursor.ViewLine);
+
+                    RenderCharacter(x, y, Pages[x, y + Cursor.ViewLine]);
+                }
 
             _frameBuffer?.Render(_renderBuffer);
         }
@@ -311,9 +214,9 @@ namespace DolDoc.Editor
         {
             for (int fx = 0; fx < 8; fx++)
                 for (int fy = 0; fy < 8; fy++)
-                    _renderBuffer[((((CursorY * 8) + fy) * Width) + (CursorX * 8) + fx)] ^= 0x0F;
+                    _renderBuffer[((((Cursor.WindowY * 8) + fy) * Width) + (Cursor.WindowX * 8) + fx)] ^= 0x0F;
 
-            _frameBuffer.RenderPartial(CursorX * 8, CursorY * 8, 8, 8, _renderBuffer);
+            _frameBuffer.RenderPartial(Cursor.WindowX * 8, Cursor.WindowY * 8, 8, 8, _renderBuffer);
         }
 
         private void DoBlink(bool inverted)

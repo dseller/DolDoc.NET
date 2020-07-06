@@ -4,9 +4,10 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
-    public class Link : Text
+    public class Link : DocumentEntry
     {
-        public Link(int textOffset, IList<Flag> flags, IList<Argument> args) : base(textOffset, flags, args)
+        public Link(IList<Flag> flags, IList<Argument> args) 
+            : base(flags, args)
         {
         }
 
@@ -18,12 +19,13 @@ namespace DolDoc.Editor.Entries
             ctx.ForegroundColor = EgaColor.Red;
             ctx.Underline = true;
 
-            var result = base.Evaluate(ctx);
+            //var result = base.Evaluate(ctx);
+            var charsWritten = WriteString(ctx, Tag);
 
             ctx.ForegroundColor = oldFg;
             ctx.Underline = oldUl;
 
-            return result;
+            return new CommandResult(true, charsWritten);
         }
 
         public override string ToString() => $"$LK,\"{Tag}\"$";

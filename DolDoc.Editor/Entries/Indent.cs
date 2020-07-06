@@ -6,8 +6,8 @@ namespace DolDoc.Editor.Entries
 {
     public class Indent : DocumentEntry
     {
-        public Indent(int textOffset, IList<Flag> flags, IList<Argument> args) 
-            : base(textOffset, flags, args)
+        public Indent(IList<Flag> flags, IList<Argument> args) 
+            : base(flags, args)
         {
         }
 

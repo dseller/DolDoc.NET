@@ -6,8 +6,8 @@ namespace DolDoc.Editor.Entries
 {
     public class Invert : ContextSwitchEntryBase
     {
-        public Invert(int textOffset, IList<Flag> flags, IList<Argument> args) 
-            : base(textOffset, flags, args)
+        public Invert(IList<Flag> flags, IList<Argument> args) 
+            : base(flags, args)
         {
         }
 

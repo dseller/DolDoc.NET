@@ -6,8 +6,8 @@ namespace DolDoc.Editor.Entries
 {
     public class WordWrap : ContextSwitchEntryBase
     {
-        public WordWrap(int textOffset, IList<Flag> flags, IList<Argument> args)
-            : base(textOffset, flags, args)
+        public WordWrap(IList<Flag> flags, IList<Argument> args)
+            : base(flags, args)
         {
         }
 

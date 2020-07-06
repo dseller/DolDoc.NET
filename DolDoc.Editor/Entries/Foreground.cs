@@ -7,8 +7,8 @@ namespace DolDoc.Editor.Entries
 {
     public class Foreground : DocumentEntry
     {
-        public Foreground(int textOffset, IList<Flag> flags, IList<Argument> args)
-            : base(textOffset, flags, args)
+        public Foreground(IList<Flag> flags, IList<Argument> args)
+            : base(flags, args)
         {
         }
 

@@ -6,7 +6,8 @@ namespace DolDoc.Editor.Entries
 {
     public class Clear : DocumentEntry
     {
-        public Clear(int textOffset, IList<Flag> flags, IList<Argument> args) : base(textOffset, flags, args)
+        public Clear(IList<Flag> flags, IList<Argument> args) 
+            : base(flags, args)
         {
         }
 

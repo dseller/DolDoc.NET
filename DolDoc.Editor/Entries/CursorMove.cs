@@ -8,8 +8,8 @@ namespace DolDoc.Editor.Entries
 {
     public class CursorMove : DocumentEntry
     {
-        public CursorMove(int textOffset, IList<Flag> flags, IList<Argument> args) 
-            : base(textOffset, flags, args)
+        public CursorMove(IList<Flag> flags, IList<Argument> args) 
+            : base(flags, args)
         {
         }
 

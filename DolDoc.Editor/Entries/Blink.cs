@@ -6,8 +6,8 @@ namespace DolDoc.Editor.Entries
 {
     public class Blink : ContextSwitchEntryBase
     {
-        public Blink(int textOffset, IList<Flag> flags, IList<Argument> args) 
-            : base(textOffset, flags, args)
+        public Blink(IList<Flag> flags, IList<Argument> args) 
+            : base(flags, args)
         {
         }
 

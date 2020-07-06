@@ -6,8 +6,8 @@ namespace DolDoc.Editor.Entries
 {
     public class Underline : ContextSwitchEntryBase
     {
-        public Underline(int textOffset, IList<Flag> flags, IList<Argument> args)
-            : base(textOffset, flags, args)
+        public Underline(IList<Flag> flags, IList<Argument> args)
+            : base(flags, args)
         {
         }
 

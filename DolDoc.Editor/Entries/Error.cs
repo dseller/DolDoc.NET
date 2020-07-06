@@ -8,8 +8,8 @@ namespace DolDoc.Editor.Entries
     {
         private string _errorMessage;
 
-        public Error(int textOffset, string errorMsg) 
-            : base(textOffset, null, null)
+        public Error(string errorMsg) 
+            : base(null, null)
         {
             _errorMessage = errorMsg;
         }

@@ -24,20 +24,15 @@ namespace DolDoc.Editor.Core
             _viewerState = viewerState;
         }
 
-        ///// <summary>
-        ///// The column of the cursor in the window (not adjusted to the ViewLine)
-        ///// </summary>
-        //public int WindowX { get; set; }
+        /// <summary>
+        /// The column of the cursor in the window (not adjusted to the ViewLine)
+        /// </summary>
+        public int WindowX => DocumentX;
 
-        ///// <summary>
-        ///// The row of the cursor in the window (not adjusted to the ViewLine)
-        ///// </summary>
-        //public int WindowY { get; set; }
-
-        ///// <summary>
-        ///// The index of the cursor in the window (not adjusted to the ViewLine)
-        ///// </summary>
-        //public int WindowPosition { get; set; }
+        /// <summary>
+        /// The row of the cursor in the window (not adjusted to the ViewLine)
+        /// </summary>
+        public int WindowY => (DocumentY + ViewLine) % _viewerState.Rows;
 
         public int ViewLine { get; private set; }
 
@@ -73,9 +68,7 @@ namespace DolDoc.Editor.Core
                 DocumentPosition = FindNearestEntry(Direction.Right) ?? DocumentPosition;
 
             if (DocumentY > ViewLine + _viewerState.Rows)
-            {
                 ViewLine += (DocumentY - (ViewLine + _viewerState.Rows));
-            }
         }
 
         /// <summary>
@@ -115,9 +108,7 @@ namespace DolDoc.Editor.Core
                 DocumentPosition = FindNearestEntry(Direction.Down) ?? DocumentPosition;
 
             if (DocumentY > ViewLine + _viewerState.Rows)
-            {
                 ViewLine += (DocumentY - (ViewLine + _viewerState.Rows));
-            }
         }
 
         /// <summary>
@@ -126,9 +117,9 @@ namespace DolDoc.Editor.Core
         /// </summary>
         /// <param name="dir">The direction to scan</param>
         /// <returns>The position, or null if no entry was found</returns>
-        private int? FindNearestEntry(Direction dir, int? offset = null)
+        private int? FindNearestEntry(Direction dir)
         {
-            int position = DocumentPosition + (offset ?? 0);
+            int position = DocumentPosition;
 
             if (dir == Direction.Up)
             {

@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace DolDoc.Editor.Entries
 {
-    public class Tree : Text
+    public class Tree : DocumentEntry
     {
-        public Tree(int textOffset, IList<Flag> flags, IList<Argument> args)
-            : base(textOffset, flags, args)
+        public Tree(IList<Flag> flags, IList<Argument> args)
+            : base(flags, args)
         {
         }
 
@@ -39,8 +39,6 @@ namespace DolDoc.Editor.Entries
         {
             if (key == ' ' || key == '\r')
                 Toggle();
-            else
-                base.CharKeyPress(state, key, relativeOffset);
         }
 
         public override void Click()

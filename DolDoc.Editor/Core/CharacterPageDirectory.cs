@@ -63,7 +63,12 @@ namespace DolDoc.Editor.Core
         public bool HasPageForPosition(int position)
         {
             int pageIndex = position / PageRows / PageColumns;
+            return pageIndex < _pages.Count;
+        }
 
+        public bool HasPageForPosition(int x, int y)
+        {
+            int pageIndex = y / PageRows;
             return pageIndex < _pages.Count;
         }
 
@@ -91,7 +96,7 @@ namespace DolDoc.Editor.Core
             int pageIndex = y / PageRows;
 
             if (pageIndex < 0 || pageIndex >= _pages.Count)
-                throw new ArgumentOutOfRangeException(nameof(y));
+                return null;
 
             return _pages[pageIndex];
         }

@@ -103,13 +103,15 @@ namespace DolDoc.Win32Host
         private void DebugDump()
         {
             uxDebugView.Clear();
-            uxDebugView.Text = $@"ViewerState:
-Cursor {_viewerState.CursorX},{_viewerState.CursorY} ({_viewerState.CursorPosition})
-ViewLine: {_viewerState.ViewLine}
+            uxDebugView.Text = $@"Cursor:
+DocumentCursor: {_viewerState.Cursor.DocumentX},{_viewerState.Cursor.DocumentY} ({_viewerState.CursorPosition})
+WindowX: {_viewerState.Cursor.WindowX}
+WindowY: {_viewerState.Cursor.WindowY}
+ViewLine: {_viewerState.Cursor.ViewLine}
+CurrentEntry: {_viewerState.Cursor.SelectedEntry?.ToString()}
 
 Char info:
   Char: {_viewerState.Pages[_viewerState.CursorPosition].Char}
-  TextOffset: {_viewerState.Pages[_viewerState.CursorPosition].AbsoluteTextOffset}
   Page: {_viewerState.Pages.GetOrCreatePage(_viewerState.CursorPosition).PageNumber}
 ";
         }
@@ -226,7 +228,7 @@ Char info:
         {
             _viewerState.MouseMove(e.X, e.Y);
 
-            var pos = ((e.X / 8) + (((e.Y / 8) + _viewerState.ViewLine) * _viewerState.Columns));
+            var pos = ((e.X / 8) + (((e.Y / 8) + _viewerState.Cursor.ViewLine) * _viewerState.Columns));
             if (_viewerState.Pages[pos].HasEntry &&
                 _viewerState.Pages[pos].Entry.Clickable &&
                 System.Windows.Forms.Cursor.Current != Cursors.Hand)

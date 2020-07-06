@@ -6,8 +6,8 @@ namespace DolDoc.Editor.Entries
 {
     public abstract class ContextSwitchEntryBase : DocumentEntry
     {
-        protected ContextSwitchEntryBase(int textOffset, IList<Flag> flags, IList<Argument> args) 
-            : base(textOffset, flags, args)
+        protected ContextSwitchEntryBase(IList<Flag> flags, IList<Argument> args) 
+            : base(flags, args)
         {
         }
 

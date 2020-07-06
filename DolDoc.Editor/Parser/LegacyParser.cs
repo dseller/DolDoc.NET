@@ -23,7 +23,7 @@ namespace DolDoc.Core.Parser
                     i++;
                     if (content[i] == '$')
                     {
-                        result.Add(DocumentEntry.CreateTextCommand(offset, flags, new string(content[i], 1)));
+                        result.Add(DocumentEntry.CreateTextCommand(flags, new string(content[i], 1)));
                         continue;
                     }
 
@@ -90,7 +90,7 @@ namespace DolDoc.Core.Parser
                         }
                     }
 
-                    result.Add(EntryFactory.Create(cmd, offset, flags, arguments));
+                    result.Add(EntryFactory.Create(cmd, flags, arguments));
                 }
                 else
                 {
@@ -101,7 +101,7 @@ namespace DolDoc.Core.Parser
                     if (i < content.Length && content[i] == '$')
                         i--;
 
-                    result.Add(DocumentEntry.CreateTextCommand(offset, new Flag[0], builder.ToString()));
+                    result.Add(DocumentEntry.CreateTextCommand(new Flag[0], builder.ToString()));
                 }
             }
 

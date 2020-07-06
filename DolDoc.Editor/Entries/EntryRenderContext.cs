@@ -1,8 +1,9 @@
 ﻿using DolDoc.Editor.Core;
+using System;
 
 namespace DolDoc.Editor.Commands
 {
-    public class EntryRenderContext
+    public class EntryRenderContext : ICloneable
     {
         /// <summary>
         /// The current Document.
@@ -44,5 +45,22 @@ namespace DolDoc.Editor.Commands
         public int Indentation { get; set; }
 
         public int? CollapsedTreeNodeIndentationLevel { get; set; }
+
+        public object Clone() => new EntryRenderContext
+            {
+                State = State,
+                Document = Document,
+                RenderPosition = RenderPosition,
+                ForegroundColor = ForegroundColor,
+                BackgroundColor = BackgroundColor,
+                DefaultBackgroundColor = DefaultBackgroundColor,
+                DefaultForegroundColor = DefaultForegroundColor,
+                Underline = Underline,
+                Blink = Blink,
+                WordWrap = WordWrap,
+                Inverted = Inverted,
+                Indentation = Indentation,
+                CollapsedTreeNodeIndentationLevel = CollapsedTreeNodeIndentationLevel
+            };
     }
 }
