@@ -73,7 +73,7 @@ namespace DolDoc.Editor.Core
             if (HasFlag("CX"))
             {
                 renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + ((ctx.State.Columns / 2) - (str.Length / 2));
-                charsWritten = ctx.State.Columns - (renderPosition - (renderPosition % ctx.State.Columns));
+                charsWritten = renderPosition - ctx.RenderPosition;
             }
 
             for (var i = 0; i < str.Length; i++)
