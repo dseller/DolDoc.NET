@@ -58,6 +58,29 @@ namespace DolDoc.Editor.Core
             // Do nothing atm.
         }
 
+        protected void WriteBorder(EntryRenderContext ctx, int length)
+        {
+            // TODO: add support for multiline borders!
+
+            // Write top border
+            ctx.State.Pages[ctx.RenderPosition - ctx.State.Columns - 1] = new Character(this, 0, 0xDA, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            for (int i = 0; i < length; i++)
+                ctx.State.Pages[ctx.RenderPosition - ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[ctx.RenderPosition - ctx.State.Columns + length] = new Character(this, 0, 0xBF, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+
+            // Write bottom border
+            ctx.State.Pages[ctx.RenderPosition + ctx.State.Columns - 1] = new Character(this, 0, 0xC0, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            for (int i = 0; i < length; i++)
+                ctx.State.Pages[ctx.RenderPosition + ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[ctx.RenderPosition + ctx.State.Columns + length] = new Character(this, 0, 0xD9, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+
+            // Write left border
+            ctx.State.Pages[ctx.RenderPosition - 1] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+
+            // Write right border
+            ctx.State.Pages[ctx.RenderPosition + length] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+        }
+
         /// <summary>
         /// Write a string with the context information provided.
         /// </summary>
@@ -92,20 +115,14 @@ namespace DolDoc.Editor.Core
 
                 if (ch == '\n')
                 {
-                    ctx.State.Pages[renderPosition] =
-                       new Character(this, i, (byte)' ', new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
-
                     var charsUntilEndOfLine = ctx.State.Columns - (renderPosition % ctx.State.Columns);
-                    for (int i2 = 1; i2 < charsUntilEndOfLine; i2++)
-                        ctx.State.Pages[renderPosition + i2] = new Character(null, 0, 0x00, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
-
                     renderPosition += charsUntilEndOfLine;
                     charsWritten += charsUntilEndOfLine;
                     continue;
                 }
                 else if (ch == '\t')
                 {
-                    var charsUntilMultipleOf5 = 5 - (renderPosition % 5);
+                    var charsUntilMultipleOf5 = 8 - (renderPosition % 8);
                     renderPosition += charsUntilMultipleOf5;
                     charsWritten += charsUntilMultipleOf5;
                     continue;

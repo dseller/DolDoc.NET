@@ -134,8 +134,11 @@ namespace DolDoc.Editor
         {
             var ch = Pages[Cursor.DocumentPosition];
             // Get the entry of the current cursor position.
-            ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
-            Document.Refresh();
+            if (ch.HasEntry)
+            {
+                ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
+                Document.Refresh();
+            }
         }
 
         public void KeyUp(ConsoleKey key)

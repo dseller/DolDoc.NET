@@ -136,14 +136,10 @@ Char info:
 
         private void LoadFile(Stream stream)
         {
-            using (var reader = new StreamReader(stream))
-            {
-                var content = reader.ReadToEnd();
-                _document = new Document(content, defaultFgColor: EgaColor.White);
-                _viewerState = new ViewerState(this, _document, 640, 480);
-                _viewerState.Pages.Clear();
-                _document.Refresh();
-            }
+            _document = DocumentLoader.Load(stream);
+            _viewerState = new ViewerState(this, _document, 640, 480);
+            _viewerState.Pages.Clear();
+            _document.Refresh();
         }
 
         private void WriteBackground(Bitmap g)

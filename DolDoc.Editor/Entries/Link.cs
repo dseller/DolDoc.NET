@@ -17,13 +17,20 @@ namespace DolDoc.Editor.Entries
             var oldUl = ctx.Underline;
 
             ctx.ForegroundColor = EgaColor.Red;
-            ctx.Underline = true;
+
+            if (!HasFlag("UL", false))
+                ctx.Underline = true;
 
             //var result = base.Evaluate(ctx);
             var charsWritten = WriteString(ctx, Tag);
+            if (HasFlag("B", true))
+                WriteBorder(ctx, charsWritten);
 
             ctx.ForegroundColor = oldFg;
-            ctx.Underline = oldUl;
+            if (!HasFlag("UL", false))
+                ctx.Underline = oldUl;
+
+            
 
             return new CommandResult(true, charsWritten);
         }

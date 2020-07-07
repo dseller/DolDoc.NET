@@ -16,7 +16,7 @@ namespace DolDoc.Editor.Entries
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             var columns = int.Parse(Arguments[0].Value);
-            var rows = int.Parse(Arguments[1].Value);
+            var rows = HasFlag("RE", false) ? 0 : int.Parse(Arguments[1].Value);
 
             int originX = ctx.RenderPosition % ctx.State.Columns, originY = ctx.RenderPosition / ctx.State.Columns;
             if (HasFlag("LX"))

@@ -88,6 +88,9 @@
     <None Include="Examples\HoldTest.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Examples\Job.DD">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Examples\Welcome.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

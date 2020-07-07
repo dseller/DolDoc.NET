@@ -1,4 +1,4 @@
-﻿$TX+CX,"DolDoc Character Map"$
+$TX+CX,"DolDoc Character Map"$
 
 I use this character map to aid in the development of DolDoc.NET. It uses a DolDoc extension for rendering a character by its numeric representation: $FG,GREEN$$TX,"$CH,<byte>$"$$FG$.
 
