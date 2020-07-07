@@ -3,6 +3,7 @@ A .NET port of Terry Davis' [✝] [TempleOS](http://www.templeos.org) DolDoc doc
 
 ** This is still heavily under development! **
 
-Here's a screenshot of it in action:
+Here are some screenshots of it in action:
 
+![sprites](https://github.com/dseller/DolDoc.NET/blob/master/Screenshot2.png)
 ![screenshot](https://github.com/dseller/DolDoc.NET/blob/master/Screenshot1.png)
