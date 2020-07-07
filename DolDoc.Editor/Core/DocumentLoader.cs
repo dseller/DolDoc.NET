@@ -32,7 +32,7 @@ namespace DolDoc.Editor.Core
                     binaryChunks.Add(new BinaryChunk(chunkId, flags, size, refCount, binaryData));
                 }
 
-                return new Document(text.Replace("\r\n", "\n"));
+                return new Document(text.Replace("\r\n", "\n"), binaryChunks: binaryChunks);
             }
         }
 

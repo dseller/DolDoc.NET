@@ -10,8 +10,4 @@
     <None Remove="Commands\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Sprites\" />
-  </ItemGroup>
-
 </Project>

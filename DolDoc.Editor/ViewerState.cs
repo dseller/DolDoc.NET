@@ -210,6 +210,11 @@ namespace DolDoc.Editor
                     RenderCharacter(x, y, Pages[x, y + Cursor.ViewLine]);
                 }
 
+            // render sprites. this is hacky, but for now it will do.
+            foreach (var entry in Document.Entries)
+                if (entry is Sprite spriteEntry)
+                    spriteEntry.SpriteObj.WriteToFrameBuffer(_renderBuffer, 0);
+
             _frameBuffer?.Render(_renderBuffer);
         }
 

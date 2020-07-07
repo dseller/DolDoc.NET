@@ -1,0 +1,36 @@
+﻿namespace DolDoc.Editor.Sprites
+{
+    public enum SpriteElementType : byte
+    {
+        End,
+        Color,
+        DitherColor,
+        Thick,
+        PlanarSymmetry,
+        TransformOn,
+        TransformOff,
+        Shift,
+        Point,
+        PolyPoint,
+        Line,
+        PolyLine,
+        Rect,
+        RotatedRect,
+        Circle,
+        Ellipse,
+        Polygon,
+        BSpline2,
+        BSpline2Closed,
+        BSpline3,
+        BSpline3Closed,
+        FloodFill,
+        FloodFillNot,
+        Bitmap,
+        Mesh,
+        ShiftableMesh,
+        Arrow,
+        Text,
+        TextBox,
+        TextDiamond
+    }
+}

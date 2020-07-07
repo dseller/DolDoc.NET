@@ -58,6 +58,8 @@ namespace DolDoc.Editor.Core
             // Do nothing atm.
         }
 
+        protected string GetArgument(string key) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value;
+
         protected void WriteBorder(EntryRenderContext ctx, int length)
         {
             // TODO: add support for multiline borders!

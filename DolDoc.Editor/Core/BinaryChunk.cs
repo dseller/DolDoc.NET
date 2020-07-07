@@ -11,14 +11,14 @@
             Data = data;
         }
 
-        uint Id { get; }
+        public uint Id { get; }
 
-        uint Flags { get; }
+        public uint Flags { get; }
 
-        uint Size { get; }
+        public uint Size { get; }
 
-        uint RefCount { get; }
+        public uint RefCount { get; }
 
-        byte[] Data { get; }
+        public byte[] Data { get; }
     }
 }
