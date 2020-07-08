@@ -265,6 +265,9 @@
     <None Include="Examples\Pags.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Examples\PersonalMenu.DD">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Examples\PreProcessor.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

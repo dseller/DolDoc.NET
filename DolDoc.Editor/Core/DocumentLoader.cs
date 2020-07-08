@@ -16,12 +16,8 @@ namespace DolDoc.Editor.Core
             {
                 string text = reader.ReadNullTerminatedString();
 
-                if (reader.BaseStream.Position < reader.BaseStream.Length)
+                while (reader.BaseStream.Position < reader.BaseStream.Length)
                 {
-                    // Discard the zero
-                    if (reader.PeekChar() == 0x00)
-                        reader.ReadByte();
-
                     uint chunkId = reader.ReadUInt32();
                     uint flags = reader.ReadUInt32();
                     uint size = reader.ReadUInt32();

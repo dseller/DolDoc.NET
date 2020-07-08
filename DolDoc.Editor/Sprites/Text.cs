@@ -29,9 +29,11 @@ namespace DolDoc.Editor.Sprites
                     for (int fy = 0; fy < 8; fy++)
                     {
                         bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                        frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i*8)] = draw ? (byte)EgaColor.Black : (byte)EgaColor.White;
+                        frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i*8)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
                     }
             }
         }
+
+        public override string ToString() => $"Text ({X}, {Y}) [{Value}]";
     }
 }

@@ -33,6 +33,10 @@ namespace DolDoc.Editor.Sprites
                                 _spriteElements.Add(new Arrow(reader));
                                 break;
 
+                            case SpriteElementType.Bitmap:
+                                _spriteElements.Add(new Bitmap(reader));
+                                break;
+
                             case SpriteElementType.Color:
                                 _spriteElements.Add(new Color(reader));
                                 break;
