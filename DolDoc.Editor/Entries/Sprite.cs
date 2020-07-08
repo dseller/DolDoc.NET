@@ -11,6 +11,8 @@ namespace DolDoc.Editor.Entries
     {
         public Sprites.Sprite SpriteObj { get; private set; }
 
+        public int SpriteOffset { get; private set; }
+
         public Sprite(IList<Flag> flags, IList<Argument> args) 
             : base(flags, args)
         {
@@ -27,6 +29,7 @@ namespace DolDoc.Editor.Entries
                 return new CommandResult(false);
 
             SpriteObj = new Sprites.Sprite(chunk.Data);
+            SpriteOffset = ctx.RenderPosition;
 
             return new CommandResult(true);
         }

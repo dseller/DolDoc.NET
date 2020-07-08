@@ -37,6 +37,10 @@ namespace DolDoc.Editor.Sprites
                                 _spriteElements.Add(new Line(reader));
                                 break;
 
+                            case SpriteElementType.Text:
+                                _spriteElements.Add(new Text(reader));
+                                break;
+
                             default:
                                 Console.WriteLine("Encountered unsupported sprite element '{0}', aborting sprite loading", elementType);
                                 return;     // Return here to avoid garbage being read.

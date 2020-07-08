@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DolDoc.Editor.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -13,7 +14,7 @@ namespace DolDoc.Editor.Core
 
             using (var reader = new BinaryReader(stream))
             {
-                string text = ReadTextSection(reader);
+                string text = reader.ReadNullTerminatedString();
 
                 if (reader.BaseStream.Position < reader.BaseStream.Length)
                 {
@@ -34,17 +35,6 @@ namespace DolDoc.Editor.Core
 
                 return new Document(text.Replace("\r\n", "\n"), binaryChunks: binaryChunks);
             }
-        }
-
-        private static string ReadTextSection(BinaryReader reader)
-        {
-            int pos = 0;
-            byte[] buffer = new byte[reader.BaseStream.Length];
-
-            while (reader.PeekChar() != 0x00 && reader.BaseStream.Position < reader.BaseStream.Length)
-                buffer[pos++] = reader.ReadByte();
-
-            return Encoding.ASCII.GetString(buffer);
         }
     }
 }
