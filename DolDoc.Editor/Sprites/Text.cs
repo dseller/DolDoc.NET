@@ -19,7 +19,7 @@ namespace DolDoc.Editor.Sprites
 
         public string Value { get; }
 
-        public override void Render(byte[] frameBuffer, int pixelOffset)
+        public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
         {
             // foreach (char ch in Value)
             for (int i = 0; i < Value.Length; i++)
@@ -29,7 +29,6 @@ namespace DolDoc.Editor.Sprites
                     for (int fy = 0; fy < 8; fy++)
                     {
                         bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                        // _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
                         frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i*8)] = draw ? (byte)EgaColor.Black : (byte)EgaColor.White;
                     }
             }

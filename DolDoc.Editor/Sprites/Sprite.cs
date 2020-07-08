@@ -33,12 +33,24 @@ namespace DolDoc.Editor.Sprites
                                 _spriteElements.Add(new Arrow(reader));
                                 break;
 
+                            case SpriteElementType.Color:
+                                _spriteElements.Add(new Color(reader));
+                                break;
+
                             case SpriteElementType.Line:
                                 _spriteElements.Add(new Line(reader));
                                 break;
 
                             case SpriteElementType.Text:
                                 _spriteElements.Add(new Text(reader));
+                                break;
+
+                            case SpriteElementType.TextBox:
+                                _spriteElements.Add(new TextBox(reader));
+                                break;
+
+                            case SpriteElementType.Thick:
+                                _spriteElements.Add(new Thick(reader));
                                 break;
 
                             default:
@@ -52,8 +64,12 @@ namespace DolDoc.Editor.Sprites
 
         public void WriteToFrameBuffer(byte[] frameBuffer, int pixelOffset)
         {
+            var ctx = new SpriteRenderContext();
             foreach (var element in _spriteElements)
-                element.Render(frameBuffer, pixelOffset);
+            {
+                element.Render(ctx, frameBuffer, pixelOffset);
+                Console.WriteLine("Rendered {0}", element);
+            }
         }
     }
 }

@@ -22,9 +22,9 @@ namespace DolDoc.Editor.Sprites
 
         public int Y2 { get; }
 
-		public override void Render(byte[] frameBuffer, int pixelOffset) => RenderLine(frameBuffer, pixelOffset, X1, Y1, X2, Y2);
+		public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset) => RenderLine(ctx, frameBuffer, pixelOffset, X1, Y1, X2, Y2, ctx.Color);
 
-		protected void RenderLine(byte[] frameBuffer, int pixelOffset, int x1, int y1, int x2, int y2, EgaColor color = EgaColor.Black)
+		protected void RenderLine(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset, int x1, int y1, int x2, int y2, EgaColor color = EgaColor.Black)
         {
             int w = x2 - x1;
             int h = y2 - y1;

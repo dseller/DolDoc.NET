@@ -10,13 +10,14 @@ namespace DolDoc.Editor.Sprites
         public Arrow(BinaryReader reader) 
             : base(reader)
         {
-            Console.WriteLine("Sprite: ^^^ is actually arrow", X1, Y1, X2, Y2);
         }
 
-        public override void Render(byte[] frameBuffer, int pixelOffset)
+        public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
         {
             // First, render the line.
-            base.Render(frameBuffer, pixelOffset);
+            base.Render(ctx, frameBuffer, pixelOffset);
         }
+
+        public override string ToString() => $"Arrow ({X1}, {Y1}) => ({X2}, {Y2})";
     }
 }
