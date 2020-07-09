@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DolDoc.Editor.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -32,22 +33,22 @@ namespace DolDoc.Editor.Core
         /// <summary>
         /// The row of the cursor in the window (not adjusted to the ViewLine)
         /// </summary>
-        public int WindowY => (DocumentY + ViewLine) % _viewerState.Rows;
+        public int WindowY => (DocumentY - ViewLine).Clamp(0, _viewerState.Rows);
 
         public int ViewLine { get; private set; }
 
         /// <summary>
-        /// The selected column within the document (adjusted to the ViewLine)
+        /// The selected column within the document
         /// </summary>
         public int DocumentX => DocumentPosition % _viewerState.Columns;
 
         /// <summary>
-        /// The selected row within the document (adjusted to the ViewLine)
+        /// The selected row within the document
         /// </summary>
         public int DocumentY => DocumentPosition / _viewerState.Columns;
 
         /// <summary>
-        /// The index of the cursor in the document (adjusted to the ViewLine)
+        /// The index of the cursor in the document
         /// </summary>
         public int DocumentPosition { get; set; }
 
@@ -95,6 +96,9 @@ namespace DolDoc.Editor.Core
                 DocumentPosition -= _viewerState.Columns;
             else
                 DocumentPosition = FindNearestEntry(Direction.Up) ?? DocumentPosition;
+
+            if (DocumentY < ViewLine)
+                ViewLine -= ViewLine - DocumentY;
         }
 
         public void Down()
@@ -107,8 +111,8 @@ namespace DolDoc.Editor.Core
             else
                 DocumentPosition = FindNearestEntry(Direction.Down) ?? DocumentPosition;
 
-            if (DocumentY > ViewLine + _viewerState.Rows)
-                ViewLine += (DocumentY - (ViewLine + _viewerState.Rows));
+            if (DocumentY >= ViewLine + _viewerState.Rows)
+                ViewLine += (DocumentY - (ViewLine + _viewerState.Rows)) + 1;
         }
 
         /// <summary>
