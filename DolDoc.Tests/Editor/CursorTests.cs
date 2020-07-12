@@ -204,7 +204,7 @@ namespace DolDoc.Tests.Editor
             for (int i = 0; i < 62; i++)
                 cursor.Down();
 
-            Assert.AreEqual(2, cursor.ViewLine);
+            Assert.AreEqual(3, cursor.ViewLine);
         }
     }
 }

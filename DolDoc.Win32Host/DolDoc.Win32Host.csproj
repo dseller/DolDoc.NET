@@ -235,6 +235,9 @@
     <None Include="Examples\Lex.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Examples\LoremIpsum.DD">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Examples\MemOverview.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
