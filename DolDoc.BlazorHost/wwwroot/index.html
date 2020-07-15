@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>DolDoc.NET Blazor Host Proof-of-concept</title>
+    <base href="/" />
+    <style type="text/css">
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>DolDoc.NET Blazor Host</h1>
+    <p>This is a proof-of-concept project to host the <a target="_blank" href="https://github.com/dseller/DolDoc.NET">DolDoc.NET</a> parser/renderer in a Blazor WebAssembly environment.</p>
+    <p>This was written by D. Seller, last updated on July 15th 2020.</p>
+
+    <app>Loading...</app>
+
+    <p>
+        Use these links to navigate to a document:
+
+        <ul>
+            <li><a href="?file=Welcome.DD">Welcome.DD</a></li>
+            <li><a href="?file=DolDocOverview.DD">DolDocOverview.DD</a></li>
+            <li><a href="?file=AboutTempleOS.DD">AboutTempleOS.DD</a></li>
+            <li><a href="?file=Job.DD">Job.DD</a> (sprites!)</li>
+            <li><a href="?file=Hash.DD">Hash.DD</a> (sprites!)</li>
+            <li><a href="?file=GraphicsOverview.DD">GraphicsOverview.DD</a> (sprites!)</li>
+        </ul>
+    </p>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
+    <script type="text/javascript">
+        window.renderDolDoc = function (inArray) {
+            var colors = [
+                [0x00, 0x00, 0x00],
+                [0x00, 0x00, 0xAA],
+                [0x00, 0xAA, 0x00],
+                [0x00, 0xAA, 0xAA],
+                [0xAA, 0x00, 0x00],
+                [0xAA, 0x00, 0xAA],
+                [0xAA, 0x55, 0x00],
+                [0xAA, 0xAA, 0xAA],
+                [0x55, 0x55, 0x55],
+                [0x55, 0x55, 0xFF],
+                [0x55, 0xFF, 0x55],
+                [0x55, 0xFF, 0xFF],
+                [0xFF, 0x55, 0x55],
+                [0xFF, 0x55, 0xFF],
+                [0xFF, 0xFF, 0x55],
+                [0xFF, 0xFF, 0xFF],
+            ];
+
+            var bytes = atob(inArray);
+            var canvas = document.getElementById('the-canvas');
+            var ctx = canvas.getContext('2d');
+            var imageData = ctx.createImageData(640, 480);
+
+            for (var i = 0; i < bytes.length; i++) {
+                var c = bytes.charCodeAt(i);   //bytes[i];
+                if (c > colors.length) {
+                    continue;
+                }
+
+                var rgb = colors[c];
+                imageData.data[(i * 4)] = rgb[0];
+                imageData.data[(i * 4) + 1] = rgb[1];
+                imageData.data[(i * 4) + 2] = rgb[2];
+                imageData.data[(i * 4) + 3] = 0xFF;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        };
+    </script>
+</body>
+
+</html>
