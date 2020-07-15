@@ -8,6 +8,8 @@ __This is still heavily under development!__
 You can find a proof of concept of the DolDoc.NET formatting engine [here](http://dseller.github.io). Please note that at the time of writing, user input is not yet implemented. Also note that because DolDoc.NET is heavily under development,
 it is very unoptimized. This is extra apparent in the Blazor host.
 
+## Screenshots
+
 Here are some screenshots of it in action:
 
 ![s2](https://github.com/dseller/DolDoc.NET/blob/master/Screenshot3.png)
