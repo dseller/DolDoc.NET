@@ -1,5 +1,6 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Entries;
+using DolDoc.Editor.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,6 +105,24 @@ namespace DolDoc.Editor.Core
             for (var i = 0; i < str.Length; i++)
             {
                 char ch = str[i];
+
+                // Wordwrap: see if the current word fits in the remainder of the line. If not, move the 
+                // render position to the new line.
+                if (!char.IsWhiteSpace(ch))
+                {
+                    var wsIndex = str.IndexOfWhitespace(i);
+
+                    int remainder = ctx.State.Columns - (renderPosition % ctx.State.Columns);
+                    if (wsIndex.HasValue/* && (((wsIndex.Value + renderPosition) % ctx.State.Columns) - ctx.State.Columns) > remainder*/)
+                    {
+                        int remainderWord = wsIndex.Value - i;
+                        if ((renderPosition % ctx.State.Columns) + remainderWord >= ctx.State.Columns)
+                        {
+                            renderPosition += remainder;
+                            charsWritten += remainder;
+                        }
+                    }
+                }
 
                 // Check indentation.
                 if (renderPosition % ctx.State.Columns == 0)

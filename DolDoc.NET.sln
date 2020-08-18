@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{CABEAD4F
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TOSZ", "Tools\TOSZ\TOSZ.vcxproj", "{9E8055AB-6AFA-450A-AFF3-6EC7E7863D15}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.BlazorHost", "DolDoc.BlazorHost\DolDoc.BlazorHost.csproj", "{7E414E77-22D5-4E24-810C-9371C9027BF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,18 @@ Global
 		{9E8055AB-6AFA-450A-AFF3-6EC7E7863D15}.Release|x64.Build.0 = Release|x64
 		{9E8055AB-6AFA-450A-AFF3-6EC7E7863D15}.Release|x86.ActiveCfg = Release|Win32
 		{9E8055AB-6AFA-450A-AFF3-6EC7E7863D15}.Release|x86.Build.0 = Release|Win32
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|x64.Build.0 = Debug|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|x86.Build.0 = Debug|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Release|x64.ActiveCfg = Release|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Release|x64.Build.0 = Release|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Release|x86.ActiveCfg = Release|Any CPU
+		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

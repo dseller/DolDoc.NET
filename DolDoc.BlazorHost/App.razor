@@ -1,0 +1,70 @@
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+@inject NavigationManager NavManager 
+
+@using DolDoc.Editor.Core;
+@using DolDoc.Editor;
+@using System.Timers; 
+
+<div class="container" tabindex='1' @onkeydown="OnKeyPress" @onkeydown:preventDefault>
+    <canvas width="640" height="480" id="the-canvas"></canvas>
+</div>
+
+@code {
+    private Timer _timer;
+    private ViewerState _state;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        var queryString = QueryHelpers.ParseQuery(uri.Query);
+        var fileName = queryString.ContainsKey("file") ? queryString["file"].ToString() : "DolDocOverview.DD";
+
+        var stream = await Http.GetStreamAsync($"/documents/{fileName}");
+
+        var fb = new Canvas2DFrameBuffer(JSRuntime);
+        var document = DocumentLoader.Load(stream);
+        _state = new ViewerState(fb, document, 640, 480);
+        _state.Pages.Clear();
+        document.Refresh();
+
+        _timer = new Timer(200);
+        _timer.Elapsed += (source, e) => _state.Tick();
+        _timer.Enabled = true;
+    }
+
+    protected async Task OnKeyPress(KeyboardEventArgs e)
+    {
+        var translation = new Dictionary<string, ConsoleKey>
+        {
+            { "ArrowDown", ConsoleKey.DownArrow},
+            { "ArrowRight", ConsoleKey.RightArrow },
+            { "ArrowLeft", ConsoleKey.LeftArrow },
+            { "ArrowUp", ConsoleKey.UpArrow },
+            { "Backspace", ConsoleKey.Backspace },
+            { "Delete", ConsoleKey.Delete },
+            { "Home", ConsoleKey.Home },
+            { "PageUp", ConsoleKey.PageUp },
+            { "PageDown", ConsoleKey.PageDown }
+        };
+
+        _timer.Enabled = false;
+
+        if (translation.TryGetValue(e.Code, out var key))
+            _state.KeyDown(key);
+        else
+        {
+            char ch = e.Key[0];
+            if (!char.IsControl(ch))
+                _state.KeyPress(ch);
+        }
+
+        _timer.Enabled = true;
+
+        Console.WriteLine(e.Code);
+        Console.WriteLine(e.Key);
+    }
+}

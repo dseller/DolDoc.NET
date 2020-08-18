@@ -1,0 +1,4 @@
+This is a document.
+$TX+H+CX,"This is a held, centered string."$
+This is a string that is not held.
+$CL$
