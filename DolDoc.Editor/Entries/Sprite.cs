@@ -28,15 +28,18 @@ namespace DolDoc.Editor.Entries
             if (chunk == null)
                 return new CommandResult(false);
 
+            int writtenChars = 0;
+            if (Tag != null)
+            {
+                writtenChars = WriteString(ctx, Tag);
+            }
+
             SpriteObj = new Sprites.Sprite(chunk.Data);
-            SpriteOffset = ctx.RenderPosition;
+            SpriteOffset = ctx.RenderPosition + writtenChars;
 
-            return new CommandResult(true);
+            return new CommandResult(true, writtenChars);
         }
 
-        public override string ToString()
-        {
-            throw new NotImplementedException();
-        }
+        public override string ToString() => $"$SP,\"{Tag}\",BI={GetArgument("BI")}$";
     }
 }

@@ -148,7 +148,7 @@ namespace DolDoc.Editor
 
         public void MouseMove(int x, int y)
         {
-            
+
         }
 
         public void MousePress(int x, int y)
@@ -214,7 +214,7 @@ namespace DolDoc.Editor
             foreach (var entry in Document.Entries)
                 if (entry is Sprite spriteEntry && spriteEntry.SpriteObj != null)
                     if ((spriteEntry.SpriteOffset * 8 * 8) < Width * Height)
-                        spriteEntry.SpriteObj.WriteToFrameBuffer(_renderBuffer, (spriteEntry.SpriteOffset * 8 * 8) - (Cursor.ViewLine * Columns *8*8));
+                        spriteEntry.SpriteObj.WriteToFrameBuffer(_renderBuffer, (spriteEntry.SpriteOffset * 8 * 8) - (Cursor.ViewLine * Columns * 8 * 8));
 
             _frameBuffer?.Render(_renderBuffer);
         }

@@ -24,7 +24,12 @@ namespace DolDoc.Editor.Sprites
             //for (int y = _y + pixelOffset; y < _h + pixelOffset + _y; y++)
             for (int y = 0; y < _h; y++)
             {
-                Array.Copy(_data, y * _w, frameBuffer, pixelOffset + (y * 640) + (_y * 640) + _x, _w);
+                Array.Copy(
+                    _data, 
+                    y * _w, 
+                    frameBuffer, 
+                    pixelOffset + (y * 640) + (_y * 640) + _x, 
+                    _w);
             }
         }
     }
