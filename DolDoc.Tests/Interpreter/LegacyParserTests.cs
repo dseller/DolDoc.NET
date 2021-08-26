@@ -1,6 +1,7 @@
 ﻿using DolDoc.Core.Parser;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
+using DolDoc.Editor.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -9,12 +10,12 @@ namespace DolDoc.Tests.Interpreter
     [TestClass]
     public class LegacyParserTests
     {
-        private LegacyParser _parser;
+        private AntlrParser _parser;
 
         [TestInitialize]
         public void Initialize()
         {
-            _parser = new LegacyParser();
+            _parser = new AntlrParser();
         }
 
         [TestMethod]

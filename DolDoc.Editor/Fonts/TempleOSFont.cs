@@ -1,8 +1,16 @@
-﻿namespace DolDoc.Editor.Core
+﻿using System;
+
+namespace DolDoc.Editor.Fonts
 {
-    public static class SysFont
+    public class TempleOSFont : IFont
     {
-        public static ulong[] Font =
+        public byte[] this[int ch] => BitConverter.GetBytes(Font[ch]);
+
+        public int Width => 8;
+
+        public int Height => 8;
+
+        private static ulong[] Font =
         {
             0x0000000000000000,0x0000000000000000,
             0x000000FF00000000,0x000000FF00FF0000,//..

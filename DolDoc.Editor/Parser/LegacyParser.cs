@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
 
 namespace DolDoc.Core.Parser
 {
+    [Obsolete]
     public class LegacyParser : IDolDocParser
     {
         public IEnumerable<DocumentEntry> Parse(string content)

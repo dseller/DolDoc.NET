@@ -1,4 +1,5 @@
 ﻿using DolDoc.Core.Parser;
+using DolDoc.Editor.Parser;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -23,7 +24,7 @@ namespace DolDoc.Editor.Core
             Columns = columns;
             BinaryChunks = binaryChunks;
 
-            _parser = new LegacyParser();
+            _parser = new AntlrParser();
             Entries = new LinkedList<DocumentEntry>();
         }
 

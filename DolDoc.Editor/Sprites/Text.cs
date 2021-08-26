@@ -24,13 +24,13 @@ namespace DolDoc.Editor.Sprites
             // foreach (char ch in Value)
             for (int i = 0; i < Value.Length; i++)
             {
-                var character = SysFont.Font[(byte)Value[i]];
-                for (int fx = 0; fx < 8; fx++)
-                    for (int fy = 0; fy < 8; fy++)
-                    {
-                        bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                        frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i*8)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
-                    }
+                //var character = SysFont.Font[(byte)Value[i]];
+                //for (int fx = 0; fx < 8; fx++)
+                //    for (int fy = 0; fy < 8; fy++)
+                //    {
+                //        bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
+                //        frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i*8)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
+                //    }
             }
         }
 

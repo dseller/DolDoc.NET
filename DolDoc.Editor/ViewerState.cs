@@ -1,6 +1,7 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
+using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
@@ -22,8 +23,10 @@ namespace DolDoc.Editor
         private bool _cursorInverted;
         private IFrameBuffer _frameBuffer;
         private byte[] _renderBuffer;
+        private readonly IFontProvider _fontProvider;
+        private readonly IFont _font;
 
-        public ViewerState(IFrameBuffer frameBuffer, Document doc, int width, int height)
+        public ViewerState(IFrameBuffer frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
         {
             Cursor = new Cursor(this);
             Document = doc;
@@ -34,6 +37,8 @@ namespace DolDoc.Editor
             Height = height;
             Columns = doc.Columns;
             _cursorInverted = false;
+            _fontProvider = fontProvider ?? new TempleOSFontProvider();
+            _font = _fontProvider.Get(font);
 
             RawMode = false;
 
@@ -248,18 +253,23 @@ namespace DolDoc.Editor
 
             var bg = inverted ? ch.Color.Foreground : ch.Color.Background;
             var fg = inverted ? ch.Color.Background : ch.Color.Foreground;
-            var character = SysFont.Font[ch.Char];
-            for (int fx = 0; fx < 8; fx++)
-                for (int fy = 0; fy < 8; fy++)
+            // var character = SysFont.Font[ch.Char];
+
+            byte[] character = _font[ch.Char];
+            const int byteSize = 8;
+
+            for (int fy = 0; fy < _font.Height; fy++)
+                for (int fx = 0; fx < _font.Width; fx++)
                 {
-                    bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                    _renderBuffer[(((row * 8) + fy) * Width) + (column * 8) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
+                    var fontRow = character[(fy * _font.Width) / byteSize];
+                    bool draw = ((fontRow >> (fx % byteSize)) & 0x01) == 0x01;
+                    _renderBuffer[(((row * _font.Height) + fy) * Width) + (column * _font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
                 }
 
             if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
             {
                 for (int i = 0; i < 8; i++)
-                    _renderBuffer[(((row * 8) + (8 - 1)) * Width) + (column * 8) + i] = (byte)fg;
+                    _renderBuffer[(((row * _font.Height) + (_font.Width - 1)) * Width) + (column * _font.Width) + i] = (byte)fg;
             }
         }
 

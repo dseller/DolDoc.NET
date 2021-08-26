@@ -30,8 +30,6 @@ namespace DolDoc.Editor.Entries
             if (!HasFlag("UL", false))
                 ctx.Underline = oldUl;
 
-            
-
             return new CommandResult(true, charsWritten);
         }
 
