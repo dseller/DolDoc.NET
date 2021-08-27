@@ -1,3 +1,5 @@
+[![DolDoc.NET](https://github.com/dseller/DolDoc.NET/actions/workflows/github-actions.yml/badge.svg)](https://github.com/dseller/DolDoc.NET/actions/workflows/github-actions.yml) [![CodeQL](https://github.com/dseller/DolDoc.NET/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/dseller/DolDoc.NET/actions/workflows/codeql-analysis.yml)
+
 # DolDoc.NET
 A .NET port of Terry Davis' [✝] [TempleOS](http://www.templeos.org) DolDoc document formatting engine.
 
