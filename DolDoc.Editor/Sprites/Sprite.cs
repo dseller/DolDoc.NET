@@ -66,13 +66,13 @@ namespace DolDoc.Editor.Sprites
             }
         }
 
-        public void WriteToFrameBuffer(byte[] frameBuffer, int pixelOffset)
+        public void WriteToFrameBuffer(ViewerState state, byte[] frameBuffer, int pixelOffset)
         {
-            var ctx = new SpriteRenderContext();
+            var ctx = new SpriteRenderContext(state);
             foreach (var element in _spriteElements)
             {
                 element.Render(ctx, frameBuffer, pixelOffset);
-                Console.WriteLine("Rendered {0}", element);
+                // Console.WriteLine("Rendered {0}", element);
             }
         }
     }

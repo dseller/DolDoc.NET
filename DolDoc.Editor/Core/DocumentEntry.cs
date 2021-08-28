@@ -22,6 +22,12 @@ namespace DolDoc.Editor.Core
             set => Arguments.FirstOrDefault(arg => arg.Key == "T" || arg.Key == null).Value = value;
         }
 
+        public string Aux
+        {
+            get => Arguments.FirstOrDefault(arg => arg.Key == "A")?.Value;
+            set => Arguments.FirstOrDefault(arg => arg.Key == "A").Value = value;
+        }
+
         public DocumentEntry(IList<Flag> flags, IList<Argument> args)
         {
             Flags = flags;
@@ -61,27 +67,28 @@ namespace DolDoc.Editor.Core
 
         protected string GetArgument(string key) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value;
 
-        protected void WriteBorder(EntryRenderContext ctx, int length)
+        protected void WriteBorder(EntryRenderContext ctx, int length, int? renderPositionOverride = null)
         {
             // TODO: add support for multiline borders!
+            var renderPosition = renderPositionOverride ?? ctx.RenderPosition;
 
             // Write top border
-            ctx.State.Pages[ctx.RenderPosition - ctx.State.Columns - 1] = new Character(this, 0, 0xDA, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - ctx.State.Columns - 1] = new Character(this, 0, 0xDA, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
             for (int i = 0; i < length; i++)
-                ctx.State.Pages[ctx.RenderPosition - ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[ctx.RenderPosition - ctx.State.Columns + length] = new Character(this, 0, 0xBF, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+                ctx.State.Pages[renderPosition - ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - ctx.State.Columns + length] = new Character(this, 0, 0xBF, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
 
             // Write bottom border
-            ctx.State.Pages[ctx.RenderPosition + ctx.State.Columns - 1] = new Character(this, 0, 0xC0, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + ctx.State.Columns - 1] = new Character(this, 0, 0xC0, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
             for (int i = 0; i < length; i++)
-                ctx.State.Pages[ctx.RenderPosition + ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[ctx.RenderPosition + ctx.State.Columns + length] = new Character(this, 0, 0xD9, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+                ctx.State.Pages[renderPosition + ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + ctx.State.Columns + length] = new Character(this, 0, 0xD9, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
 
             // Write left border
-            ctx.State.Pages[ctx.RenderPosition - 1] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - 1] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
 
             // Write right border
-            ctx.State.Pages[ctx.RenderPosition + length] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + length] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
         }
 
         /// <summary>
@@ -95,12 +102,8 @@ namespace DolDoc.Editor.Core
             if (ctx.CollapsedTreeNodeIndentationLevel.HasValue && ctx.Indentation > ctx.CollapsedTreeNodeIndentationLevel.Value)
                 return 0;
 
-            int charsWritten = 0, renderPosition = ctx.RenderPosition;
-            if (HasFlag("CX"))
-            {
-                renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + ((ctx.State.Columns / 2) - (str.Length / 2));
-                charsWritten = renderPosition - ctx.RenderPosition;
-            }
+            var startRenderPosition = CalculateStartRenderPositionAndCharsWritten(ctx, str, out var charsWritten);
+            var renderPosition = startRenderPosition;
 
             for (var i = 0; i < str.Length; i++)
             {
@@ -161,8 +164,8 @@ namespace DolDoc.Editor.Core
                 if (HasFlag("H"))
                     chFlags |= CharacterFlags.Hold;
 
-                byte shiftX = 0, shiftY = 0;
-                /*if (Arguments.Any(arg => arg.Key == "SX"))
+                /*byte shiftX = 0, shiftY = 0;
+                if (Arguments.Any(arg => arg.Key == "SX"))
                     shiftX = byte.Parse(Arguments.First(arg => arg.Key == "SX").Value);*/
 
                 ctx.State.Pages[renderPosition++] = new Character(
@@ -174,7 +177,32 @@ namespace DolDoc.Editor.Core
                 );
             }
 
+            if (HasFlag("B", true))
+                WriteBorder(ctx, str.Length, startRenderPosition);
+
             return charsWritten;
+        }
+
+        private int CalculateStartRenderPositionAndCharsWritten(EntryRenderContext ctx, string str, out int charsWritten)
+        {
+            var offset = 0;
+            var renderPosition = ctx.RenderPosition;
+
+            if (HasFlag("CX"))
+                renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + ((ctx.State.Columns / 2) - (str.Length / 2));
+            else if (HasFlag("RX"))
+            {
+                offset = HasFlag("B", true) ? 3 : 2;
+                renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + (ctx.State.Columns - str.Length - offset);
+            }
+            else if (HasFlag("LX"))
+            {
+                offset = HasFlag("B", true) ? 1 : 0;
+                renderPosition = (renderPosition - (renderPosition % ctx.State.Columns) + offset);
+            }
+
+            charsWritten = renderPosition - ctx.RenderPosition + offset;
+            return renderPosition;
         }
     }
 }

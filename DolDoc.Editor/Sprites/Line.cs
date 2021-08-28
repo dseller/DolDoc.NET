@@ -22,9 +22,9 @@ namespace DolDoc.Editor.Sprites
 
         public int Y2 { get; }
 
-		public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset) => RenderLine(frameBuffer, pixelOffset, X1, Y1, X2, Y2, ctx.Color);
+		public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset) => RenderLine(ctx, frameBuffer, pixelOffset, X1, Y1, X2, Y2, ctx.Color);
 
-		protected void RenderLine(byte[] frameBuffer, int pixelOffset, int x1, int y1, int x2, int y2, EgaColor color = EgaColor.Black)
+		protected void RenderLine(SpriteRenderContext renderContext, byte[] frameBuffer, int pixelOffset, int x1, int y1, int x2, int y2, EgaColor color = EgaColor.Black)
         {
             int w = x2 - x1;
             int h = y2 - y1;
@@ -45,10 +45,10 @@ namespace DolDoc.Editor.Sprites
             for (int i = 0; i <= longest; i++)
             {
                 // putpixel(x, y, color);
-                if ((y1 * 640) + x1 + pixelOffset < 0)
+                if ((y1 * renderContext.State.Width) + x1 + pixelOffset < 0)
                     continue;
 
-                frameBuffer[(y1 * 640) + x1 + pixelOffset] = (byte)color;
+                frameBuffer[(y1 * renderContext.State.Width) + x1 + pixelOffset] = (byte)color;
                 numerator += shortest;
                 if (!(numerator < longest))
                 {

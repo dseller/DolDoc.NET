@@ -28,7 +28,7 @@ namespace DolDoc.Editor.Sprites
                     _data, 
                     y * _w, 
                     frameBuffer, 
-                    pixelOffset + (y * 640) + (_y * 640) + _x, 
+                    pixelOffset + (y * ctx.State.Width) + (_y * ctx.State.Width) + _x, 
                     _w);
             }
         }

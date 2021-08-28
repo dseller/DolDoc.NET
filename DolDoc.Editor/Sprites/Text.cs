@@ -24,13 +24,25 @@ namespace DolDoc.Editor.Sprites
             // foreach (char ch in Value)
             for (int i = 0; i < Value.Length; i++)
             {
-                //var character = SysFont.Font[(byte)Value[i]];
+                // var character = SysFont.Font[(byte)Value[i]];
                 //for (int fx = 0; fx < 8; fx++)
                 //    for (int fy = 0; fy < 8; fy++)
                 //    {
                 //        bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                //        frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i*8)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
+                //        frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i * 8)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
                 //    }
+
+                byte[] character = ctx.State.Font[(byte)Value[i]];
+                const int byteSize = 8;
+
+                for (int fy = 0; fy < ctx.State.Font.Height; fy++)
+                    for (int fx = 0; fx < ctx.State.Font.Width; fx++)
+                    {
+                        var fontRow = character[(fy * ctx.State.Font.Width) / byteSize];
+                        bool draw = ((fontRow >> (fx % byteSize)) & 0x01) == 0x01;
+                        frameBuffer[((fy + Y) * ctx.State.Width) + (fx + X) + pixelOffset + (i * ctx.State.Font.Width)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
+                        //frameBuffer[(((row * _font.Height) + fy) * Width) + (column * _font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
+                    }
             }
         }
 

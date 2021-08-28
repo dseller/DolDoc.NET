@@ -1,6 +1,8 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DolDoc.Editor.Entries
 {
@@ -20,17 +22,32 @@ namespace DolDoc.Editor.Entries
 
             if (!HasFlag("UL", false))
                 ctx.Underline = true;
+            var text = GetArgument("A") ?? Tag;
 
             //var result = base.Evaluate(ctx);
-            var charsWritten = WriteString(ctx, Tag);
-            if (HasFlag("B", true))
-                WriteBorder(ctx, charsWritten);
+            var charsWritten = WriteString(ctx, text);
 
             ctx.ForegroundColor = oldFg;
             if (!HasFlag("UL", false))
                 ctx.Underline = oldUl;
 
             return new CommandResult(true, charsWritten);
+        }
+
+        public override void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
+        {
+            if (key == ConsoleKey.Spacebar)
+            {
+                // Follow the link.
+                if (!File.Exists(Tag))
+                    return;
+
+                using (var fs = File.Open(Tag, FileMode.Open))
+                {
+                    var document = DocumentLoader.Load(fs, 128, 96);
+                    state.LoadDocument(document);
+                }
+            }
         }
 
         public override string ToString() => $"$LK,\"{Tag}\"$";

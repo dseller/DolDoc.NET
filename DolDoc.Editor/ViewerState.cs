@@ -16,7 +16,9 @@ namespace DolDoc.Editor
         private const EgaColor DefaultBackgroundColor = EgaColor.White;
         private const EgaColor DefaultForegroundColor = EgaColor.Black;
 
-        public Document Document { get; }
+        public Document Document { get; private set; }
+
+        public IFont Font { get; private set; }
 
         public Cursor Cursor { get; }
 
@@ -24,7 +26,6 @@ namespace DolDoc.Editor
         private IFrameBuffer _frameBuffer;
         private byte[] _renderBuffer;
         private readonly IFontProvider _fontProvider;
-        private readonly IFont _font;
 
         public ViewerState(IFrameBuffer frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
         {
@@ -38,13 +39,25 @@ namespace DolDoc.Editor
             Columns = doc.Columns;
             _cursorInverted = false;
             _fontProvider = fontProvider ?? new TempleOSFontProvider();
-            _font = _fontProvider.Get(font);
+            Font = _fontProvider.Get(font);
 
             RawMode = false;
 
             doc.OnUpdate += Document_OnUpdate;
 
             Pages = new CharacterPageDirectory(Columns, Rows);
+        }
+
+        public void LoadDocument(Document document)
+        {
+            _frameBuffer?.Clear();
+            Pages.Clear();
+            Document = document;
+            Document.OnUpdate += Document_OnUpdate;
+            Rows = Document.Rows;
+            Columns = Document.Columns;
+            Document_OnUpdate(Document);
+            Render();
         }
 
         private void Document_OnUpdate(Document document)
@@ -219,7 +232,7 @@ namespace DolDoc.Editor
             foreach (var entry in Document.Entries)
                 if (entry is Sprite spriteEntry && spriteEntry.SpriteObj != null)
                     if ((spriteEntry.SpriteOffset * 8 * 8) < Width * Height)
-                        spriteEntry.SpriteObj.WriteToFrameBuffer(_renderBuffer, (spriteEntry.SpriteOffset * 8 * 8) - (Cursor.ViewLine * Columns * 8 * 8));
+                        spriteEntry.SpriteObj.WriteToFrameBuffer(this, _renderBuffer, (spriteEntry.SpriteOffset * 8 * 8) - (Cursor.ViewLine * Columns * 8 * 8));
 
             _frameBuffer?.Render(_renderBuffer);
         }
@@ -255,21 +268,21 @@ namespace DolDoc.Editor
             var fg = inverted ? ch.Color.Background : ch.Color.Foreground;
             // var character = SysFont.Font[ch.Char];
 
-            byte[] character = _font[ch.Char];
+            byte[] character = Font[ch.Char];
             const int byteSize = 8;
 
-            for (int fy = 0; fy < _font.Height; fy++)
-                for (int fx = 0; fx < _font.Width; fx++)
+            for (int fy = 0; fy < Font.Height; fy++)
+                for (int fx = 0; fx < Font.Width; fx++)
                 {
-                    var fontRow = character[(fy * _font.Width) / byteSize];
+                    var fontRow = character[(fy * Font.Width) / byteSize];
                     bool draw = ((fontRow >> (fx % byteSize)) & 0x01) == 0x01;
-                    _renderBuffer[(((row * _font.Height) + fy) * Width) + (column * _font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
+                    _renderBuffer[(((row * Font.Height) + fy) * Width) + (column * Font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
                 }
 
             if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
             {
                 for (int i = 0; i < 8; i++)
-                    _renderBuffer[(((row * _font.Height) + (_font.Width - 1)) * Width) + (column * _font.Width) + i] = (byte)fg;
+                    _renderBuffer[(((row * Font.Height) + (Font.Width - 1)) * Width) + (column * Font.Width) + i] = (byte)fg;
             }
         }
 

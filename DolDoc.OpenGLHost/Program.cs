@@ -7,37 +7,38 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 namespace DolDoc.OpenGLHost
 {
     public static class Colors
     {
-        public static GbColor[] ColorsD = new[]
+        public static EgaColor[] ColorsD = new[]
         {
-            new GbColor(0x00, 0x00, 0x00),
-            new GbColor(0x00, 0x00, 0xAA),
-            new GbColor(0x00, 0xAA, 0x00),
-            new GbColor(0x00, 0xAA, 0xAA),
-            new GbColor(0xAA, 0x00, 0x00),
-            new GbColor(0xAA, 0x00, 0xAA),
-            new GbColor(0xAA, 0x55, 0x00),
-            new GbColor(0xAA, 0xAA, 0xAA),
-            new GbColor(0x55, 0x55, 0x55),
-            new GbColor(0x55, 0x55, 0xFF),
-            new GbColor(0x55, 0xFF, 0x55),
-            new GbColor(0x55, 0xFF, 0xFF),
-            new GbColor(0xFF, 0x55, 0x55),
-            new GbColor(0xFF, 0x55, 0xFF),
-            new GbColor(0xFF, 0xFF, 0x55),
-            new GbColor(0xFF, 0xFF, 0xFF)
+            new EgaColor(0x00, 0x00, 0x00),
+            new EgaColor(0x00, 0x00, 0xAA),
+            new EgaColor(0x00, 0xAA, 0x00),
+            new EgaColor(0x00, 0xAA, 0xAA),
+            new EgaColor(0xAA, 0x00, 0x00),
+            new EgaColor(0xAA, 0x00, 0xAA),
+            new EgaColor(0xAA, 0x55, 0x00),
+            new EgaColor(0xAA, 0xAA, 0xAA),
+            new EgaColor(0x55, 0x55, 0x55),
+            new EgaColor(0x55, 0x55, 0xFF),
+            new EgaColor(0x55, 0xFF, 0x55),
+            new EgaColor(0x55, 0xFF, 0xFF),
+            new EgaColor(0xFF, 0x55, 0x55),
+            new EgaColor(0xFF, 0x55, 0xFF),
+            new EgaColor(0xFF, 0xFF, 0x55),
+            new EgaColor(0xFF, 0xFF, 0xFF)
         };
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct GbColor
+    public struct EgaColor
     {
-        public GbColor(byte r, byte g, byte b)
+        public EgaColor(byte r, byte g, byte b)
         {
             R = r;
             G = g;
@@ -51,7 +52,7 @@ namespace DolDoc.OpenGLHost
 
     public class Program : IFrameBuffer
     {
-        private readonly GbColor[] _framebuffer = new GbColor[1024 * 768];
+        private readonly EgaColor[] _framebuffer = new EgaColor[1024 * 768];
         private Document _document;
         private ViewerState _viewerState;
         private Timer timer;
@@ -73,7 +74,14 @@ namespace DolDoc.OpenGLHost
                 nativeWindow.KeyDown += NativeWindow_KeyDown;
                 nativeWindow.Resize += NativeWindow_Resize;
 
-                LoadFile(File.Open("Test.DD", FileMode.Open));
+                var fs = File.Exists("Main.DD") ? File.Open("Main.DD", FileMode.Open) : null;
+                LoadFile(fs);
+
+                //_document = new Document(128, 96);
+                //_viewerState = new ViewerState(this, _document, 1024, 768);
+
+                //Shell shell = new Shell(_document);
+                //shell.Start();
 
                 timer = new Timer(_ => _viewerState.Tick(), null, 0, 200);
 
@@ -89,9 +97,10 @@ namespace DolDoc.OpenGLHost
 
         private void NativeWindow_KeyDown(object sender, NativeWindowKeyEventArgs e)
         {
-//            timer.Enabled = false;
+            if (e.Key == KeyCode.Escape)
+                Environment.Exit(0);
 
-            var translation = new Dictionary<KeyCode, ConsoleKey>
+            var keyDownTranslation = new Dictionary<KeyCode, ConsoleKey>
             {
                 { KeyCode.Down, ConsoleKey.DownArrow},
                 { KeyCode.Right, ConsoleKey.RightArrow },
@@ -102,19 +111,18 @@ namespace DolDoc.OpenGLHost
                 { KeyCode.Home, ConsoleKey.Home },
                 //{ KeyCode., ConsoleKey.PageUp },
                 //{ KeyCode.PageDown, ConsoleKey.PageDown }
+                { KeyCode.Space, ConsoleKey.Spacebar }
             };
 
-            if (translation.TryGetValue(e.Key, out var key))
-            {
-                // _editorState.KeyDown(key);
+            if (keyDownTranslation.TryGetValue(e.Key, out var key))
                 _viewerState.KeyDown(key);
-            }
-
-            //timer.Enabled = true;
         }
 
         private void LoadFile(Stream stream)
         {
+            if (stream == null)
+                stream = new MemoryStream(Encoding.ASCII.GetBytes($"\n\n$FG,RED$$TX+B+RX+CY,\"Could not open file!\"$"));
+
             _document = DocumentLoader.Load(stream, 128, 96);
             _viewerState = new ViewerState(this, _document, 1024, 768);
             _viewerState.Pages.Clear();
@@ -133,30 +141,29 @@ namespace DolDoc.OpenGLHost
 
         private static void NativeWindow_ContextCreated(object sender, NativeWindowEventArgs e)
         {
-            NativeWindow nativeWindow = (NativeWindow)sender;
-
             Gl.ReadBuffer(ReadBufferMode.Back);
-
             Gl.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-
             Gl.LineWidth(2.5f);
-
-            // CreateResources();
         }
 
         public void Render(byte[] data)
         {
-            // throw new NotImplementedException();
             for (int i = 0; i < data.Length; i++)
                 _framebuffer[i] = Colors.ColorsD[data[i]];
         }
 
         public void RenderPartial(int x, int y, int width, int height, byte[] data)
         {
-            // throw new NotImplementedException();
+            //for (int dstY = 0; dstY < height; dstY++)
+            //    Array.Copy(data, x + ((dstY + y) * _viewerState.Width), _framebuffer, (y*_viewerState.Width), width);
+            //    //Marshal.Copy(data, x + ((dstY + y) * 640), bmpData.Scan0 + (dstY * bmpData.Stride), width);
+        }
+
+        public void Clear()
+        {
+            Array.Fill(_framebuffer, Colors.ColorsD[15]);
         }
     }
 }

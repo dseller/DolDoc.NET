@@ -14,6 +14,11 @@ namespace DolDoc.BlazorHost
             _runtime = runtime;
         }
 
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Render(byte[] data)
         {
             Task.Run(async () =>
