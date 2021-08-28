@@ -4,6 +4,7 @@ using DolDoc.Editor.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace DolDoc.Editor.Core
 {
@@ -203,6 +204,24 @@ namespace DolDoc.Editor.Core
 
             charsWritten = renderPosition - ctx.RenderPosition + offset;
             return renderPosition;
+        }
+
+        protected string AsString(string cmd)
+        {
+            var builder = new StringBuilder();
+            builder.Append($"${cmd}");
+
+            foreach (var flag in Flags)
+                builder.Append($"{(flag.Status ? "+" : "-")}{flag.Value}");
+
+            foreach (var arg in Arguments)
+                if (arg.Key == null)
+                    builder.Append($",{arg.Value}");
+                else
+                    builder.Append($",{arg.Key}={arg.Value}");
+
+            builder.Append('$');
+            return builder.ToString();
         }
     }
 }

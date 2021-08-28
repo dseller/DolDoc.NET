@@ -81,7 +81,7 @@ namespace DolDoc.OpenGLHost
             Gl.PixelZoom(1, -1);
 
             lock (framebufferLock)
-                Gl.DrawPixels(1024, 768, PixelFormat.Rgb, PixelType.UnsignedByte, _framebuffer);
+                Gl.DrawPixels(width, height, PixelFormat.Rgb, PixelType.UnsignedByte, _framebuffer);
         }
 
         private static void NativeWindow_ContextCreated(object sender, NativeWindowEventArgs e)
