@@ -1,11 +1,12 @@
-﻿using DolDoc.Editor.Rendering;
+﻿using DolDoc.Editor.Core;
+using DolDoc.Editor.Rendering;
 using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
 
 namespace DolDoc.BlazorHost
 {
-    public class Canvas2DFrameBuffer : IFrameBuffer
+    public class Canvas2DFrameBuffer : IFrameBufferWindow
     {
         private IJSRuntime _runtime;
 
@@ -13,6 +14,8 @@ namespace DolDoc.BlazorHost
         {
             _runtime = runtime;
         }
+
+        public string Title { set => throw new NotImplementedException(); }
 
         public void Clear()
         {
@@ -30,6 +33,11 @@ namespace DolDoc.BlazorHost
         public void RenderPartial(int x, int y, int width, int height, byte[] data)
         {
             
+        }
+
+        public void Show(string title, int width, int heigth, Document document = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

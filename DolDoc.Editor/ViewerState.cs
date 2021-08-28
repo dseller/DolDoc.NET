@@ -4,6 +4,7 @@ using DolDoc.Editor.Entries;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
+using Serilog;
 using System;
 
 namespace DolDoc.Editor
@@ -23,11 +24,11 @@ namespace DolDoc.Editor
         public Cursor Cursor { get; }
 
         private bool _cursorInverted;
-        private IFrameBuffer _frameBuffer;
+        private IFrameBufferWindow _frameBuffer;
         private byte[] _renderBuffer;
         private readonly IFontProvider _fontProvider;
 
-        public ViewerState(IFrameBuffer frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
+        public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
         {
             Cursor = new Cursor(this);
             Document = doc;
@@ -62,6 +63,8 @@ namespace DolDoc.Editor
 
         private void Document_OnUpdate(Document document)
         {
+            Log.Information("Document updated");
+
             var ctx = new EntryRenderContext
             {
                 Document = document,
@@ -72,8 +75,6 @@ namespace DolDoc.Editor
                 RenderPosition = 0,
                 State = this
             };
-
-            var stack = new EntryRenderContextStack(ctx);
 
             if (!RawMode)
             {

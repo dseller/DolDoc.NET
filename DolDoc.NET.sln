@@ -11,6 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.BlazorHost", "DolDoc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.OpenGLHost", "DolDoc.OpenGLHost\DolDoc.OpenGLHost.csproj", "{024735FE-25C3-4653-90EE-EE1A7717D9FA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5C622126-AFCF-4991-AB67-EBC811A83FC9}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\github-actions.yml = .github\workflows\github-actions.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

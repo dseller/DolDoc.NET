@@ -8,6 +8,8 @@
   <ItemGroup>
     <PackageReference Include="OpenGL.Net" Version="0.8.4" />
     <PackageReference Include="OpenGL.Net.CoreUI" Version="0.8.4" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

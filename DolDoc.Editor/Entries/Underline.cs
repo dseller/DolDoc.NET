@@ -11,7 +11,7 @@ namespace DolDoc.Editor.Entries
         {
         }
 
-        public override string ToString() => $"UL,{Tag}$";
+        public override string ToString() => $"$UL,{Tag}$";
 
         protected override void Set(EntryRenderContext ctx, bool status) => ctx.Underline = status;
     }

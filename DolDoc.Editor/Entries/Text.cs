@@ -14,7 +14,13 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx) => new CommandResult(true, WriteString(ctx, Tag));
 
-        public override string ToString() => $"$TX,\"{Tag}\"$";
+        public override string ToString()
+        {
+            if (Arguments.Count == 1)
+                return Tag;
+            else
+                return $"$TX,\"{Tag}\"$";
+        }
 
         public override void CharKeyPress(ViewerState state, char key, int relativeOffset)
         {

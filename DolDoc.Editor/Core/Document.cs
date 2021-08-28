@@ -2,6 +2,7 @@
 using DolDoc.Editor.Parser;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace DolDoc.Editor.Core
@@ -42,11 +43,19 @@ namespace DolDoc.Editor.Core
             OnUpdate?.Invoke(this);
         }
 
+        public void Write(string content)
+        {
+            foreach (var entry in _parser.Parse(content))
+                Entries.AddLast(entry);
+            OnUpdate?.Invoke(this);
+        }
+
         public void Refresh() => OnUpdate?.Invoke(this);
 
-        public string ToPlainText()
+        public string ToPlainText() => Entries.Aggregate(string.Empty, (acc, entry) =>
         {
-            return "TODO";
-        }
+            acc += entry.ToString();
+            return acc;
+        });
     }
 }
