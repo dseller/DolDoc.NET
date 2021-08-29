@@ -4,6 +4,12 @@ namespace DolDoc.Editor.Forms
 {
     public interface IFieldAttribute
     {
-        string GetDolDocCommand(Type propertyType);
+        string Label { get; }
+
+        string Prefix { get; }
+
+        string Suffix { get; }
+
+        string GetDolDocCommand(Type propertyType, int labelLength);
     }
 }

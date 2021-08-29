@@ -1,8 +1,6 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
@@ -12,9 +10,18 @@ namespace DolDoc.Editor.Entries
         {
         }
 
+        private int InputLineLength => int.Parse(GetArgument("ILL", "16"));
+
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
+            var inputLine = new string(' ', InputLineLength);
             var charsWritten = WriteString(ctx, $"{Aux}: ");
+            ctx.RenderPosition += charsWritten;
+
+            var underLine = ctx.Underline;
+            ctx.Underline = true;
+            charsWritten += WriteString(ctx, inputLine);
+            ctx.Underline = underLine;
 
             return new CommandResult(true, charsWritten);
         }

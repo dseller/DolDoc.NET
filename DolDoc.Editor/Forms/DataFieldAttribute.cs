@@ -5,16 +5,23 @@ namespace DolDoc.Editor.Forms
     [AttributeUsage(AttributeTargets.Property)]
     public class DataFieldAttribute : Attribute, IFieldAttribute
     {
-        public DataFieldAttribute(string format, int maxLength = 64)
+        public DataFieldAttribute(string format, int maxLength = 64, string prefix = null, string suffix = "\n")
         {
             MaxLength = maxLength;
-            FormatString = format;
+            Label = format;
+            Prefix = prefix;
+            Suffix = suffix;
         }
 
-        public string FormatString { get; }
+        public string Label { get; }
 
         public int MaxLength { get; }
 
-        public string GetDolDocCommand(Type propertyType) => $"$DA,A=\"{FormatString}\",LEN={MaxLength},RT=\"{propertyType.Name}\"$\n";
+        public string Prefix { get; }
+
+        public string Suffix { get; }
+
+        public string GetDolDocCommand(Type propertyType, int labelLength) => 
+            $"{Prefix}$DA,A=\"{Label.PadLeft(labelLength)}\",LEN={MaxLength},RT=\"{propertyType.Name}\"${Suffix}";
     }
 }

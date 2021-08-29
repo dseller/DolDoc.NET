@@ -66,7 +66,7 @@ namespace DolDoc.Editor.Core
             // Do nothing atm.
         }
 
-        protected string GetArgument(string key) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value;
+        protected string GetArgument(string key, string defaultValue = null) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value ?? defaultValue;
 
         protected void WriteBorder(EntryRenderContext ctx, int length, int? renderPositionOverride = null)
         {

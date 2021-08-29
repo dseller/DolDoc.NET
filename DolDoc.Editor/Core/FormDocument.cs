@@ -23,10 +23,23 @@ namespace DolDoc.Editor.Core
         private string Generate()
         {
             var builder = new StringBuilder();
+            builder.Append(GetHeader(typeof(T)));
+
+            var attributes = GetFieldAttributes();
+            var maxLabelLength = attributes.Max(a => a.Item1.Label.Length);
+
+            foreach (var attribute in attributes)
+                builder.Append(attribute.Item1.GetDolDocCommand(attribute.Item2, maxLabelLength));
+
+            builder.Append(GetFooter(typeof(T)));
+            return builder.ToString();
+        }
+
+        private IEnumerable<(IFieldAttribute, Type)> GetFieldAttributes()
+        {
             var type = typeof(T);
             var properties = type.GetProperties();
 
-            builder.Append(GetHeader(type));
             foreach (var property in properties)
             {
                 var propType = property.PropertyType;
@@ -36,24 +49,14 @@ namespace DolDoc.Editor.Core
                 if (fieldAttr == null)
                     continue;
 
-                builder.Append(fieldAttr.GetDolDocCommand(propType));
-
-                //var attrs = property.GetCustomAttributes(true);
-
-                //var dataFieldAttr = attrs.OfType<DataFieldAttribute>().SingleOrDefault();
-                //if (dataFieldAttr == null)
-                //    continue;
-
-                //builder.Append(dataFieldAttr.GetDolDocCommand(propType));
+                yield return (fieldAttr, propType);
             }
+        }
 
-            return builder.ToString();
-        }
+        private string GetHeader(Type formType) =>
+            formType.GetCustomAttribute<FormHeaderAttribute>()?.Header ?? string.Empty;
         
-        private string GetHeader(Type formType)
-        {
-            var headerAttribute = formType.GetCustomAttribute<FormHeaderAttribute>();
-            return headerAttribute?.Header ?? string.Empty;
-        }
+        private string GetFooter(Type formType) =>
+            formType.GetCustomAttribute<FormFooterAttribute>()?.Footer ?? string.Empty;
     }
 }

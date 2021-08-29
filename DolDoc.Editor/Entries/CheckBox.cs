@@ -1,8 +1,6 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
@@ -16,7 +14,7 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
-            var writtenChars = WriteString(ctx, $"[{(Checked ? "X" : " ")}] {Tag}");
+            var writtenChars = WriteString(ctx, $"{Tag}: [{(Checked ? "X" : " ")}]");
 
             return new CommandResult(true, writtenChars);
         }
@@ -27,6 +25,6 @@ namespace DolDoc.Editor.Entries
                 Checked = !Checked;
         }
 
-        public override string ToString() => $"$CB,\"{Tag}\"$";
+        public override string ToString() => AsString("CB");
     }
 }

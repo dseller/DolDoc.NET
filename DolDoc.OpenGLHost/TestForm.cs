@@ -9,6 +9,7 @@ namespace DolDoc.OpenGLHost
     }
 
     [FormHeader("This is an $FG,RED$example$FG$ form. Enter the data below.\n\n")]
+    [FormFooter("\n\n$BK,1$$FG,RED$$TX+B+CX,\"Please verify before submitting!\"$$BK,0$")]
     public class TestForm
     {
         [DataField("File path")]
@@ -19,5 +20,16 @@ namespace DolDoc.OpenGLHost
 
         [DataField("Enter your gender")]
         public Gender Gender { get; set; }
+
+        [ButtonField("Submit", nameof(OnSubmit), suffix: null)]
+        public string Submit { get; set; }
+
+        [ButtonField("Verify", null, prefix: "   ")]
+        public string Verify { get; set; }
+
+        public void OnSubmit()
+        {
+            
+        }
     }
 }

@@ -4,13 +4,19 @@ namespace DolDoc.Editor.Forms
 {
     public class CheckboxFieldAttribute : Attribute, IFieldAttribute
     {
-        private readonly string label;
-
-        public CheckboxFieldAttribute(string label)
+        public CheckboxFieldAttribute(string label, string prefix = null, string suffix = "\n")
         {
-            this.label = label;
+            Label = label;
+            Prefix = prefix;
+            Suffix = suffix;
         }
 
-        public string GetDolDocCommand(Type propertyType) => $"$CB,\"{label}\"$\n";
+        public string Label { get; }
+
+        public string Prefix { get; }
+
+        public string Suffix { get; }
+
+        public string GetDolDocCommand(Type propertyType, int labelLength) => $"{Prefix}$CB,\"{Label.PadLeft(labelLength)}\"${Suffix}";
     }
 }
