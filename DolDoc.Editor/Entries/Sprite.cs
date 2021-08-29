@@ -40,6 +40,6 @@ namespace DolDoc.Editor.Entries
             return new CommandResult(true, writtenChars);
         }
 
-        public override string ToString() => $"$SP,\"{Tag}\",BI={GetArgument("BI")}$";
+        public override string ToString() => AsString("SP");
     }
 }

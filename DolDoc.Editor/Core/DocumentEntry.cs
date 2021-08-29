@@ -55,6 +55,8 @@ namespace DolDoc.Editor.Core
             }
         }
 
+        public bool Selected { get; set; }
+
         public abstract CommandResult Evaluate(EntryRenderContext ctx);
 
         public abstract override string ToString();

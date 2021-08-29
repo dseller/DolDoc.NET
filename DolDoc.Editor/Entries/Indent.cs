@@ -26,6 +26,6 @@ namespace DolDoc.Editor.Entries
             return new CommandResult(true);
         }
 
-        public override string ToString() => $"$ID,{Tag}$";
+        public override string ToString() => AsString("ID");
     }
 }

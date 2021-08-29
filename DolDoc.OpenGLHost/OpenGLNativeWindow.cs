@@ -109,11 +109,20 @@ namespace DolDoc.OpenGLHost
                 { KeyCode.Home, ConsoleKey.Home },
                 //{ KeyCode., ConsoleKey.PageUp },
                 //{ KeyCode.PageDown, ConsoleKey.PageDown }
-                { KeyCode.Space, ConsoleKey.Spacebar }
+                //{ KeyCode.Space, ConsoleKey.Spacebar }
+            };
+
+            var charTranslation = new Dictionary<KeyCode, char>
+            {
+                { KeyCode.A, 'A' },
+                { KeyCode.B, 'B' },
+                { KeyCode.Space, ' ' }
             };
 
             if (keyDownTranslation.TryGetValue(e.Key, out var key))
                 viewerState.KeyDown(key);
+            else if (charTranslation.TryGetValue(e.Key, out var ch))
+                viewerState.KeyPress(ch);
         }
     }
 }

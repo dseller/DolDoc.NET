@@ -14,8 +14,13 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
+            var inverted = ctx.Inverted;
+            if (Selected)
+                ctx.Inverted = true;
+
             var writtenChars = WriteString(ctx, $"{Tag}: [{(Checked ? "X" : " ")}]");
 
+            ctx.Inverted = inverted;
             return new CommandResult(true, writtenChars);
         }
 

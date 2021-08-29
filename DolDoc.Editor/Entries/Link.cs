@@ -50,6 +50,6 @@ namespace DolDoc.Editor.Entries
             }
         }
 
-        public override string ToString() => $"$LK,\"{Tag}\"$";
+        public override string ToString() => AsString("LK");
     }
 }

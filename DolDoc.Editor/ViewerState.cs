@@ -63,8 +63,6 @@ namespace DolDoc.Editor
 
         private void Document_OnUpdate(Document document)
         {
-            Log.Information("Document updated");
-
             var ctx = new EntryRenderContext
             {
                 Document = document,

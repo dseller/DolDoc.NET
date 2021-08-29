@@ -18,8 +18,7 @@ namespace DolDoc.Editor.Entries
         {
             if (Arguments.Count == 1)
                 return Tag;
-            else
-                return $"$TX,\"{Tag}\"$";
+            return AsString("TX");
         }
 
         public override void CharKeyPress(ViewerState state, char key, int relativeOffset)

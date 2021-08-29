@@ -20,7 +20,7 @@ namespace DolDoc.Editor.Forms
 
         public string Suffix { get; }
 
-        public string GetDolDocCommand(Type propertyType, int labelLength) =>
+        public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) =>
             $"{Prefix}$BT,\"{Label}\",H=\"{HandlerMethod}\"${Suffix}";
     }
 }

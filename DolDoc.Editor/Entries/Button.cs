@@ -12,9 +12,14 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
+            var inverted = ctx.Inverted;
+            if (Selected)
+                ctx.Inverted = true;
+
             var charsWritten = WriteString(ctx, Tag);
             WriteBorder(ctx, Tag.Length);
 
+            ctx.Inverted = inverted;
             return new CommandResult(true, charsWritten);
         }
 

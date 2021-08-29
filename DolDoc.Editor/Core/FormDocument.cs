@@ -29,13 +29,13 @@ namespace DolDoc.Editor.Core
             var maxLabelLength = attributes.Max(a => a.Item1.Label.Length);
 
             foreach (var attribute in attributes)
-                builder.Append(attribute.Item1.GetDolDocCommand(attribute.Item2, maxLabelLength));
+                builder.Append(attribute.Item1.GetDolDocCommand(attribute.Item2, attribute.Item3, maxLabelLength));
 
             builder.Append(GetFooter(typeof(T)));
             return builder.ToString();
         }
 
-        private IEnumerable<(IFieldAttribute, Type)> GetFieldAttributes()
+        private IEnumerable<(IFieldAttribute, Type, string)> GetFieldAttributes()
         {
             var type = typeof(T);
             var properties = type.GetProperties();
@@ -49,7 +49,7 @@ namespace DolDoc.Editor.Core
                 if (fieldAttr == null)
                     continue;
 
-                yield return (fieldAttr, propType);
+                yield return (fieldAttr, propType, property.Name);
             }
         }
 

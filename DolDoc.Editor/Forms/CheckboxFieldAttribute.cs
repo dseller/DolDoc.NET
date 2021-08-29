@@ -17,6 +17,7 @@ namespace DolDoc.Editor.Forms
 
         public string Suffix { get; }
 
-        public string GetDolDocCommand(Type propertyType, int labelLength) => $"{Prefix}$CB,\"{Label.PadLeft(labelLength)}\"${Suffix}";
+        public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) => 
+            $"{Prefix}$CB,\"{Label.PadLeft(labelLength)}\"${Suffix}";
     }
 }

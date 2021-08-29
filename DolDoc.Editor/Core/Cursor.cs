@@ -60,6 +60,7 @@ namespace DolDoc.Editor.Core
         /// <param name="characters">Amount of characters to advance.</param>
         public void Right()
         {
+            var currentlySelectedEntry = SelectedEntry;
             if (_viewerState.Pages[DocumentPosition + 1].HasEntry)
                 DocumentPosition++;
             else
@@ -67,6 +68,10 @@ namespace DolDoc.Editor.Core
 
             if (DocumentY > ViewLine + _viewerState.Rows)
                 ViewLine += (DocumentY - (ViewLine + _viewerState.Rows));
+
+            if (currentlySelectedEntry != null)
+                currentlySelectedEntry.Selected = false;
+            SelectedEntry.Selected = true;
         }
 
         /// <summary>
@@ -78,10 +83,15 @@ namespace DolDoc.Editor.Core
             if (DocumentPosition == 0)
                 return;
 
+            var currentlySelectedEntry = SelectedEntry;
             if (_viewerState.Pages[DocumentPosition - 1].HasEntry)
                 DocumentPosition--;
             else
                 DocumentPosition = FindNearestEntry(Direction.Left) ?? DocumentPosition;
+
+            if (currentlySelectedEntry != null)
+                currentlySelectedEntry.Selected = false;
+            SelectedEntry.Selected = true;
         }
 
         public void Up()
@@ -89,6 +99,7 @@ namespace DolDoc.Editor.Core
             if (DocumentPosition < _viewerState.Columns)
                 return;
 
+            var currentlySelectedEntry = SelectedEntry;
             if (_viewerState.Pages[DocumentPosition - _viewerState.Columns].HasEntry)
                 DocumentPosition -= _viewerState.Columns;
             else
@@ -96,6 +107,10 @@ namespace DolDoc.Editor.Core
 
             if (DocumentY < ViewLine)
                 ViewLine -= ViewLine - DocumentY;
+
+            if (currentlySelectedEntry != null)
+                currentlySelectedEntry.Selected = false;
+            SelectedEntry.Selected = true;
         }
 
         public void Down()
@@ -103,6 +118,7 @@ namespace DolDoc.Editor.Core
             if (!_viewerState.Pages.HasPageForPosition(DocumentPosition + _viewerState.Columns))
                 return;
 
+            var currentlySelectedEntry = SelectedEntry;
             if (_viewerState.Pages[DocumentPosition + _viewerState.Columns].HasEntry)
                 DocumentPosition += _viewerState.Columns;
             else
@@ -110,6 +126,10 @@ namespace DolDoc.Editor.Core
 
             if (DocumentY >= ViewLine + _viewerState.Rows)
                 ViewLine += (DocumentY - (ViewLine + _viewerState.Rows)) + 1;
+
+            if (currentlySelectedEntry != null)
+                currentlySelectedEntry.Selected = false;
+            SelectedEntry.Selected = true;
         }
 
         /// <summary>

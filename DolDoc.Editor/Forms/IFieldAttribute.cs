@@ -10,6 +10,6 @@ namespace DolDoc.Editor.Forms
 
         string Suffix { get; }
 
-        string GetDolDocCommand(Type propertyType, int labelLength);
+        string GetDolDocCommand(Type propertyType, string propertyName, int labelLength);
     }
 }
