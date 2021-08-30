@@ -1,5 +1,6 @@
 ﻿using DolDoc.Editor;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Rendering;
 using OpenGL;
 using OpenGL.CoreUI;
@@ -65,8 +66,8 @@ namespace DolDoc.OpenGLHost
             this.width = width;
             this.height = height;
             this.document = document ?? new Document(width / 8, height / 8);
-            viewerState = new ViewerState(this, this.document, width, height);
-            Log.Verbose("Document content: {0}", this.document.ToPlainText());
+            viewerState = new ViewerState(this, this.document, width, height, new YaffFontProvider(), "Courier_8_2");
+            // Log.Verbose("Document content: {0}", this.document.ToPlainText());
 
             _framebuffer = new EgaColor[width * height];
             thread.Start();

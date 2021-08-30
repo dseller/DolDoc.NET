@@ -12,7 +12,15 @@ it is very unoptimized. This is extra apparent in the Blazor host.
 
 ## Screenshots
 
-Here are some screenshots of it in action:
+### New OpenGL-based version
+
+This version is improved: it supports resolutions higher than 640x480, and it supports custom bitmap fonts, as can be seen below:
+
+![new1](https://github.com/dseller/DolDoc.NET/blob/master/lbVPW6EQyX.png)
+![new2](https://github.com/dseller/DolDoc.NET/blob/master/Os6YZl4Pqf.png)
+
+### Old Win32-based version
+This version tries to stay true to DolDoc's origins; TempleOS.
 
 ![s2](https://github.com/dseller/DolDoc.NET/blob/master/Screenshot3.png)
 ![s4](https://github.com/dseller/DolDoc.NET/blob/master/Screenshot4.png)
