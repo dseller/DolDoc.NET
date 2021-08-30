@@ -66,7 +66,7 @@ namespace DolDoc.OpenGLHost
             this.width = width;
             this.height = height;
             this.document = document ?? new Document(width / 8, height / 8);
-            viewerState = new ViewerState(this, this.document, width, height, new YaffFontProvider(), "Courier_8_2");
+            viewerState = new ViewerState(this, this.document, width, height, new YaffFontProvider(), "Terminal_VGA_cp861");
             // Log.Verbose("Document content: {0}", this.document.ToPlainText());
 
             _framebuffer = new EgaColor[width * height];

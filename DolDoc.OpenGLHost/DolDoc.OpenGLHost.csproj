@@ -329,6 +329,9 @@
     <None Update="Fonts\Courier_8_2.yaff">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Fonts\Terminal_VGA_cp861.yaff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Main.DD">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

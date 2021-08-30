@@ -62,7 +62,7 @@ namespace DolDoc.Editor.Fonts
 
                     // TODO: font width/height is still hardcoded here, only supports
                     // Courier_8 now.
-                    return new YaffFont(values, 8, 10);
+                    return new YaffFont(values, 8, 12);
                 }
             }
 
