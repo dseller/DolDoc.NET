@@ -230,8 +230,8 @@ namespace DolDoc.Editor
             // render sprites. this is hacky, but for now it will do.
             foreach (var entry in Document.Entries)
                 if (entry is Sprite spriteEntry && spriteEntry.SpriteObj != null)
-                    if ((spriteEntry.SpriteOffset * 8 * 8) < Width * Height)
-                        spriteEntry.SpriteObj.WriteToFrameBuffer(this, _renderBuffer, (spriteEntry.SpriteOffset * 8 * 8) - (Cursor.ViewLine * Columns * 8 * 8));
+                    if ((spriteEntry.SpriteOffset * Font.Width * Font.Height) < Width * Height)
+                        spriteEntry.SpriteObj.WriteToFrameBuffer(this, _renderBuffer, (spriteEntry.SpriteOffset * Font.Width * Font.Height) - (Cursor.ViewLine * Columns * 8 * 8));
 
             _frameBuffer?.Render(_renderBuffer);
         }
