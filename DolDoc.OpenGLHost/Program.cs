@@ -16,13 +16,13 @@ namespace DolDoc.OpenGLHost
 
             var compositor = new Compositor<OpenGLNativeWindow>();
             //var window = compositor.NewWindow();
-            //window.Show("Demo", 1024, 768, DocumentLoader.Load(File.Open("Main.DD", FileMode.Open), 128, 96));
+            //window.Show("Demo", 1024, 768, DocumentLoader.Load(File.Open("Main.DD", FileMode.Open), 128, 73));
 
             //var window2 = compositor.NewWindow();
             //window2.Show("Another", 640, 480, DocumentLoader.Load(File.Open("Examples/Job.DD", FileMode.Open)));
 
             var window = compositor.NewWindow();
-            window.Show("Form Test", 640, 480, new FormDocument<TestForm>(null));
+            window.Show("Form Test", 1024, 768, new FormDocument<TestForm>(null, 128, 73));
         }
     }
 }
