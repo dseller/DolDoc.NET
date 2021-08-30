@@ -63,8 +63,6 @@ namespace DolDoc.Editor
 
         private void Document_OnUpdate(Document document)
         {
-            Log.Information("Document updated");
-
             var ctx = new EntryRenderContext
             {
                 Document = document,
@@ -240,11 +238,11 @@ namespace DolDoc.Editor
 
         private void RenderCursor()
         {
-            for (int fx = 0; fx < 8; fx++)
-                for (int fy = 0; fy < 8; fy++)
-                    _renderBuffer[((((Cursor.WindowY * 8) + fy) * Width) + (Cursor.WindowX * 8) + fx)] ^= 0x0F;
+            for (int fx = 0; fx < Font.Width; fx++)
+                for (int fy = 0; fy < Font.Height; fy++)
+                    _renderBuffer[((((Cursor.WindowY * Font.Height) + fy) * Width) + (Cursor.WindowX * Font.Width) + fx)] ^= 0x0F;
 
-            _frameBuffer.RenderPartial(Cursor.WindowX * 8, Cursor.WindowY * 8, 8, 8, _renderBuffer);
+            _frameBuffer.RenderPartial(Cursor.WindowX * Font.Width, Cursor.WindowY * Font.Height, Font.Width, Font.Height, _renderBuffer);
         }
 
         private void DoBlink(bool inverted)
@@ -267,7 +265,6 @@ namespace DolDoc.Editor
 
             var bg = inverted ? ch.Color.Foreground : ch.Color.Background;
             var fg = inverted ? ch.Color.Background : ch.Color.Foreground;
-            // var character = SysFont.Font[ch.Char];
 
             byte[] character = Font[ch.Char];
             const int byteSize = 8;
@@ -282,8 +279,8 @@ namespace DolDoc.Editor
 
             if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
             {
-                for (int i = 0; i < 8; i++)
-                    _renderBuffer[(((row * Font.Height) + (Font.Width - 1)) * Width) + (column * Font.Width) + i] = (byte)fg;
+                for (int i = 0; i < Font.Width; i++)
+                    _renderBuffer[(((row * Font.Height) + (Font.Height - 1)) * Width) + (column * Font.Width) + i] = (byte)fg;
             }
         }
 
