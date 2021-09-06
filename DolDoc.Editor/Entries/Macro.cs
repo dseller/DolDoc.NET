@@ -16,8 +16,8 @@ namespace DolDoc.Editor.Entries
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             var lm = GetArgument("LM");
-            if (lm == null)
-                return new CommandResult(false);
+            //if (lm == null)
+            //    return new CommandResult(false);
 
             var text = Tag ?? lm;
 
