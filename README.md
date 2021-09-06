@@ -1,7 +1,7 @@
 [![DolDoc.NET](https://github.com/dseller/DolDoc.NET/actions/workflows/github-actions.yml/badge.svg)](https://github.com/dseller/DolDoc.NET/actions/workflows/github-actions.yml) [![CodeQL](https://github.com/dseller/DolDoc.NET/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/dseller/DolDoc.NET/actions/workflows/codeql-analysis.yml)
 
 # DolDoc.NET
-A .NET port of Terry Davis' [✝] [TempleOS](http://www.templeos.org) DolDoc document formatting engine.
+A .NET reimplementation of Terry Davis' [✝] [TempleOS](http://www.templeos.org) DolDoc document formatting engine. It is mostly backwards compatible with Davis' documents. I have added some improvements such as higher resolution and support custom bitmap fonts (YAFF).
 
 __This is still heavily under development!__
 
@@ -24,17 +24,8 @@ The built-in file browser:
 
 ![filebrowser](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/FileBrowser.png)
 
-### New OpenGL-based version
-
-This version is improved: it supports resolutions higher than 640x480, and it supports custom bitmap fonts, as can be seen below:
+Some of Davis' original documents:
 
 ![new1](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/lbVPW6EQyX.png)
 ![new2](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/Os6YZl4Pqf.png)
 
-### Old Win32-based version
-This version tries to stay true to DolDoc's origins; TempleOS.
-
-![s2](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/Screenshot3.png)
-![s4](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/Screenshot4.png)
-![sprites](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/Screenshot2.PNG)
-![screenshot](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/Screenshot1.png)

@@ -46,7 +46,7 @@ namespace DolDoc.OpenGLHost
             foreach (var directory in d.EnumerateDirectories())
                 builder.AppendFormat("{0} {1} {2:X4} $MA,\"{3}\"$\n", directory.LastWriteTime.ToString("yyyy/MM/dd"), directory.LastWriteTime.ToString("HH:mm"), 0, directory.Name);
             foreach (var file in d.EnumerateFiles())
-                builder.AppendFormat("{0} {1} {2:X4} $LK,\"{3}\",A=\"{4}\"$\n", file.LastWriteTime.ToString("yyyy/MM/dd"), file.LastWriteTime.ToString("HH:mm"), file.Length / 1024, file.FullName, file.Name);
+                builder.AppendFormat("{0} {1} {2:X4} $LK,\"{4}\",A=\"{3}\"$\n", file.LastWriteTime.ToString("yyyy/MM/dd"), file.LastWriteTime.ToString("HH:mm"), file.Length / 1024, file.FullName, file.Name);
 
 
             document.Load(builder.ToString());

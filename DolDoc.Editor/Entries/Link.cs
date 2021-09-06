@@ -22,10 +22,10 @@ namespace DolDoc.Editor.Entries
 
             if (!HasFlag("UL", false))
                 ctx.Underline = true;
-            var text = GetArgument("A") ?? Tag;
+            // var text = GetArgument("A") ?? Tag;
 
             //var result = base.Evaluate(ctx);
-            var charsWritten = WriteString(ctx, text);
+            var charsWritten = WriteString(ctx, Tag);
 
             ctx.ForegroundColor = oldFg;
             if (!HasFlag("UL", false))
@@ -38,11 +38,13 @@ namespace DolDoc.Editor.Entries
         {
             if (key == Key.SPACE)
             {
+                var file = string.IsNullOrEmpty(Aux) ? Tag : Aux;
+
                 // Follow the link.
-                if (!File.Exists(Tag))
+                if (!File.Exists(file))
                     return;
 
-                using (var fs = File.Open(Tag, FileMode.Open))
+                using (var fs = File.Open(file, FileMode.Open))
                 {
                     var document = DocumentLoader.Load(fs, state.Columns, state.Rows);
                     state.LoadDocument(document);
