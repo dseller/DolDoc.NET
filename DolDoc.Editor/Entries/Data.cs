@@ -41,7 +41,6 @@ namespace DolDoc.Editor.Entries
             var inputText = value.PadRight(InputLineLength);
             charsWritten += WriteString(ctx, inputText);
             
-            
             ctx.Underline = underLine;
             ctx.Inverted = inverted;
 
@@ -60,6 +59,7 @@ namespace DolDoc.Editor.Entries
                 return;
 
             stringBuilder.Append(character.Value);
+            state.Document.FieldChanged(GetArgument("PROP"), stringBuilder.ToString());
         }
 
         public override string ToString() => AsString("DA"); //$"$DA,A=\"{Aux}\"$";

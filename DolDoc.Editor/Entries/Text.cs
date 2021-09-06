@@ -23,9 +23,9 @@ namespace DolDoc.Editor.Entries
 
         public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
-            if (!char.IsControl((char)key))
+            if (character.HasValue)
             {
-                Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string((char)key, 1));
+                Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string(character.Value, 1));
                 //state.CursorPosition++;
                 state.Cursor.Right();
             }

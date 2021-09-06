@@ -27,7 +27,10 @@ namespace DolDoc.Editor.Entries
         public override void KeyPress(ViewerState state, Key key, char? character ,int relativeOffset)
         {
             if (key == Key.SPACE || key == Key.ENTER)
+            {
                 Checked = !Checked;
+                state.Document.FieldChanged(GetArgument("PROP"), Checked);
+            }
         }
 
         public override string ToString() => AsString("CB");

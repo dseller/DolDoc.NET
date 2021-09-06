@@ -40,6 +40,6 @@ namespace DolDoc.Editor.Forms
         public string Suffix { get; }
 
         public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) =>
-            $"{Prefix}$LS,A=\"{Label}\",TYPE=\"{Source}\",SRC=\"{(Source == ListFieldSource.Enum ? EnumType.AssemblyQualifiedName : Callback)}\"${Suffix}";
+            $"{Prefix}$LS,A=\"{Label}\",TYPE=\"{Source}\",SRC=\"{(Source == ListFieldSource.Enum ? EnumType.AssemblyQualifiedName : Callback)}\",PROP=\"{propertyName}\"${Suffix}";
     }
 }

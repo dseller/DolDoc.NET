@@ -31,7 +31,10 @@ namespace DolDoc.OpenGLHost
 
         public void OnSubmit(FormDocument<TestForm> form)
         {
-            Log.Information("Submitting form :)");
+            Log.Information("Submitting form:");
+            Log.Information("FileName: {0}", FileName);
+            Log.Information("Readonly: {0}", ReadOnly);
+            Log.Information("Gender: {0}", Gender);
         }
     }
 }

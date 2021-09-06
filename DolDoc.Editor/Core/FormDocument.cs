@@ -18,8 +18,15 @@ namespace DolDoc.Editor.Core
             DataObject = dataObject ?? new T();
 
             OnButtonClick += FormDocument_OnButtonClick;
+            OnFieldChange += FormDocument_OnFieldChange;
 
             Load(Generate());
+        }
+
+        private void FormDocument_OnFieldChange(string field, object value)
+        {
+            var property = typeof(T).GetProperty(field);
+            property.SetValue(DataObject, value);
         }
 
         private void FormDocument_OnButtonClick(Button obj)

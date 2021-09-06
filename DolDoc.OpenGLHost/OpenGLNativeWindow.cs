@@ -128,6 +128,16 @@ namespace DolDoc.OpenGLHost
                 { Keys.X, e.Shift ? Key.X_UPPER : Key.X_LOWER },
                 { Keys.Y, e.Shift ? Key.Y_UPPER : Key.Y_LOWER },
                 { Keys.Z, e.Shift ? Key.Z_UPPER : Key.Z_LOWER },
+                { Keys.D1, Key.NUMBER_1 },
+                { Keys.D2, Key.NUMBER_2 },
+                { Keys.D3, Key.NUMBER_3 },
+                { Keys.D4, Key.NUMBER_4 },
+                { Keys.D5, Key.NUMBER_5 },
+                { Keys.D6, Key.NUMBER_6 },
+                { Keys.D7, Key.NUMBER_7 },
+                { Keys.D8, Key.NUMBER_8 },
+                { Keys.D9, Key.NUMBER_9 },
+                { Keys.D0, Key.NUMBER_0 },
                 { Keys.Enter, Key.ENTER }
             };
 
