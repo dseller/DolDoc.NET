@@ -40,7 +40,7 @@ namespace DolDoc.Editor.Core
 
         public bool HasFlag(string flag, bool status = true) => Flags.Any(f => f.Value == flag && f.Status == status);
 
-        public virtual void KeyPress(ViewerState state, Key key, int relativeOffset)
+        public virtual void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
             switch (key)
             {
@@ -63,7 +63,7 @@ namespace DolDoc.Editor.Core
             // Do nothing atm.
         }
 
-        protected string GetArgument(string key, string defaultValue = null) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value ?? defaultValue;
+        public string GetArgument(string key, string defaultValue = null) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value ?? defaultValue;
 
         protected void WriteBorder(EntryRenderContext ctx, int length, int? renderPositionOverride = null)
         {

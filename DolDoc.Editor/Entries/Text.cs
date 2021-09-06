@@ -21,7 +21,7 @@ namespace DolDoc.Editor.Entries
             return AsString("TX");
         }
 
-        public override void KeyPress(ViewerState state, Key key, int relativeOffset)
+        public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
             if (!char.IsControl((char)key))
             {

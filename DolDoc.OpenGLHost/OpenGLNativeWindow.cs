@@ -2,8 +2,11 @@
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Rendering;
-using OpenGL;
-using OpenGL.CoreUI;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -13,42 +16,18 @@ namespace DolDoc.OpenGLHost
 {
     public class OpenGLNativeWindow : IFrameBufferWindow, IDisposable
     {
-        private readonly Thread thread;
         private Timer timer;
-        private readonly NativeWindow nativeWindow;
+        private Thread thread;
         private Document document;
         private ViewerState viewerState;
-        private EgaColor[] _framebuffer;// = new EgaColor[1024 * 768];
+        private EgaColor[] _framebuffer;
         private object framebufferLock = new object();
-        private int width, height;
 
-        public OpenGLNativeWindow()
-        {
-            nativeWindow = NativeWindow.Create();
-            thread = new Thread(Run);
-            // 
-        }
+        private NativeWindow nativeWindow;
+        private IGraphicsContext graphicsContext;
+
 
         public void Clear() => Array.Fill(_framebuffer, EgaColor.Palette[15]);
-
-        private void Run()
-        {
-            Log.Verbose("Starting OpenGLNativeWindow thread...");
-
-            nativeWindow.ContextCreated += NativeWindow_ContextCreated;
-            nativeWindow.Render += NativeWindow_Render;
-            nativeWindow.KeyDown += NativeWindow_KeyDown;
-            nativeWindow.Create(0, 0, (uint)width, (uint)height, NativeWindowStyle.None);
-            nativeWindow.Show();
-
-            viewerState.Pages.Clear();
-            document.Refresh();
-
-            timer = new Timer(_ => viewerState.Tick(), null, 0, 200);
-            nativeWindow.Run();
-        }
-
-        public void Dispose() => nativeWindow.Dispose();
 
         public void Render(byte[] data)
         {
@@ -63,61 +42,126 @@ namespace DolDoc.OpenGLHost
 
         public void Show(string title, int width, int height, Document document = null)
         {
-            this.width = width;
-            this.height = height;
-            this.document = document ?? new Document(width / 8, height / 8);
-            viewerState = new ViewerState(this, this.document, width, height, new YaffFontProvider(), "Terminal_VGA_cp861");
-            // Log.Verbose("Document content: {0}", this.document.ToPlainText());
+            thread = new Thread(() =>
+            {
+                Log.Verbose("Starting OpenGLNativeWindow thread...");
+                _framebuffer = new EgaColor[width * height];
 
-            _framebuffer = new EgaColor[width * height];
+                nativeWindow = new NativeWindow(new NativeWindowSettings
+                {
+                    Size = new Vector2i(width, height),
+                    Profile = ContextProfile.Compatability,
+                    WindowBorder = WindowBorder.Fixed,
+                    IsEventDriven = false,
+                    Title = title
+                });
+
+                unsafe
+                {
+                    graphicsContext = new GLFWGraphicsContext(nativeWindow.WindowPtr);
+                }
+
+                nativeWindow.CenterWindow();
+                this.document = document ?? new Document(width / 8, height / 8);
+                viewerState = new ViewerState(this, this.document, width, height, new YaffFontProvider(), "Terminal_VGA_cp861");
+
+                viewerState.Pages.Clear();
+                document.Refresh();
+                timer = new Timer(_ => viewerState.Tick(), null, 0, 200);
+
+                OnLoad();
+                nativeWindow.KeyDown += NativeWindow_KeyDown;
+
+                while (nativeWindow.Exists)
+                {
+                    nativeWindow.ProcessEvents();
+                    // TODO: fps restrict
+                    OnRenderFrame();
+                    Thread.Sleep(1);
+                }
+            });
+
             thread.Start();
         }
 
-        private void NativeWindow_Render(object sender, NativeWindowEventArgs e)
+        private void NativeWindow_KeyDown(KeyboardKeyEventArgs e)
         {
-            NativeWindow nativeWindow = (NativeWindow)sender;
-            Gl.Viewport(0, 0, (int)nativeWindow.Width, (int)nativeWindow.Height);
-            Gl.Clear(ClearBufferMask.ColorBufferBit);
-            Gl.RasterPos2(-1, 1);
-            Gl.PixelZoom(1, -1);
-
-            lock (framebufferLock)
-                Gl.DrawPixels(width, height, PixelFormat.Rgb, PixelType.UnsignedByte, _framebuffer);
-        }
-
-        private static void NativeWindow_ContextCreated(object sender, NativeWindowEventArgs e)
-        {
-            Gl.ReadBuffer(ReadBufferMode.Back);
-            Gl.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-            Gl.Enable(EnableCap.Blend);
-            Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            Gl.LineWidth(2.5f);
-        }
-
-        private void NativeWindow_KeyDown(object sender, NativeWindowKeyEventArgs e)
-        {
-            if (e.Key == KeyCode.Escape)
+            if (e.Key == Keys.Escape)
                 Environment.Exit(0);
 
-            var keys = new Dictionary<KeyCode, Key>
+            var keys = new Dictionary<Keys, Key>
             {
-                { KeyCode.Down, Key.ARROW_DOWN },
-                { KeyCode.Right, Key.ARROW_RIGHT },
-                { KeyCode.Left, Key.ARROW_LEFT },
-                { KeyCode.Up, Key.ARROW_UP },
-                //{ KeyCode., ConsoleKey.Backspace },
-                { KeyCode.Delete, Key.DEL },
-                { KeyCode.Home, Key.HOME },
-                //{ KeyCode.PageUp, ConsoleKey.PageUp },
-                //{ KeyCode.PageDown, ConsoleKey.PageDown }
-                { KeyCode.Space, Key.SPACE },
-                { KeyCode.A, Key.A_LOWER },
-                { KeyCode.B, Key.B_LOWER },
-                { KeyCode.Return, Key.ENTER }
+                { Keys.Up, Key.ARROW_UP },
+                { Keys.Left, Key.ARROW_LEFT },
+                { Keys.Down, Key.ARROW_DOWN },
+                { Keys.Right, Key.ARROW_RIGHT },
+                { Keys.Backspace, Key.BACKSPACE },
+                { Keys.Delete, Key.DEL },
+                { Keys.Home, Key.HOME },
+                { Keys.PageUp, Key.PAGE_UP },
+                { Keys.PageDown, Key.PAGE_DOWN },
+                { Keys.Space, Key.SPACE },
+                { Keys.Period, Key.DOT },
+                { Keys.A, e.Shift ? Key.A_UPPER : Key.A_LOWER },
+                { Keys.B, e.Shift ? Key.B_UPPER : Key.B_LOWER },
+                { Keys.C, e.Shift ? Key.C_UPPER : Key.C_LOWER },
+                { Keys.D, e.Shift ? Key.D_UPPER : Key.D_LOWER },
+                { Keys.E, e.Shift ? Key.E_UPPER : Key.E_LOWER },
+                { Keys.F, e.Shift ? Key.F_UPPER : Key.F_LOWER },
+                { Keys.G, e.Shift ? Key.G_UPPER : Key.G_LOWER },
+                { Keys.H, e.Shift ? Key.H_UPPER : Key.H_LOWER },
+                { Keys.I, e.Shift ? Key.I_UPPER : Key.I_LOWER },
+                { Keys.J, e.Shift ? Key.J_UPPER : Key.J_LOWER },
+                { Keys.K, e.Shift ? Key.K_UPPER : Key.K_LOWER },
+                { Keys.L, e.Shift ? Key.L_UPPER : Key.L_LOWER },
+                { Keys.M, e.Shift ? Key.M_UPPER : Key.M_LOWER },
+                { Keys.N, e.Shift ? Key.N_UPPER : Key.N_LOWER },
+                { Keys.O, e.Shift ? Key.O_UPPER : Key.O_LOWER },
+                { Keys.P, e.Shift ? Key.P_UPPER : Key.P_LOWER },
+                { Keys.Q, e.Shift ? Key.Q_UPPER : Key.Q_LOWER },
+                { Keys.R, e.Shift ? Key.R_UPPER : Key.R_LOWER },
+                { Keys.S, e.Shift ? Key.S_UPPER : Key.S_LOWER },
+                { Keys.T, e.Shift ? Key.T_UPPER : Key.T_LOWER },
+                { Keys.U, e.Shift ? Key.U_UPPER : Key.U_LOWER },
+                { Keys.V, e.Shift ? Key.V_UPPER : Key.V_LOWER },
+                { Keys.W, e.Shift ? Key.W_UPPER : Key.W_LOWER },
+                { Keys.X, e.Shift ? Key.X_UPPER : Key.X_LOWER },
+                { Keys.Y, e.Shift ? Key.Y_UPPER : Key.Y_LOWER },
+                { Keys.Z, e.Shift ? Key.Z_UPPER : Key.Z_LOWER },
+                { Keys.Enter, Key.ENTER }
             };
 
             if (keys.TryGetValue(e.Key, out var key))
                 viewerState.KeyPress(key);
+        }
+
+        private void OnLoad()
+        {
+            GL.ReadBuffer(ReadBufferMode.Back);
+            GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.LineWidth(2.5f);
+        }
+
+        private void OnRenderFrame()
+        {
+            GL.Viewport(0, 0, nativeWindow.Size.X, nativeWindow.Size.Y);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.RasterPos2(-1, 1);
+            GL.PixelZoom(1, -1);
+
+            lock (framebufferLock)
+                GL.DrawPixels(1024, 768, PixelFormat.Rgb, PixelType.UnsignedByte, _framebuffer);
+
+            graphicsContext.SwapBuffers();
+        }
+
+        public void Dispose() => nativeWindow.Close();
+
+        public void SetTitle(string title)
+        {
+            nativeWindow.Title = title;
         }
     }
 }

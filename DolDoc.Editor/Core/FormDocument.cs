@@ -1,4 +1,6 @@
-﻿using DolDoc.Editor.Forms;
+﻿using DolDoc.Editor.Entries;
+using DolDoc.Editor.Forms;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +12,33 @@ namespace DolDoc.Editor.Core
     public class FormDocument<T> : Document
         where T : class, new()
     {
-        public FormDocument(T dataObject, int columns = 80, int rows = 60, EgaColor defaultBgColor = EgaColor.White, EgaColor defaultFgColor = EgaColor.Black, IList<BinaryChunk> binaryChunks = null)
+        public FormDocument(T dataObject = null, int columns = 80, int rows = 60, EgaColor defaultBgColor = EgaColor.White, EgaColor defaultFgColor = EgaColor.Black, IList<BinaryChunk> binaryChunks = null)
             : base(columns, rows, defaultBgColor, defaultFgColor, binaryChunks)
         {
-            DataObject = dataObject;
+            DataObject = dataObject ?? new T();
+
+            OnButtonClick += FormDocument_OnButtonClick;
 
             Load(Generate());
+        }
+
+        private void FormDocument_OnButtonClick(Button obj)
+        {
+            var handlerMethod = obj.GetArgument("H");
+            if (string.IsNullOrEmpty(handlerMethod))
+            {
+                Log.Warning("No handler method specified.");
+                return;
+            }
+
+            var methodInfo = typeof(T).GetMethod(handlerMethod);
+            if (methodInfo == null)
+            {
+                Log.Warning("Could not find method {0} on type {1}", methodInfo, typeof(T));
+                return;
+            }
+
+            methodInfo.Invoke(DataObject, new object[] { this });
         }
 
         public T DataObject { get; }

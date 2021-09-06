@@ -1,7 +1,6 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Forms;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -49,13 +48,18 @@ namespace DolDoc.Editor.Entries
             return new CommandResult(true, charsWritten);
         }
 
-        public override void KeyPress(ViewerState state, Key key, int relativeOffset)
+        public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
-            if (!char.IsLetterOrDigit((char)key) && !char.IsPunctuation((char)key))
+            if (key == Key.BACKSPACE && stringBuilder.Length > 0)
+            {
+                stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                return;
+            }
+
+            if (!character.HasValue)
                 return;
 
-            stringBuilder.Append((char)key);
-            Log.Information("Value for {0} is now: {1}", GetArgument("PROP"), stringBuilder.ToString());
+            stringBuilder.Append(character.Value);
         }
 
         public override string ToString() => AsString("DA"); //$"$DA,A=\"{Aux}\"$";

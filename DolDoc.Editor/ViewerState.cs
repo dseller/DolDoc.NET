@@ -4,7 +4,6 @@ using DolDoc.Editor.Entries;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
-using Serilog;
 using System;
 
 namespace DolDoc.Editor
@@ -23,6 +22,7 @@ namespace DolDoc.Editor
 
         public Cursor Cursor { get; }
 
+        private string _title;
         private bool _cursorInverted;
         private IFrameBufferWindow _frameBuffer;
         private byte[] _renderBuffer;
@@ -108,9 +108,15 @@ namespace DolDoc.Editor
 
         public bool RawMode { get; set; }
 
-        public void KeyDown(ConsoleKey key)
+        public string Title
         {
-            
+            get => _title;
+
+            set
+            {
+                _title = value;
+                _frameBuffer.SetTitle(value);
+            }
         }
 
         public void KeyPress(Key key)
@@ -146,9 +152,14 @@ namespace DolDoc.Editor
                     break;
             }
 
+            // SPACE to TILDE
+            char? character = null;
+            if (key >= Key.SPACE && key <= Key.TILDE)
+                character = (char)key;
+
             var ch = Pages[Cursor.DocumentPosition];
             if (ch.HasEntry)
-                ch.Entry.KeyPress(this, key, ch.RelativeTextOffset);
+                ch.Entry.KeyPress(this, key, character, ch.RelativeTextOffset);
             Document.Refresh();
         }
 

@@ -26,6 +26,7 @@ namespace DolDoc.Editor.Entries
                 case "MA": return new Macro(flags, args);
                 // case "PT": return new Prompt(flags, args);
                 case "SP": return new Sprite(flags, args);
+                case "TI": return new Title(flags, args);
                 case "TX": return new Text(flags, args);
                 case "TR": return new Tree(flags, args);
                 case "UL": return new Underline(flags, args);

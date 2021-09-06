@@ -35,6 +35,11 @@ namespace DolDoc.BlazorHost
             
         }
 
+        public void SetTitle(string title)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Show(string title, int width, int heigth, Document document = null)
         {
             throw new NotImplementedException();

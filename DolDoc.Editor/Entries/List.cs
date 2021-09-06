@@ -45,7 +45,7 @@ namespace DolDoc.Editor.Entries
             return new CommandResult(true, writtenChars);
         }
 
-        public override void KeyPress(ViewerState state, Key key, int relativeOffset)
+        public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
             if (key == Key.SPACE || key == Key.ENTER)
                 selectedIndex++;
