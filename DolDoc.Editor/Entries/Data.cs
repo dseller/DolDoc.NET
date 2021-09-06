@@ -1,12 +1,14 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Forms;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
-    public class Data : DocumentEntry
+    public class Data : DocumentEntry, IFormEntry
     {
         private StringBuilder stringBuilder;
 
@@ -17,28 +19,42 @@ namespace DolDoc.Editor.Entries
 
         private int InputLineLength => int.Parse(GetArgument("ILL", "16"));
 
+        public object Value => stringBuilder.ToString();
+
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             var inverted = ctx.Inverted;
             if (Selected)
                 ctx.Inverted = true;
 
-            var inputLine = new string(' ', InputLineLength);
+            //var inputLine = new string(' ', InputLineLength);
             var charsWritten = WriteString(ctx, $"{Aux}: ");
             ctx.RenderPosition += charsWritten;
 
             var underLine = ctx.Underline;
             ctx.Underline = true;
-            charsWritten += WriteString(ctx, inputLine);
+
+
+            // charsWritten += WriteString(ctx, inputLine);
+            var value = stringBuilder.ToString();
+            if (value.Length > InputLineLength)
+                value = value.Substring(Math.Max(0, value.Length - InputLineLength), InputLineLength);
+            var inputText = value.PadRight(InputLineLength);
+            charsWritten += WriteString(ctx, inputText);
+            
+            
             ctx.Underline = underLine;
             ctx.Inverted = inverted;
 
             return new CommandResult(true, charsWritten);
         }
 
-        public override void CharKeyPress(ViewerState state, char key, int relativeOffset)
+        public override void KeyPress(ViewerState state, Key key, int relativeOffset)
         {
-            stringBuilder.Append(key);
+            if (!char.IsLetterOrDigit((char)key) && !char.IsPunctuation((char)key))
+                return;
+
+            stringBuilder.Append((char)key);
             Log.Information("Value for {0} is now: {1}", GetArgument("PROP"), stringBuilder.ToString());
         }
 

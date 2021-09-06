@@ -34,9 +34,9 @@ namespace DolDoc.Editor.Entries
             return new CommandResult(true, charsWritten);
         }
 
-        public override void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
+        public override void KeyPress(ViewerState state, Key key, int relativeOffset)
         {
-            if (key == ConsoleKey.Spacebar)
+            if (key == Key.SPACE)
             {
                 // Follow the link.
                 if (!File.Exists(Tag))

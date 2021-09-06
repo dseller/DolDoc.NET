@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DolDoc.Editor.Core;
+using System;
 using System.Collections.Generic;
 
 namespace DolDoc.Editor.Input
@@ -12,22 +13,10 @@ namespace DolDoc.Editor.Input
             _inputListeners = inputListeners;
         }
 
-        public void KeyDown(ConsoleKey key)
-        {
-            foreach (var listener in _inputListeners)
-                listener.KeyDown(key);
-        }
-
-        public void KeyPress(char key)
+        public void KeyPress(Key key)
         {
             foreach (var listener in _inputListeners)
                 listener.KeyPress(key);
-        }
-
-        public void KeyUp(ConsoleKey key)
-        {
-            foreach (var listener in _inputListeners)
-                listener.KeyUp(key);
         }
 
         public void MouseMove(int x, int y)

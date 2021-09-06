@@ -99,31 +99,25 @@ namespace DolDoc.OpenGLHost
             if (e.Key == KeyCode.Escape)
                 Environment.Exit(0);
 
-            var keyDownTranslation = new Dictionary<KeyCode, ConsoleKey>
+            var keys = new Dictionary<KeyCode, Key>
             {
-                { KeyCode.Down, ConsoleKey.DownArrow},
-                { KeyCode.Right, ConsoleKey.RightArrow },
-                { KeyCode.Left, ConsoleKey.LeftArrow },
-                { KeyCode.Up, ConsoleKey.UpArrow },
+                { KeyCode.Down, Key.ARROW_DOWN },
+                { KeyCode.Right, Key.ARROW_RIGHT },
+                { KeyCode.Left, Key.ARROW_LEFT },
+                { KeyCode.Up, Key.ARROW_UP },
                 //{ KeyCode., ConsoleKey.Backspace },
-                { KeyCode.Delete, ConsoleKey.Delete },
-                { KeyCode.Home, ConsoleKey.Home },
-                //{ KeyCode., ConsoleKey.PageUp },
+                { KeyCode.Delete, Key.DEL },
+                { KeyCode.Home, Key.HOME },
+                //{ KeyCode.PageUp, ConsoleKey.PageUp },
                 //{ KeyCode.PageDown, ConsoleKey.PageDown }
-                //{ KeyCode.Space, ConsoleKey.Spacebar }
+                { KeyCode.Space, Key.SPACE },
+                { KeyCode.A, Key.A_LOWER },
+                { KeyCode.B, Key.B_LOWER },
+                { KeyCode.Return, Key.ENTER }
             };
 
-            var charTranslation = new Dictionary<KeyCode, char>
-            {
-                { KeyCode.A, 'A' },
-                { KeyCode.B, 'B' },
-                { KeyCode.Space, ' ' }
-            };
-
-            if (keyDownTranslation.TryGetValue(e.Key, out var key))
-                viewerState.KeyDown(key);
-            else if (charTranslation.TryGetValue(e.Key, out var ch))
-                viewerState.KeyPress(ch);
+            if (keys.TryGetValue(e.Key, out var key))
+                viewerState.KeyPress(key);
         }
     }
 }

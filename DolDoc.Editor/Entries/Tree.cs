@@ -35,12 +35,12 @@ namespace DolDoc.Editor.Entries
             return new CommandResult(true, writtenCharacters);
         }
 
-        public override void CharKeyPress(ViewerState state, char key, int relativeOffset)
+        public override void KeyPress(ViewerState state, Key key, int relativeOffset)
         {
-            if (key == ' ' || key == '\r')
+            if (key == Key.SPACE || key == Key.ENTER)
                 Toggle();
         }
-
+        
         public override void Click()
         {
             Toggle();

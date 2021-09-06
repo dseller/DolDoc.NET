@@ -53,14 +53,14 @@
 
         _timer.Enabled = false;
 
-        if (translation.TryGetValue(e.Code, out var key))
-            _state.KeyDown(key);
-        else
-        {
-            char ch = e.Key[0];
-            if (!char.IsControl(ch))
-                _state.KeyPress(ch);
-        }
+        //if (translation.TryGetValue(e.Code, out var key))
+        //    _state.KeyDown(key);
+        //else
+        //{
+        //    char ch = e.Key[0];
+        //    if (!char.IsControl(ch))
+        //        _state.KeyPress(ch);
+        //}
 
         _timer.Enabled = true;
 

@@ -21,29 +21,26 @@ namespace DolDoc.Editor.Entries
             return AsString("TX");
         }
 
-        public override void CharKeyPress(ViewerState state, char key, int relativeOffset)
+        public override void KeyPress(ViewerState state, Key key, int relativeOffset)
         {
-            if (!char.IsControl(key))
+            if (!char.IsControl((char)key))
             {
-                Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string(key, 1));
+                Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string((char)key, 1));
                 //state.CursorPosition++;
                 state.Cursor.Right();
             }
-            else if (key == '\r')
-            {
-                Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string('\n', 1));
-            }
-        }
 
-        public override void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
-        {
             switch (key)
             {
-                case ConsoleKey.Delete:
+                case Key.ENTER:
+                    Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string('\n', 1));
+                    break;
+
+                case Key.DEL:
                     Arguments[0].Value = Arguments[0].Value.Remove(relativeOffset, 1);
                     break;
 
-                case ConsoleKey.Backspace:
+                case Key.BACKSPACE:
                     if (relativeOffset > 0)
                     {
                         Arguments[0].Value = Arguments[0].Value.Remove(relativeOffset - 1, 1);

@@ -40,16 +40,11 @@ namespace DolDoc.Editor.Core
 
         public bool HasFlag(string flag, bool status = true) => Flags.Any(f => f.Value == flag && f.Status == status);
 
-        public virtual void CharKeyPress(ViewerState state, char key, int relativeOffset)
-        {
-            Console.WriteLine("CharKeyPress on entry not supporting input!");
-        }
-
-        public virtual void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
+        public virtual void KeyPress(ViewerState state, Key key, int relativeOffset)
         {
             switch (key)
             {
-                case ConsoleKey.Delete:
+                case Key.DEL:
                     state.Document.Entries.Remove(this);
                     break;
             }

@@ -18,7 +18,7 @@ namespace DolDoc.OpenGLHost
         [CheckboxField("Open read-only?")]
         public bool ReadOnly { get; set; }
 
-        [DataField("Enter your gender")]
+        [ListField("Enter your gender", typeof(Gender))]
         public Gender Gender { get; set; }
 
         [ButtonField("Submit", nameof(OnSubmit), suffix: null)]
