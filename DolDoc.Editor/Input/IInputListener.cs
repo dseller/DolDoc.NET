@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DolDoc.Editor.Core;
 
 namespace DolDoc.Editor.Input
 {
     public interface IInputListener
     {
-        void KeyDown(ConsoleKey key);
-
-        void KeyUp(ConsoleKey key);
-
-        void KeyPress(char key);
+        void KeyPress(Key key);
 
         void MousePress(int x, int y);
 

@@ -38,9 +38,6 @@ namespace DolDoc.Editor.Entries
             return new CommandResult(true);
         }
 
-        public override string ToString()
-        {
-            return "TODO";
-        }
+        public override string ToString() => AsString("CM");
     }
 }

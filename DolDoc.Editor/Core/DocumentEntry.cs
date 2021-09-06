@@ -4,6 +4,7 @@ using DolDoc.Editor.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace DolDoc.Editor.Core
 {
@@ -39,20 +40,17 @@ namespace DolDoc.Editor.Core
 
         public bool HasFlag(string flag, bool status = true) => Flags.Any(f => f.Value == flag && f.Status == status);
 
-        public virtual void CharKeyPress(ViewerState state, char key, int relativeOffset)
-        {
-            Console.WriteLine("CharKeyPress on entry not supporting input!");
-        }
-
-        public virtual void KeyPress(ViewerState state, ConsoleKey key, int relativeOffset)
+        public virtual void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
             switch (key)
             {
-                case ConsoleKey.Delete:
+                case Key.DEL:
                     state.Document.Entries.Remove(this);
                     break;
             }
         }
+
+        public bool Selected { get; set; }
 
         public abstract CommandResult Evaluate(EntryRenderContext ctx);
 
@@ -65,7 +63,7 @@ namespace DolDoc.Editor.Core
             // Do nothing atm.
         }
 
-        protected string GetArgument(string key) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value;
+        public string GetArgument(string key, string defaultValue = null) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value ?? defaultValue;
 
         protected void WriteBorder(EntryRenderContext ctx, int length, int? renderPositionOverride = null)
         {
@@ -203,6 +201,24 @@ namespace DolDoc.Editor.Core
 
             charsWritten = renderPosition - ctx.RenderPosition + offset;
             return renderPosition;
+        }
+
+        protected string AsString(string cmd)
+        {
+            var builder = new StringBuilder();
+            builder.Append($"${cmd}");
+
+            foreach (var flag in Flags)
+                builder.Append($"{(flag.Status ? "+" : "-")}{flag.Value}");
+
+            foreach (var arg in Arguments)
+                if (arg.Key == null)
+                    builder.Append($",{arg.Value}");
+                else
+                    builder.Append($",{arg.Key}={arg.Value}");
+
+            builder.Append('$');
+            return builder.ToString();
         }
     }
 }

@@ -26,6 +26,12 @@ namespace DolDoc.OpenGLHost
             //var window = compositor.NewWindow();
             //window.Show("Form Test", 1024, 768, new FormDocument<TestForm>(null, 128, 60));
 
+            //var window2 = compositor.NewWindow();
+            //window2.Show("Another", 1024, 768, DocumentLoader.Load(File.Open("Examples/Hash.DD", FileMode.Open), 128, 60));
+
+            //var window = compositor.NewWindow();
+            //window.Show("Form Test", 1024, 768, new FormDocument<TestForm>(null, 128, 60));
+
             var window = compositor.NewWindow();
             var document = new Document(128, 63);
 
@@ -45,6 +51,8 @@ namespace DolDoc.OpenGLHost
 
             document.Load(builder.ToString());
             window.Show("DolDoc.NET File Browser", 1024, 768, document);
+            
+            
         }
     }
 }

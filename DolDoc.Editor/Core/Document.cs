@@ -1,4 +1,5 @@
 ﻿using DolDoc.Core.Parser;
+using DolDoc.Editor.Entries;
 using DolDoc.Editor.Parser;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace DolDoc.Editor.Core
         private IDolDocParser _parser;
 
         public event Action<Document> OnUpdate;
+        public event Action<Button> OnButtonClick;
+        public event Action<string, object> OnFieldChange;
 
         public Document(string content, int columns = 80, int rows = 60, EgaColor defaultBgColor = EgaColor.White, EgaColor defaultFgColor = EgaColor.Black, IList<BinaryChunk> binaryChunks = null)
             : this(columns, rows, defaultBgColor, defaultFgColor, binaryChunks)
@@ -36,6 +39,10 @@ namespace DolDoc.Editor.Core
         public LinkedList<DocumentEntry> Entries { get; private set; }
         
         public IList<BinaryChunk> BinaryChunks { get; private set; }
+
+        public void ButtonClicked(Button btn) => OnButtonClick?.Invoke(btn);
+
+        public void FieldChanged(string name, object value) => OnFieldChange?.Invoke(name, value);
 
         public void Load(string contents)
         {

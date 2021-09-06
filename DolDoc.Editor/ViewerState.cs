@@ -4,7 +4,6 @@ using DolDoc.Editor.Entries;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
-using Serilog;
 using System;
 
 namespace DolDoc.Editor
@@ -23,6 +22,7 @@ namespace DolDoc.Editor
 
         public Cursor Cursor { get; }
 
+        private string _title;
         private bool _cursorInverted;
         private IFrameBufferWindow _frameBuffer;
         private byte[] _renderBuffer;
@@ -109,59 +109,59 @@ namespace DolDoc.Editor
 
         public bool RawMode { get; set; }
 
-        public void KeyDown(ConsoleKey key)
+        public string Title
+        {
+            get => _title;
+
+            set
+            {
+                _title = value;
+                _frameBuffer.SetTitle(value);
+            }
+        }
+
+        public void KeyPress(Key key)
         {
             switch (key)
             {
-                case ConsoleKey.PageUp:
+                case Key.PAGE_UP:
                     PreviousPage();
                     break;
 
-                case ConsoleKey.PageDown:
+                case Key.PAGE_DOWN:
                     NextPage();
                     break;
 
-                case ConsoleKey.RightArrow:
+                case Key.ARROW_RIGHT:
                     Cursor.Right();
                     RenderCursor();
                     break;
 
-                case ConsoleKey.LeftArrow:
+                case Key.ARROW_LEFT:
                     Cursor.Left();
                     RenderCursor();
                     break;
 
-                case ConsoleKey.DownArrow:
+                case Key.ARROW_DOWN:
                     Cursor.Down();
                     RenderCursor();
                     break;
 
-                case ConsoleKey.UpArrow:
+                case Key.ARROW_UP:
                     Cursor.Up();
                     RenderCursor();
                     break;
             }
 
-            var ch = Pages[Cursor.DocumentPosition];
-            if (ch.Entry != null)
-                ch.Entry.KeyPress(this, key, ch.RelativeTextOffset);
-            Document.Refresh();
-        }
+            // SPACE to TILDE
+            char? character = null;
+            if (key >= Key.SPACE && key <= Key.TILDE)
+                character = (char)key;
 
-        public void KeyPress(char key)
-        {
             var ch = Pages[Cursor.DocumentPosition];
-            // Get the entry of the current cursor position.
             if (ch.HasEntry)
-            {
-                ch.Entry.CharKeyPress(this, key, ch.RelativeTextOffset);
-                Document.Refresh();
-            }
-        }
-
-        public void KeyUp(ConsoleKey key)
-        {
-            throw new NotImplementedException();
+                ch.Entry.KeyPress(this, key, character, ch.RelativeTextOffset);
+            Document.Refresh();
         }
 
         public void MouseMove(int x, int y)
