@@ -57,6 +57,7 @@ namespace DolDoc.Editor
             Document.OnUpdate += Document_OnUpdate;
             Rows = Document.Rows;
             Columns = Document.Columns;
+            Cursor.DocumentPosition = 0;
             Document_OnUpdate(Document);
             Render();
         }
