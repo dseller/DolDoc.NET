@@ -71,22 +71,22 @@ namespace DolDoc.Editor.Core
             var renderPosition = renderPositionOverride ?? ctx.RenderPosition;
 
             // Write top border
-            ctx.State.Pages[renderPosition - ctx.State.Columns - 1] = new Character(this, 0, 0xDA, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - ctx.State.Columns - 1] = new Character(this, 0, 0xDA, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
             for (int i = 0; i < length; i++)
-                ctx.State.Pages[renderPosition - ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[renderPosition - ctx.State.Columns + length] = new Character(this, 0, 0xBF, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+                ctx.State.Pages[renderPosition - ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - ctx.State.Columns + length] = new Character(this, 0, 0xBF, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
             // Write bottom border
-            ctx.State.Pages[renderPosition + ctx.State.Columns - 1] = new Character(this, 0, 0xC0, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + ctx.State.Columns - 1] = new Character(this, 0, 0xC0, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
             for (int i = 0; i < length; i++)
-                ctx.State.Pages[renderPosition + ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[renderPosition + ctx.State.Columns + length] = new Character(this, 0, 0xD9, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+                ctx.State.Pages[renderPosition + ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + ctx.State.Columns + length] = new Character(this, 0, 0xD9, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
             // Write left border
-            ctx.State.Pages[renderPosition - 1] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - 1] = new Character(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
             // Write right border
-            ctx.State.Pages[renderPosition + length] = new Character(this, 0, 0xB3, new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + length] = new Character(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace DolDoc.Editor.Core
         /// <returns>The amount of <seealso cref="Character"/>s written.</returns>
         protected int WriteString(EntryRenderContext ctx, string str)
         {
-            if (ctx.CollapsedTreeNodeIndentationLevel.HasValue && ctx.Indentation > ctx.CollapsedTreeNodeIndentationLevel.Value)
+            if (ctx.Options.CollapsedTreeNodeIndentationLevel.HasValue && ctx.Options.Indentation > ctx.Options.CollapsedTreeNodeIndentationLevel.Value)
                 return 0;
 
             var startRenderPosition = CalculateStartRenderPositionAndCharsWritten(ctx, str, out var charsWritten);
@@ -128,11 +128,11 @@ namespace DolDoc.Editor.Core
                 // Check indentation.
                 if (renderPosition % ctx.State.Columns == 0)
                 {
-                    for (int indent = 0; indent < ctx.Indentation; indent++)
-                        ctx.State.Pages[renderPosition + indent] = new Character(this, indent, (byte)' ', new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor), CharacterFlags.None);
+                    for (int indent = 0; indent < ctx.Options.Indentation; indent++)
+                        ctx.State.Pages[renderPosition + indent] = new Character(this, indent, (byte)' ', new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
-                    renderPosition += ctx.Indentation;
-                    charsWritten += ctx.Indentation;
+                    renderPosition += ctx.Options.Indentation;
+                    charsWritten += ctx.Options.Indentation;
                 }
 
                 if (ch == '\n')
@@ -153,11 +153,11 @@ namespace DolDoc.Editor.Core
                     charsWritten++;
 
                 var chFlags = CharacterFlags.None;
-                if (ctx.Underline)
+                if (ctx.Options.Underline)
                     chFlags |= CharacterFlags.Underline;
-                if (ctx.Blink)
+                if (ctx.Options.Blink)
                     chFlags |= CharacterFlags.Blink;
-                if (ctx.Inverted)
+                if (ctx.Options.Inverted)
                     chFlags |= CharacterFlags.Inverted;
                 if (HasFlag("H"))
                     chFlags |= CharacterFlags.Hold;
@@ -170,7 +170,7 @@ namespace DolDoc.Editor.Core
                     this,
                     i,
                     (byte)str[i],
-                    new CombinedColor(ctx.BackgroundColor, ctx.ForegroundColor),
+                    new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor),
                     chFlags
                 );
             }

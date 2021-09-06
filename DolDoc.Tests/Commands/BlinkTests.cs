@@ -12,22 +12,22 @@ namespace DolDoc.Tests.Commands
         public void EnablesBlinkMode()
         {
             var entry = new Blink(null, new[] { new Argument(null, "1") });
-            var ctx = new EntryRenderContext { Blink = false };
+            var ctx = new EntryRenderContext(null, null, new RenderOptions { Blink = false });
 
             entry.Evaluate(ctx);
 
-            Assert.AreEqual(true, ctx.Blink);
+            Assert.AreEqual(true, ctx.Options.Blink);
         }
 
         [TestMethod]
         public void DisablesBlinkMode()
         {
             var entry = new Blink(null, new[] { new Argument(null, "0") });
-            var ctx = new EntryRenderContext { Blink = true };
+            var ctx = new EntryRenderContext(null, null, new RenderOptions { Blink = true });
 
             entry.Evaluate(ctx);
 
-            Assert.AreEqual(false, ctx.Blink);
+            Assert.AreEqual(false, ctx.Options.Blink);
         }
     }
 }

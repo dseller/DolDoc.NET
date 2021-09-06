@@ -51,8 +51,6 @@ namespace DolDoc.OpenGLHost
 
             document.Load(builder.ToString());
             window.Show("DolDoc.NET File Browser", 1024, 768, document);
-            
-            
         }
     }
 }

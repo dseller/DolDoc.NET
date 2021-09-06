@@ -14,23 +14,20 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
-            var fgColor = ctx.ForegroundColor;
-            var ul = ctx.Underline;
-            ctx.Underline = true;
-            ctx.ForegroundColor = EgaColor.Purple;
+            var options = ctx.NewOptions();
+            options.Underline = true;
+            options.ForegroundColor = EgaColor.Purple;
 
             bool collapsed = !HasFlag("C", false);
             var icon = collapsed ? "+" : "-";
 
             var writtenCharacters = WriteString(ctx, $"{icon}] {Tag}");
 
-            ctx.ForegroundColor = fgColor;
-            ctx.Underline = ul;
+            ctx.PopOptions();
 
             // Find the tree's domain. It spans from the first $ID$ to the $ID$ that brings it to its original level.
-
             if (collapsed)
-                ctx.CollapsedTreeNodeIndentationLevel = ctx.Indentation;
+                ctx.Options.CollapsedTreeNodeIndentationLevel = ctx.Options.Indentation;
 
             return new CommandResult(true, writtenCharacters);
         }

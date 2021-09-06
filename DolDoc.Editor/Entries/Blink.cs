@@ -13,6 +13,6 @@ namespace DolDoc.Editor.Entries
 
         public override string ToString() => $"$BK,{Tag}$";
 
-        protected override void Set(EntryRenderContext ctx, bool status) => ctx.Blink = status;
+        protected override void Set(EntryRenderContext ctx, bool status) => ctx.Options.Blink = status;
     }
 }

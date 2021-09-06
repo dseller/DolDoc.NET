@@ -22,28 +22,20 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
-            var inverted = ctx.Inverted;
-            if (Selected)
-                ctx.Inverted = true;
+            var options = ctx.NewOptions();
+            options.Inverted = true;
 
-            //var inputLine = new string(' ', InputLineLength);
             var charsWritten = WriteString(ctx, $"{Aux}: ");
             ctx.RenderPosition += charsWritten;
-
-            var underLine = ctx.Underline;
-            ctx.Underline = true;
-
-
-            // charsWritten += WriteString(ctx, inputLine);
+            
+            options.Underline = true;
             var value = stringBuilder.ToString();
             if (value.Length > InputLineLength)
                 value = value.Substring(Math.Max(0, value.Length - InputLineLength), InputLineLength);
             var inputText = value.PadRight(InputLineLength);
             charsWritten += WriteString(ctx, inputText);
             
-            ctx.Underline = underLine;
-            ctx.Inverted = inverted;
-
+            ctx.PopOptions();
             return new CommandResult(true, charsWritten);
         }
 

@@ -13,6 +13,6 @@ namespace DolDoc.Editor.Entries
 
         public override string ToString() => $"$IV,{Tag}$";
 
-        protected override void Set(EntryRenderContext ctx, bool status) => ctx.Inverted = status;
+        protected override void Set(EntryRenderContext ctx, bool status) => ctx.Options.Inverted = status;
     }
 }

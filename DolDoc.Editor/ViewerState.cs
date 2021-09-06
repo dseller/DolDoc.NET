@@ -64,16 +64,8 @@ namespace DolDoc.Editor
 
         private void Document_OnUpdate(Document document)
         {
-            var ctx = new EntryRenderContext
-            {
-                Document = document,
-                ForegroundColor = DefaultForegroundColor,
-                BackgroundColor = DefaultBackgroundColor,
-                DefaultBackgroundColor = DefaultBackgroundColor,
-                DefaultForegroundColor = DefaultForegroundColor,
-                RenderPosition = 0,
-                State = this
-            };
+            var renderOptions = new RenderOptions(DefaultForegroundColor, DefaultBackgroundColor);
+            var ctx = new EntryRenderContext(document, this, renderOptions);
 
             if (!RawMode)
             {

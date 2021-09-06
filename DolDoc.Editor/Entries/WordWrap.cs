@@ -13,6 +13,6 @@ namespace DolDoc.Editor.Entries
 
         public override string ToString() => $"WW,{Tag}$";
 
-        protected override void Set(EntryRenderContext ctx, bool status) => ctx.WordWrap = status;
+        protected override void Set(EntryRenderContext ctx, bool status) => ctx.Options.WordWrap = status;
     }
 }

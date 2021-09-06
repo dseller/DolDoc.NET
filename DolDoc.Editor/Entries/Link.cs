@@ -1,6 +1,5 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -15,22 +14,15 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
-            var oldFg = ctx.ForegroundColor;
-            var oldUl = ctx.Underline;
-
-            ctx.ForegroundColor = EgaColor.Red;
+            var options = ctx.NewOptions();
+            options.ForegroundColor = EgaColor.Red;
 
             if (!HasFlag("UL", false))
-                ctx.Underline = true;
-            // var text = GetArgument("A") ?? Tag;
+                options.Underline = true;
 
-            //var result = base.Evaluate(ctx);
             var charsWritten = WriteString(ctx, Tag);
 
-            ctx.ForegroundColor = oldFg;
-            if (!HasFlag("UL", false))
-                ctx.Underline = oldUl;
-
+            ctx.PopOptions();
             return new CommandResult(true, charsWritten);
         }
 

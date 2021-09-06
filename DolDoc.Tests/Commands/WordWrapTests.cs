@@ -12,22 +12,22 @@ namespace DolDoc.Tests.Commands
         public void EnablesWordWrap()
         {
             var entry = new WordWrap(null, new[] { new Argument(null, "1") });
-            var ctx = new EntryRenderContext { WordWrap = false };
+            var ctx = new EntryRenderContext(null, null, new RenderOptions { WordWrap = false });
 
             entry.Evaluate(ctx);
 
-            Assert.AreEqual(true, ctx.WordWrap);
+            Assert.AreEqual(true, ctx.Options.WordWrap);
         }
 
         [TestMethod]
         public void DisablesWordWrap()
         {
             var entry = new WordWrap(null, new[] { new Argument(null, "0") });
-            var ctx = new EntryRenderContext { WordWrap = true };
+            var ctx = new EntryRenderContext(null, null, new RenderOptions { WordWrap = true });
 
             entry.Evaluate(ctx);
 
-            Assert.AreEqual(false, ctx.WordWrap);
+            Assert.AreEqual(false, ctx.Options.WordWrap);
         }
     }
 }

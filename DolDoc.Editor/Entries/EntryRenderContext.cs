@@ -1,66 +1,46 @@
 ﻿using DolDoc.Editor.Core;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace DolDoc.Editor.Commands
 {
-    public class EntryRenderContext : ICloneable
+    public class EntryRenderContext
     {
+        private Stack<RenderOptions> renderOptionsStack;
+
+        public EntryRenderContext(Document document, ViewerState state, RenderOptions renderOptions)
+        {
+            State = state;
+            Document = document;
+            RenderPosition = 0;
+            renderOptionsStack = new Stack<RenderOptions>();
+            renderOptionsStack.Push(renderOptions);
+        }
+
         /// <summary>
         /// The current Document.
         /// </summary>
-        public Document Document { get; set; }
+        public Document Document { get; }
 
-        public ViewerState State { get; set; }
+        public ViewerState State { get; }
 
         /// <summary>
         /// The position where to render the entry.
         /// </summary>
         public int RenderPosition { get; set; }
 
-        public EgaColor ForegroundColor { get; set; }
+        public RenderOptions Options => renderOptionsStack.Peek();
 
-        public EgaColor BackgroundColor { get; set; }
+        public void PushOptions(RenderOptions renderOptions) => renderOptionsStack.Push(renderOptions);
 
-        public EgaColor DefaultForegroundColor { get; set; }
+        public void PopOptions() => renderOptionsStack.Pop();
 
-        public EgaColor DefaultBackgroundColor { get; set; }
-
-        /// <summary>
-        /// Whether underline mode is enabled.
-        /// </summary>
-        public bool Underline { get; set; }
-
-        /// <summary>
-        /// Whether blinking mode is enabled.
-        /// </summary>
-        public bool Blink { get; set; }
-
-        public bool WordWrap { get; set; }
-
-        public bool Inverted { get; set; }
-
-        /// <summary>
-        /// Defines the indentation level.
-        /// </summary>
-        public int Indentation { get; set; }
-
-        public int? CollapsedTreeNodeIndentationLevel { get; set; }
-
-        public object Clone() => new EntryRenderContext
-            {
-                State = State,
-                Document = Document,
-                RenderPosition = RenderPosition,
-                ForegroundColor = ForegroundColor,
-                BackgroundColor = BackgroundColor,
-                DefaultBackgroundColor = DefaultBackgroundColor,
-                DefaultForegroundColor = DefaultForegroundColor,
-                Underline = Underline,
-                Blink = Blink,
-                WordWrap = WordWrap,
-                Inverted = Inverted,
-                Indentation = Indentation,
-                CollapsedTreeNodeIndentationLevel = CollapsedTreeNodeIndentationLevel
-            };
+        public RenderOptions NewOptions()
+        {
+            var options = Options.Clone();
+            PushOptions(options);
+            return options;
+        }
     }
 }

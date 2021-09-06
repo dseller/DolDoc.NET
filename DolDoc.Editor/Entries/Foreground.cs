@@ -15,9 +15,9 @@ namespace DolDoc.Editor.Entries
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             if (Arguments.Count == 0)
-                ctx.ForegroundColor = ctx.DefaultForegroundColor;
+                ctx.Options.ForegroundColor = ctx.Options.DefaultForegroundColor;
             else
-                ctx.ForegroundColor = (EgaColor)Enum.Parse(typeof(EgaColor), Tag, true);
+                ctx.Options.ForegroundColor = (EgaColor)Enum.Parse(typeof(EgaColor), Tag, true);
 
             return new CommandResult(true);
         }

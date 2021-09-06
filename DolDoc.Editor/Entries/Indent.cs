@@ -15,13 +15,13 @@ namespace DolDoc.Editor.Entries
         {
             var value = int.Parse(Tag);
 
-            ctx.Indentation += value;
-            if (ctx.Indentation < 0)
-                ctx.Indentation = 0;
+            ctx.Options.Indentation += value;
+            if (ctx.Options.Indentation < 0)
+                ctx.Options.Indentation = 0;
 
-            if (ctx.CollapsedTreeNodeIndentationLevel.HasValue && 
-                ctx.CollapsedTreeNodeIndentationLevel.Value == ctx.Indentation)
-                    ctx.CollapsedTreeNodeIndentationLevel = null;
+            if (ctx.Options.CollapsedTreeNodeIndentationLevel.HasValue && 
+                ctx.Options.CollapsedTreeNodeIndentationLevel.Value == ctx.Options.Indentation)
+                    ctx.Options.CollapsedTreeNodeIndentationLevel = null;
 
             return new CommandResult(true);
         }

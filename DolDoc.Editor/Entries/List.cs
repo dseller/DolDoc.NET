@@ -33,15 +33,14 @@ namespace DolDoc.Editor.Entries
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
-            var inverted = ctx.Inverted;
-            if (Selected)
-                ctx.Inverted = true;
+            var options = ctx.NewOptions();
+            options.Inverted = true;
 
             var key = values.Keys.ToArray()[selectedIndex];
             var length = values.Values.Max(value => value.ToString().Length);
             var writtenChars = WriteString(ctx, $"{Aux}: [{values[key].ToString().PadLeft(length)}]");
 
-            ctx.Inverted = inverted;
+            ctx.PopOptions();
             return new CommandResult(true, writtenChars);
         }
 

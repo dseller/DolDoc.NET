@@ -18,10 +18,7 @@ namespace DolDoc.Tests.Commands
         public void Setup()
         {
             _document = new Document();
-            _commandContext = new EntryRenderContext
-            {
-                State = new ViewerState(null, _document, 640, 480)
-            };
+            _commandContext = new EntryRenderContext(_document, new ViewerState(null, _document, 640, 480), new RenderOptions());
         }
 
         [TestMethod]
@@ -57,7 +54,7 @@ namespace DolDoc.Tests.Commands
              * pellentesque viverra. 
              */
 
-            _commandContext.WordWrap = true;
+            _commandContext.Options.WordWrap = true;
 
             _document.Load(LoremIpsum);
             var ws = _document.Entries.First;
