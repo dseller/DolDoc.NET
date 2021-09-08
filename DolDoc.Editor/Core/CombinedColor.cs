@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace DolDoc.Editor.Core
+﻿namespace DolDoc.Editor.Core
 {
     public class CombinedColor
     {

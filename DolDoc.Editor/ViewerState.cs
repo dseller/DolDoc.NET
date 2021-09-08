@@ -267,7 +267,7 @@ namespace DolDoc.Editor
                 {
                     var fontRow = character[(fy * Font.Width) / byteSize];
                     bool draw = ((fontRow >> (fx % byteSize)) & 0x01) == 0x01;
-                    _renderBuffer[(((row * Font.Height) + fy) * Width) + (column * Font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
+                    _renderBuffer[(((row * Font.Height) + fy + ch.ShiftY) * Width) + (column * Font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
                 }
 
             if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)

@@ -17,6 +17,7 @@ namespace DolDoc.Editor.Core
         public event Action<Button> OnButtonClick;
         public event Action<string, object> OnFieldChange;
         public event Action<Macro> OnMacro;
+        public event Action<string> OnPromptEntered;
 
         public Document(string content, int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
             : this(columns, rows, binaryChunks)
@@ -47,6 +48,8 @@ namespace DolDoc.Editor.Core
         public void FieldChanged(string name, object value) => OnFieldChange?.Invoke(name, value);
 
         public void Macro(Macro macro) => OnMacro?.Invoke(macro);
+
+        public void PromptEntered(string value) => OnPromptEntered?.Invoke(value);
 
         public void Load(string contents)
         {

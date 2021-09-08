@@ -24,7 +24,7 @@ namespace DolDoc.Editor.Entries
                 case "LK": return new Link(flags, args);
                 case "LS": return new List(flags, args);
                 case "MA": return new Macro(flags, args);
-                // case "PT": return new Prompt(flags, args);
+                case "PT": return new Prompt(flags, args);
                 case "SP": return new Sprite(flags, args);
                 case "TI": return new Title(flags, args);
                 case "TX": return new Text(flags, args);

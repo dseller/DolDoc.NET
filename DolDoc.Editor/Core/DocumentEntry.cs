@@ -171,7 +171,10 @@ namespace DolDoc.Editor.Core
                     i,
                     (byte)str[i],
                     new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor),
-                    chFlags
+                    chFlags,
+                    0,
+                    sbyte.Parse(GetArgument("SX", "0")),
+                    sbyte.Parse(GetArgument("SY", "0"))
                 );
             }
 
