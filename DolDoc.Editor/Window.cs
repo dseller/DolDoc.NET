@@ -24,5 +24,7 @@ namespace DolDoc.Editor
             Log.Information("Showing window, width={0}, height={1}", width, height);
             frameBufferWindow.Show(title, width, height, document);
         }
+
+        public ViewerState State => frameBufferWindow.State;
     }
 }

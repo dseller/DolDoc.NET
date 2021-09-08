@@ -1,6 +1,7 @@
 ﻿using DolDoc.Core.Parser;
 using DolDoc.Editor.Entries;
 using DolDoc.Editor.Parser;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +16,15 @@ namespace DolDoc.Editor.Core
         public event Action<Document> OnUpdate;
         public event Action<Button> OnButtonClick;
         public event Action<string, object> OnFieldChange;
+        public event Action<Macro> OnMacro;
 
-        public Document(string content, int columns = 80, int rows = 60, EgaColor defaultBgColor = EgaColor.White, EgaColor defaultFgColor = EgaColor.Black, IList<BinaryChunk> binaryChunks = null)
-            : this(columns, rows, defaultBgColor, defaultFgColor, binaryChunks)
+        public Document(string content, int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
+            : this(columns, rows, binaryChunks)
         {
             Load(content);
         }
 
-        public Document(int columns = 80, int rows = 60, EgaColor defaultBgColor = EgaColor.White, EgaColor defaultFgColor = EgaColor.Black, IList<BinaryChunk> binaryChunks = null)
+        public Document(int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
         {
             Rows = rows;
             Columns = columns;
@@ -44,6 +46,8 @@ namespace DolDoc.Editor.Core
 
         public void FieldChanged(string name, object value) => OnFieldChange?.Invoke(name, value);
 
+        public void Macro(Macro macro) => OnMacro?.Invoke(macro);
+
         public void Load(string contents)
         {
             Entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
@@ -58,6 +62,8 @@ namespace DolDoc.Editor.Core
         }
 
         public void Refresh() => OnUpdate?.Invoke(this);
+
+        public virtual object GetData(string key) => null;
 
         public string ToPlainText() => Entries.Aggregate(string.Empty, (acc, entry) =>
         {

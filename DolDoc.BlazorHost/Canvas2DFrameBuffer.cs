@@ -1,4 +1,5 @@
-﻿using DolDoc.Editor.Core;
+﻿using DolDoc.Editor;
+using DolDoc.Editor.Core;
 using DolDoc.Editor.Rendering;
 using Microsoft.JSInterop;
 using System;
@@ -16,6 +17,8 @@ namespace DolDoc.BlazorHost
         }
 
         public string Title { set => throw new NotImplementedException(); }
+
+        public ViewerState State => throw new NotImplementedException();
 
         public void Clear()
         {

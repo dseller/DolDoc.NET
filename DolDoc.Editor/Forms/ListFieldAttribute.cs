@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DolDoc.Editor.Forms
 {
-    
-
     [AttributeUsage(AttributeTargets.Property)]
     public class ListFieldAttribute : Attribute, IFieldAttribute
     {
@@ -40,6 +34,6 @@ namespace DolDoc.Editor.Forms
         public string Suffix { get; }
 
         public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) =>
-            $"{Prefix}$LS,A=\"{Label}\",TYPE=\"{Source}\",SRC=\"{(Source == ListFieldSource.Enum ? EnumType.AssemblyQualifiedName : Callback)}\",PROP=\"{propertyName}\"${Suffix}";
+            $"{Prefix}$LS,A=\"{Label?.PadLeft(labelLength)}\",TYPE=\"{Source}\",SRC=\"{(Source == ListFieldSource.Enum ? EnumType.AssemblyQualifiedName : Callback)}\",PROP=\"{propertyName}\"${Suffix}";
     }
 }

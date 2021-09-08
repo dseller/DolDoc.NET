@@ -10,14 +10,16 @@ namespace DolDoc.Editor.Entries
         {
         }
 
-        public bool Checked { get; private set; }
+        private string Property => GetArgument("PROP");
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
+            var @checked = ctx.Document.GetData(Property) as bool? ?? false;
             var options = ctx.NewOptions();
-            options.Inverted = true;
+            if (Selected)
+                options.Inverted = true;
 
-            var writtenChars = WriteString(ctx, $"{Tag}: [{(Checked ? "X" : " ")}]");
+            var writtenChars = WriteString(ctx, $"{Tag}: [{(@checked ? "X" : " ")}]");
 
             ctx.PopOptions();
             return new CommandResult(true, writtenChars);
@@ -27,8 +29,9 @@ namespace DolDoc.Editor.Entries
         {
             if (key == Key.SPACE || key == Key.ENTER)
             {
-                Checked = !Checked;
-                state.Document.FieldChanged(GetArgument("PROP"), Checked);
+                // Checked = !Checked;
+                var @checked = state.Document.GetData(Property) as bool? ?? false;
+                state.Document.FieldChanged(GetArgument("PROP"), !@checked);
             }
         }
 

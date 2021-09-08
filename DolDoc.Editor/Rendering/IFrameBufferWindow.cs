@@ -13,5 +13,7 @@ namespace DolDoc.Editor.Rendering
         void RenderPartial(int x, int y, int width, int height, byte[] data);
 
         void SetTitle(string title);
+
+        ViewerState State { get; }
     }
 }

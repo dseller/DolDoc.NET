@@ -1,35 +1,31 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using DolDoc.Editor.Forms;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
-    public class Data : DocumentEntry, IFormEntry
+    public class Data : DocumentEntry
     {
-        private StringBuilder stringBuilder;
-
         public Data(IList<Flag> flags, IList<Argument> args) : base(flags, args)
         {
-            stringBuilder = new StringBuilder();
         }
 
         private int InputLineLength => int.Parse(GetArgument("ILL", "16"));
 
-        public object Value => stringBuilder.ToString();
+        private string Property => GetArgument("PROP");
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             var options = ctx.NewOptions();
-            options.Inverted = true;
+            if (Selected)
+                options.Inverted = true;
 
             var charsWritten = WriteString(ctx, $"{Aux}: ");
             ctx.RenderPosition += charsWritten;
             
             options.Underline = true;
-            var value = stringBuilder.ToString();
+            var value = ctx.Document.GetData(Property)?.ToString() ?? string.Empty;
             if (value.Length > InputLineLength)
                 value = value.Substring(Math.Max(0, value.Length - InputLineLength), InputLineLength);
             var inputText = value.PadRight(InputLineLength);
@@ -41,17 +37,19 @@ namespace DolDoc.Editor.Entries
 
         public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
-            if (key == Key.BACKSPACE && stringBuilder.Length > 0)
+            var value = state.Document.GetData(Property)?.ToString() ?? string.Empty;
+            if (key == Key.BACKSPACE && value.Length > 0)
             {
-                stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                value = value.Remove(value.Length - 1, 1);
+                state.Document.FieldChanged(Property, value);
                 return;
             }
 
             if (!character.HasValue)
                 return;
 
-            stringBuilder.Append(character.Value);
-            state.Document.FieldChanged(GetArgument("PROP"), stringBuilder.ToString());
+            value += character.Value;
+            state.Document.FieldChanged(Property, value);
         }
 
         public override string ToString() => AsString("DA"); //$"$DA,A=\"{Aux}\"$";

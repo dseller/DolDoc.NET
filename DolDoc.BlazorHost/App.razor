@@ -32,7 +32,7 @@
         document.Refresh();
 
         _timer = new Timer(200);
-        _timer.Elapsed += (source, e) => _state.Tick();
+        _timer.Elapsed += (source, e) => _state.Tick(0);
         _timer.Enabled = true;
     }
 

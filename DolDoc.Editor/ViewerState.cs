@@ -23,9 +23,9 @@ namespace DolDoc.Editor
         public Cursor Cursor { get; }
 
         private string _title;
+        private byte[] _renderBuffer;
         private bool _cursorInverted;
         private IFrameBufferWindow _frameBuffer;
-        private byte[] _renderBuffer;
         private readonly IFontProvider _fontProvider;
 
         public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
@@ -277,12 +277,20 @@ namespace DolDoc.Editor
             }
         }
 
-        public void Tick()
+        public void Tick(ulong ticks)
         {
-            DoBlink(!_cursorInverted);
-            RenderCursor();
-
-            _cursorInverted = !_cursorInverted;
+            // Blink every 200ms, one frame is 33ms, so every 6 frames
+            if (ticks % 6 == 0)
+            {
+                DoBlink(!_cursorInverted);
+                RenderCursor();
+                _cursorInverted = !_cursorInverted;
+            }
+            else if (ticks % 15 == 0)
+            {
+                Document.Refresh();
+                RenderCursor();
+            }
         }
     }
 }

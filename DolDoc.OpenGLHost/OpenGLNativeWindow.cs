@@ -26,6 +26,7 @@ namespace DolDoc.OpenGLHost
         private NativeWindow nativeWindow;
         private IGraphicsContext graphicsContext;
 
+        public ViewerState State => viewerState;
 
         public void Clear() => Array.Fill(_framebuffer, EgaColor.Palette[15]);
 
@@ -67,7 +68,9 @@ namespace DolDoc.OpenGLHost
 
                 viewerState.Pages.Clear();
                 document.Refresh();
-                timer = new Timer(_ => viewerState.Tick(), null, 0, 200);
+
+                ulong ticks = 0;
+                timer = new Timer(_ => viewerState.Tick(ticks++), null, 0, 1000/30);
 
                 OnLoad();
                 nativeWindow.KeyDown += NativeWindow_KeyDown;
@@ -128,6 +131,8 @@ namespace DolDoc.OpenGLHost
                 { Keys.X, e.Shift ? Key.X_UPPER : Key.X_LOWER },
                 { Keys.Y, e.Shift ? Key.Y_UPPER : Key.Y_LOWER },
                 { Keys.Z, e.Shift ? Key.Z_UPPER : Key.Z_LOWER },
+                { Keys.Slash, Key.SLASH_FOWARD },
+                { Keys.Backslash, Key.SLASH_BACKWARD },
                 { Keys.D1, Key.NUMBER_1 },
                 { Keys.D2, Key.NUMBER_2 },
                 { Keys.D3, Key.NUMBER_3 },

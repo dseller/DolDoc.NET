@@ -2,6 +2,6 @@
 {
     public interface ITickListener
     {
-        void Tick();
+        void Tick(ulong ticks);
     }
 }

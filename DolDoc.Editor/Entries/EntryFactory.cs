@@ -30,6 +30,7 @@ namespace DolDoc.Editor.Entries
                 case "TX": return new Text(flags, args);
                 case "TR": return new Tree(flags, args);
                 case "UL": return new Underline(flags, args);
+                case "VA": return new Value(flags, args);
                 case "WW": return new WordWrap(flags, args);
                 default: return new Error($"Unrecognized cmd '{cmd}'.");
             }

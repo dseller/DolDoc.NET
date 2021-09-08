@@ -34,7 +34,8 @@ namespace DolDoc.Editor.Entries
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             var options = ctx.NewOptions();
-            options.Inverted = true;
+            if (Selected)
+                options.Inverted = true;
 
             var key = values.Keys.ToArray()[selectedIndex];
             var length = values.Values.Max(value => value.ToString().Length);

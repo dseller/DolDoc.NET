@@ -12,15 +12,35 @@ namespace DolDoc.Editor.Core
     public class FormDocument<T> : Document
         where T : class, new()
     {
-        public FormDocument(T dataObject = null, int columns = 80, int rows = 60, EgaColor defaultBgColor = EgaColor.White, EgaColor defaultFgColor = EgaColor.Black, IList<BinaryChunk> binaryChunks = null)
-            : base(columns, rows, defaultBgColor, defaultFgColor, binaryChunks)
+        public FormDocument(T dataObject = null, int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
+            : base(columns, rows, binaryChunks)
         {
             DataObject = dataObject ?? new T();
 
             OnButtonClick += FormDocument_OnButtonClick;
             OnFieldChange += FormDocument_OnFieldChange;
+            OnMacro += FormDocument_OnMacro;
 
             Load(Generate());
+        }
+
+        private void FormDocument_OnMacro(Macro obj)
+        {
+            var method = obj.GetArgument("LE");
+            if (string.IsNullOrEmpty(method))
+            {
+                Log.Warning("No method {0} for macro", method);
+                return;
+            }
+
+            var methodInfo = typeof(T).GetMethod(method);
+            if (methodInfo == null)
+            {
+                Log.Warning("Could not find method {0} on type {1}", methodInfo, typeof(T));
+                return;
+            }
+
+            methodInfo.Invoke(DataObject, new object[] { this, obj });
         }
 
         private void FormDocument_OnFieldChange(string field, object value)
@@ -48,6 +68,12 @@ namespace DolDoc.Editor.Core
             methodInfo.Invoke(DataObject, new object[] { this });
         }
 
+        public override object GetData(string key)
+        {
+            var property = typeof(T).GetProperty(key);
+            return property.GetValue(DataObject);
+        }
+
         public T DataObject { get; }
 
         private string Generate()
@@ -56,7 +82,7 @@ namespace DolDoc.Editor.Core
             builder.Append(GetHeader(typeof(T)));
 
             var attributes = GetFieldAttributes();
-            var maxLabelLength = attributes.Max(a => a.Item1.Label.Length);
+            var maxLabelLength = attributes.Max(a => a.Item1.Label?.Length ?? 0);
 
             foreach (var attribute in attributes)
                 builder.Append(attribute.Item1.GetDolDocCommand(attribute.Item2, attribute.Item3, maxLabelLength));
