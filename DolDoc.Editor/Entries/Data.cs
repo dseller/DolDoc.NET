@@ -52,6 +52,6 @@ namespace DolDoc.Editor.Entries
             state.Document.FieldChanged(Property, value);
         }
 
-        public override string ToString() => AsString("DA"); //$"$DA,A=\"{Aux}\"$";
+        public override string ToString() => AsString("DA");
     }
 }

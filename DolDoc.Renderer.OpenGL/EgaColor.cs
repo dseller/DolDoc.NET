@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace DolDoc.OpenGLHost
+namespace DolDoc.Renderer.OpenGL
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct EgaColor
