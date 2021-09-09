@@ -10,11 +10,17 @@ namespace DolDoc.Editor.Fonts
     /// </summary>
     public class YaffFontProvider : IFontProvider
     {
+        private readonly string _fontsFolder;
+
+        public YaffFontProvider(string fontsFolder = "Fonts")
+        {
+            _fontsFolder = fontsFolder;
+        }
+
         public IFont Get(string name)
         {
             // TODO: this is the ugliest stuff ever, but meh it works.
-
-            using (var fs = File.Open($"fonts/{name}.yaff", FileMode.Open))
+            using (var fs = File.Open($"{_fontsFolder}/{name}.yaff", FileMode.Open))
             {
                 using (var reader = new StreamReader(fs))
                 {
