@@ -2,6 +2,12 @@
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
+		<PackageId>DolDoc.NET</PackageId>
+		<Title>DolDoc.NET</Title>
+		<PackageDescription>A .NET reimplementation of Terry Davis' DolDoc rendering engine</PackageDescription>
+		<PackageTags>DolDoc;TempleOS;TUI;Markup;Rendering</PackageTags>
+		<Version>0.1.0-alpha</Version>
+		<Authors>Dennis Seller</Authors>
 	</PropertyGroup>
 
 	<ItemGroup>
