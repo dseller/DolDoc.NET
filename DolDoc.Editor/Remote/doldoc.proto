@@ -1,0 +1,38 @@
+﻿syntax = "proto3";
+import "google/protobuf/any.proto";
+
+option csharp_namespace = "DolDoc.Editor.Remote";
+
+package doldoc;
+
+message Empty {}
+
+message DocumentWrite {
+	string payload = 1;
+}
+
+message FieldChange {
+	string key = 1;
+	google.protobuf.Any value = 2;
+}
+
+message PromptEntered {
+	string value = 1;
+}
+
+message DolDocEntry {
+	string tag = 1;
+	string aux = 2;
+}
+
+message ButtonClicked {
+	DolDocEntry entry = 1;
+}
+
+service DolDoc {
+	rpc OnFieldChange(FieldChange) returns (Empty);
+
+	rpc OnPromptEntered (PromptEntered) returns (DocumentWrite);
+
+	rpc OnButtonClick(ButtonClicked) returns (Empty);
+}

@@ -8,6 +8,9 @@
 		<Version>0.1.0-alpha</Version>
 		<Authors>Dennis Seller</Authors>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Remote\doldoc.proto" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <Antlr4AbstractGrammar Include="Parser\DolDocLexer.g4" />
@@ -25,5 +28,14 @@
 		</PackageReference>
 		<PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
+		<PackageReference Include="Google.Protobuf" Version="3.11.4" />
+		<PackageReference Include="Grpc.Tools" Version="2.28.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Protobuf Include="Remote\doldoc.proto" />
 	</ItemGroup>
 </Project>
