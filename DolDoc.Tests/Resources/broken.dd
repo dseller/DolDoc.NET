@@ -1,0 +1,15 @@
+$FG,CYAN$$TX+CX+B,"DolDoc.NET File Browser"$
+
+$TI,"D:\\Projects"$$FG,RED$$UL,1$$TX+CX,"Released under the MIT License, Copyright Dennis Seller 2018-2021"$$UL,0$
+
+$FG,BLUE$Directory of D:\\Projects
+DATE       TIME  SIZE
+0000/00/00 00:00 0000 $MA,".",LE="ChangeDir",RE="D:\\Projects"$
+0000/00/00 00:00 0000 $MA,"..",LE="ChangeDir",RE="D:\\"$
+2021/09/10 10:44 0000 $MA,"DolDoc.NET",LE="ChangeDir",RE="D:\\Projects\\DolDoc.NET"$
+2021/10/06 19:06 0000 $MA,"Predicate.InsightEngine",LE="ChangeDir",RE="D:\\Projects\\Predicate.InsightEngine"$
+2021/08/27 13:14 0000 $MA,"stage",LE="ChangeDir",RE="D:\\Projects\\stage"$
+2021/06/23 13:49 0000 $MA,"StageOS",LE="ChangeDir",RE="D:\\Projects\\StageOS"$
+2021/10/11 15:47 0000 $MA,"WebNova",LE="ChangeDir",RE="D:\\Projects\\WebNova"$
+2021/09/30 09:41 2800000 $LK,"dennis.hc",A="D:\\Projects\\dennis.hc"$
+2021/09/10 09:41 0004 $LK,"webgl.html",A="D:\\Projects\\webgl.html"$

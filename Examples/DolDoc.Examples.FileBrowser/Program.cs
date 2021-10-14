@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 using DolDoc.Renderer.OpenGL;
 using Serilog;
 
@@ -20,6 +21,9 @@ namespace DolDoc.Examples.FileBrowser
             builder.AppendFormat("$FG,BLUE$Directory of {0}\n", d.FullName);
 
             builder.AppendFormat("DATE       TIME  SIZE\n");
+            builder.AppendFormat("0000/00/00 00:00 0000 $MA,\".\",LE=\"ChangeDir\",RE=\"{0}\"$\n", d.FullName);
+            builder.AppendFormat("0000/00/00 00:00 0000 $MA,\"..\",LE=\"ChangeDir\",RE=\"{0}\"$\n", d.Parent.FullName);
+            
             foreach (var directory in d.EnumerateDirectories())
                 builder.AppendFormat("{0} {1} {2:X4} $MA,\"{3}\",LE=\"ChangeDir\",RE=\"{4}\"$\n", directory.LastWriteTime.ToString("yyyy/MM/dd"), directory.LastWriteTime.ToString("HH:mm"), 0, directory.Name, directory.FullName);
             foreach (var file in d.EnumerateFiles())
@@ -33,7 +37,8 @@ namespace DolDoc.Examples.FileBrowser
             var compositor = new Compositor<OpenGLNativeWindow>();
             var window = compositor.NewWindow();
             var document = new Document(128, 63);
-            document.OnMacro += macro =>
+
+            void OnMacro(Macro macro)
             {
                 var command = macro.GetArgument("LE");
                 Log.Information("Executing macro {0}", command);
@@ -42,10 +47,13 @@ namespace DolDoc.Examples.FileBrowser
                 {
                     case "ChangeDir":
                         document = new Document(DirectoryListing(macro.GetArgument("RE")), 128, 63, null);
+                        document.OnMacro += OnMacro;
                         window.State.LoadDocument(document);
                         break;
                 }
-            };
+            }
+
+            document.OnMacro += OnMacro;
 
             document.Load(DirectoryListing());
             window.Show("DolDoc.NET File Browser", 1024, 768, document);
