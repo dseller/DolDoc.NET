@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DolDoc.Editor.Core;
+using System;
 
 namespace DolDoc.Editor.Forms
 {
@@ -26,14 +27,22 @@ namespace DolDoc.Editor.Forms
         public ListFieldSource Source { get; }
 
         public string Label { get; }
+
         public string Callback { get; }
+
         public Type EnumType { get; }
 
         public string Prefix { get; }
 
         public string Suffix { get; }
 
-        public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) =>
-            $"{Prefix}$LS,A=\"{Label?.PadLeft(labelLength)}\",TYPE=\"{Source}\",SRC=\"{(Source == ListFieldSource.Enum ? EnumType.AssemblyQualifiedName : Callback)}\",PROP=\"{propertyName}\"${Suffix}";
+        public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) => new CommandBuilder("LS")
+            .WithPrefix(Prefix)
+            .WithNamedParameter("A", Label?.PadLeft(labelLength))
+            .WithNamedParameter("TYPE", Source.ToString())
+            .WithNamedParameter("SRC", Source == ListFieldSource.Enum ? EnumType.AssemblyQualifiedName : Callback)
+            .WithNamedParameter("PROP", propertyName)
+            .WithSuffix(Suffix)
+            .ToString();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DolDoc.Editor.Core;
+using System;
 
 namespace DolDoc.Editor.Forms
 {
@@ -17,7 +18,11 @@ namespace DolDoc.Editor.Forms
 
         public string Suffix { get; }
 
-        public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) => 
-            $"{Prefix}$CB,\"{Label.PadLeft(labelLength)}\",PROP=\"{propertyName}\"${Suffix}";
+        public string GetDolDocCommand(Type propertyType, string propertyName, int labelLength) => new CommandBuilder("CB")
+            .WithPrefix(Prefix)
+            .WithTag(Label.PadLeft(labelLength))
+            .WithNamedParameter("PROP", propertyName)
+            .WithSuffix(Suffix)
+            .ToString();
     }
 }

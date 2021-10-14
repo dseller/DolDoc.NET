@@ -215,10 +215,12 @@ namespace DolDoc.Editor.Core
                 builder.Append($"{(flag.Status ? "+" : "-")}{flag.Value}");
 
             foreach (var arg in Arguments)
+            {
                 if (arg.Key == null)
-                    builder.Append($",{arg.Value}");
+                    builder.Append($",\"{arg.Value}\"");
                 else
-                    builder.Append($",{arg.Key}={arg.Value}");
+                    builder.Append($",{arg.Key}=\"{arg.Value}\"");
+            }
 
             builder.Append('$');
             return builder.ToString();

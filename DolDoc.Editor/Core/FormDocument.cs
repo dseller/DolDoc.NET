@@ -82,7 +82,7 @@ namespace DolDoc.Editor.Core
             builder.Append(GetHeader(typeof(T)));
 
             var attributes = GetFieldAttributes();
-            var maxLabelLength = attributes.Max(a => a.Item1.Label?.Length ?? 0);
+            var maxLabelLength = attributes.Count() == 0 ? 8 : attributes.Max(a => a.Item1.Label?.Length ?? 0);
 
             foreach (var attribute in attributes)
                 builder.Append(attribute.Item1.GetDolDocCommand(attribute.Item2, attribute.Item3, maxLabelLength));
