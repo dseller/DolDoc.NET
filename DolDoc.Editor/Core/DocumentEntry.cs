@@ -1,13 +1,15 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Entries;
 using DolDoc.Editor.Extensions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace DolDoc.Editor.Core
 {
+    /// <summary>
+    /// Base class for all document entries.
+    /// </summary>
     public abstract class DocumentEntry
     {
         /// <summary>

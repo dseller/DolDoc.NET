@@ -58,12 +58,18 @@ namespace DolDoc.Editor
             Rows = Document.Rows;
             Columns = Document.Columns;
             Cursor.DocumentPosition = 0;
-            Document_OnUpdate(Document);
+            Document_OnUpdate(Document, false);
             Render();
         }
 
-        private void Document_OnUpdate(Document document)
+        private void Document_OnUpdate(Document document, bool clear)
         {
+            if (clear)
+            {
+                _frameBuffer?.Clear();
+                Pages.Clear();
+            }
+
             var renderOptions = new RenderOptions(DefaultForegroundColor, DefaultBackgroundColor);
             var ctx = new EntryRenderContext(document, this, renderOptions);
 

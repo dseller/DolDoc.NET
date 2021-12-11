@@ -13,7 +13,7 @@ namespace DolDoc.Editor.Core
     {
         private IDolDocParser _parser;
 
-        public event Action<Document> OnUpdate;
+        public event Action<Document, bool> OnUpdate;
         public event Action<Button> OnButtonClick;
         public event Action<string, object> OnFieldChange;
         public event Action<Macro> OnMacro;
@@ -54,17 +54,17 @@ namespace DolDoc.Editor.Core
         public void Load(string contents)
         {
             Entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
-            OnUpdate?.Invoke(this);
+            OnUpdate?.Invoke(this, true);
         }
 
         public void Write(string content)
         {
             foreach (var entry in _parser.Parse(content))
                 Entries.AddLast(entry);
-            OnUpdate?.Invoke(this);
+            OnUpdate?.Invoke(this, false);
         }
 
-        public void Refresh() => OnUpdate?.Invoke(this);
+        public void Refresh() => OnUpdate?.Invoke(this, false);
 
         public virtual object GetData(string key) => null;
 

@@ -26,6 +26,8 @@ namespace DolDoc.Editor.Core
             get 
             {
                 var page = GetPageForPosition(position % PageColumns, position / PageColumns);
+                if (page == null)
+                    return default;
                 return page[position % (page.Columns * page.Rows)];
             }
 

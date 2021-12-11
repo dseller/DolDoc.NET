@@ -74,6 +74,8 @@ namespace DolDoc.Editor.Core
             return property.GetValue(DataObject);
         }
 
+        public void Reload() => Load(Generate());
+
         public T DataObject { get; }
 
         private string Generate()
@@ -109,10 +111,42 @@ namespace DolDoc.Editor.Core
             }
         }
 
-        private string GetHeader(Type formType) =>
-            formType.GetCustomAttribute<FormHeaderAttribute>()?.Header ?? string.Empty;
+        private string GetHeader(Type formType)
+        {
+            var builder = new StringBuilder();
+
+            var headerAttribute = formType.GetCustomAttribute<FormHeaderAttribute>();
+            if (headerAttribute != null)
+                builder.Append(headerAttribute.Header);
+
+            var fnHeaderAttribute = formType.GetCustomAttribute<FormHeaderFunctionAttribute>();
+            if (fnHeaderAttribute != null)
+            {
+                var methodInfo = typeof(T).GetMethod(fnHeaderAttribute.Function);
+                if (methodInfo != null)
+                    builder.Append(methodInfo.Invoke(DataObject, new object[] { this }));
+            }
+
+            return builder.ToString();
+        }
         
-        private string GetFooter(Type formType) =>
-            formType.GetCustomAttribute<FormFooterAttribute>()?.Footer ?? string.Empty;
+        private string GetFooter(Type formType)
+        {
+            var builder = new StringBuilder();
+
+            var footerAttribute = formType.GetCustomAttribute<FormFooterAttribute>();
+            if (footerAttribute != null)
+                builder.Append(footerAttribute.Footer);
+
+            var fnFooterAttribute = formType.GetCustomAttribute<FormFooterFunctionAttribute>();
+            if (fnFooterAttribute != null)
+            {
+                var methodInfo = typeof(T).GetMethod(fnFooterAttribute.Function);
+                if (methodInfo != null)
+                    builder.Append(methodInfo.Invoke(DataObject, new object[] { this }));
+            }
+
+            return builder.ToString();
+        }
     }
 }
