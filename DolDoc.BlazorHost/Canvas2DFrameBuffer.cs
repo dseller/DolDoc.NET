@@ -38,6 +38,11 @@ namespace DolDoc.BlazorHost
             
         }
 
+        public void SetCursorType(CursorType cursorType)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SetTitle(string title)
         {
             throw new NotImplementedException();

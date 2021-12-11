@@ -156,25 +156,30 @@ namespace DolDoc.Editor
             Document.Refresh();
         }
 
-        public void MouseMove(int x, int y)
+        public void MouseMove(float x, float y)
         {
+            var entry = FindEntry(x, y);
+            if (entry == null)
+            {
+                _frameBuffer.SetCursorType(CursorType.Pointer);
+                return;
+            }    
 
+            if (entry.Clickable)
+                _frameBuffer.SetCursorType(CursorType.Hand);
+            else
+                _frameBuffer.SetCursorType(CursorType.Pointer);
         }
 
-        public void MousePress(int x, int y)
+        public void MouseClick(float x, float y)
         {
-            //CursorX = x / 8;
-            //CursorY = y / 8;
+            var entry = FindEntry(x, y);
+            if (entry == null)
+                return;
 
-            //if (Pages[CursorPositionWithViewlineOffset].HasEntry)
-            //    Pages[CursorPositionWithViewlineOffset].Entry.Click();
-
-            //Document.Refresh();
-        }
-
-        public void MouseRelease(int x, int y)
-        {
-            throw new NotImplementedException();
+            // Perform the click.
+            entry.Click(this);
+            Document.Refresh();
         }
 
         public void PreviousPage()
@@ -291,6 +296,26 @@ namespace DolDoc.Editor
                 Document.Refresh();
                 RenderCursor();
             }
+        }
+
+        /// <summary>
+        /// Find an entry at the specified coordinates.
+        /// </summary>
+        /// <param name="x">X coordinate (not column, but pixels)</param>
+        /// <param name="y">Y coordinate (not row, but pixels)</param>
+        /// <returns>The entry, or null if no entry at the specified coordinates.</returns>
+        public DocumentEntry FindEntry(float x, float y)
+        {
+            // Find the entry that is being clicked.
+            var column = (int)Math.Floor(x / Font.Width);
+            var row = (int)Math.Floor(y / Font.Height);
+
+            // Retrieve the entry belonging to the clicked character.
+            var ch = Pages[column, row];
+            if (!ch.HasEntry)
+                return null;
+
+            return ch.Entry;
         }
     }
 }

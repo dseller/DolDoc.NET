@@ -33,6 +33,10 @@ namespace DolDoc.Editor.Entries
                 state.Document.Macro(this);
         }
 
+        public override void Click(ViewerState state) => state.Document.Macro(this);
+
+        public override bool Clickable => true;
+
         public override string ToString() => AsString("MA");
     }
 }

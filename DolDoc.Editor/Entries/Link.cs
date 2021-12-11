@@ -29,21 +29,28 @@ namespace DolDoc.Editor.Entries
         public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
             if (key == Key.SPACE)
-            {
-                var file = string.IsNullOrEmpty(Aux) ? Tag : Aux;
-
-                // Follow the link.
-                if (!File.Exists(file))
-                    return;
-
-                using (var fs = File.Open(file, FileMode.Open))
-                {
-                    var document = DocumentLoader.Load(fs, state.Columns, state.Rows);
-                    state.LoadDocument(document);
-                }
-            }
+                OpenDocument(state);
         }
 
+        public override void Click(ViewerState state) => OpenDocument(state);
+
+        public override bool Clickable => true;
+
         public override string ToString() => AsString("LK");
+
+        private void OpenDocument(ViewerState state)
+        {
+            var file = string.IsNullOrEmpty(Aux) ? Tag : Aux;
+
+            // Follow the link.
+            if (!File.Exists(file))
+                return;
+
+            using (var fs = File.Open(file, FileMode.Open))
+            {
+                var document = DocumentLoader.Load(fs, state.Columns, state.Rows);
+                state.LoadDocument(document);
+            }
+        }
     }
 }

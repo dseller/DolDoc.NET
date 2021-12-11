@@ -29,6 +29,10 @@ namespace DolDoc.Editor.Entries
                 state.Document.ButtonClicked(this);
         }
 
+        public override void Click(ViewerState state) => state.Document.ButtonClicked(this);
+
+        public override bool Clickable => true;
+
         public override string ToString() => AsString("BT");
     }
 }

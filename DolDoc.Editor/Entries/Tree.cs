@@ -38,7 +38,7 @@ namespace DolDoc.Editor.Entries
                 Toggle();
         }
         
-        public override void Click()
+        public override void Click(ViewerState state)
         {
             Toggle();
         }

@@ -48,16 +48,23 @@ namespace DolDoc.Editor.Entries
         public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
             if (key == Key.SPACE || key == Key.ENTER)
-            {
-                selectedIndex++;
-                if (selectedIndex >= values.Count)
-                    selectedIndex = 0;
-
-                var k = values.Keys.ToArray()[selectedIndex];
-                state.Document.FieldChanged(GetArgument("PROP"), values[k]);
-            }
+                SelectNextValue(state);
         }
 
+        public override void Click(ViewerState state) => SelectNextValue(state);
+
+        public override bool Clickable => true;
+
         public override string ToString() => AsString("LS");
+
+        private void SelectNextValue(ViewerState state)
+        {
+            selectedIndex++;
+            if (selectedIndex >= values.Count)
+                selectedIndex = 0;
+
+            var k = values.Keys.ToArray()[selectedIndex];
+            state.Document.FieldChanged(GetArgument("PROP"), values[k]);
+        }
     }
 }

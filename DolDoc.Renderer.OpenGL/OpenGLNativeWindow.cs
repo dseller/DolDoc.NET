@@ -5,6 +5,7 @@ using DolDoc.Editor.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Serilog;
@@ -74,6 +75,9 @@ namespace DolDoc.Renderer.OpenGL
 
                 OnLoad();
                 nativeWindow.KeyDown += NativeWindow_KeyDown;
+                nativeWindow.MouseMove += NativeWindow_MouseMove;
+                nativeWindow.MouseUp += NativeWindow_MouseUp;
+                nativeWindow.MouseWheel += NativeWindow_MouseWheel;
 
                 while (nativeWindow.Exists)
                 {
@@ -86,6 +90,15 @@ namespace DolDoc.Renderer.OpenGL
 
             thread.Start();
         }
+
+        private void NativeWindow_MouseMove(MouseMoveEventArgs obj) => viewerState.MouseMove(nativeWindow.MousePosition.X, nativeWindow.MousePosition.Y);
+
+        private void NativeWindow_MouseWheel(MouseWheelEventArgs obj)
+        {
+            
+        }
+
+        private void NativeWindow_MouseUp(MouseButtonEventArgs obj) => viewerState.MouseClick(nativeWindow.MousePosition.X, nativeWindow.MousePosition.Y);
 
         private void NativeWindow_KeyDown(KeyboardKeyEventArgs e)
         {
@@ -177,6 +190,15 @@ namespace DolDoc.Renderer.OpenGL
         public void SetTitle(string title)
         {
             nativeWindow.Title = title;
+        }
+
+        public void SetCursorType(CursorType cursorType)
+        {
+            nativeWindow.Cursor = cursorType switch
+            {
+                CursorType.Hand => MouseCursor.Hand,
+                _ => MouseCursor.Default
+            };
         }
     }
 }

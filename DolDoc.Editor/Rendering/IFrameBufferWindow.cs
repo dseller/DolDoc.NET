@@ -14,6 +14,8 @@ namespace DolDoc.Editor.Rendering
 
         void SetTitle(string title);
 
+        void SetCursorType(CursorType cursorType);
+
         ViewerState State { get; }
     }
 }
