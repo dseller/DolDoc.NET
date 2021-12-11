@@ -1,4 +1,9 @@
-﻿namespace DolDoc.Editor.Core
+﻿// <copyright file="RenderOptions.cs" company="Dennis Seller">
+// Copyright (c) Dennis Seller. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+namespace DolDoc.Editor.Core
 {
     public class RenderOptions
     {
@@ -19,12 +24,12 @@
         public EgaColor DefaultBackgroundColor { get; set; }
 
         /// <summary>
-        /// Whether underline mode is enabled.
+        /// Gets or sets a value indicating whether underline mode is enabled.
         /// </summary>
         public bool Underline { get; set; }
 
         /// <summary>
-        /// Whether blinking mode is enabled.
+        /// Gets or sets a value indicating whether blinking mode is enabled.
         /// </summary>
         public bool Blink { get; set; }
 
@@ -33,7 +38,7 @@
         public bool Inverted { get; set; }
 
         /// <summary>
-        /// Defines the indentation level.
+        /// Gets or sets the indentation level.
         /// </summary>
         public int Indentation { get; set; }
 
@@ -46,7 +51,7 @@
             WordWrap = WordWrap,
             Inverted = Inverted,
             Indentation = Indentation,
-            CollapsedTreeNodeIndentationLevel = CollapsedTreeNodeIndentationLevel
+            CollapsedTreeNodeIndentationLevel = CollapsedTreeNodeIndentationLevel,
         };
     }
 }

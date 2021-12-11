@@ -1,4 +1,9 @@
-﻿namespace DolDoc.Editor.Core
+﻿// <copyright file="DocumentCommand.cs" company="Dennis Seller">
+// Copyright (c) Dennis Seller. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+namespace DolDoc.Editor.Core
 {
     /// <summary>
     /// Contains all possible DolDoc commands.
@@ -80,11 +85,11 @@
         /// <code>$UL,1$ / $UL,0$</code>
         /// </summary>
         Underline,
-        
+
         /// <summary>
         /// Enables or disables word-wrap mode.
         /// <code>$WW,1$ / $WW,0$</code>
         /// </summary>
-        WordWrap
+        WordWrap,
     }
 }

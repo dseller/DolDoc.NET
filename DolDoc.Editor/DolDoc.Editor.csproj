@@ -12,6 +12,7 @@
 	<ItemGroup>
 	  <Antlr4AbstractGrammar Include="Parser\DolDocLexer.g4" />
 	  <Antlr4AbstractGrammar Include="Parser\DolDocParser.g4" />
+    <AdditionalFiles Include="stylecop.json" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -25,5 +26,9 @@
 		</PackageReference>
 		<PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
+		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 </Project>

@@ -1,18 +1,25 @@
-﻿using DolDoc.Editor.Commands;
-using DolDoc.Editor.Entries;
-using DolDoc.Editor.Extensions;
-using System;
+﻿// <copyright file="DocumentEntry.cs" company="Dennis Seller">
+// Copyright (c) Dennis Seller. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DolDoc.Editor.Commands;
+using DolDoc.Editor.Entries;
+using DolDoc.Editor.Extensions;
 
 namespace DolDoc.Editor.Core
 {
     public abstract class DocumentEntry
     {
-        /// <summary>
-        /// 
-        /// </summary>
+        public DocumentEntry(IList<Flag> flags, IList<Argument> args)
+        {
+            Flags = flags;
+            Arguments = args;
+        }
+
         public IList<Flag> Flags { get; }
 
         public IList<Argument> Arguments { get; }
@@ -29,16 +36,18 @@ namespace DolDoc.Editor.Core
             set => Arguments.FirstOrDefault(arg => arg.Key == "A").Value = value;
         }
 
-        public DocumentEntry(IList<Flag> flags, IList<Argument> args)
-        {
-            Flags = flags;
-            Arguments = args;
-        }
+        public bool Selected { get; set; }
+
+        public virtual bool Clickable => false;
 
         public static DocumentEntry CreateTextCommand(IList<Flag> flags, string value) =>
             new Text(flags, new[] { new Argument(null, value) });
 
         public bool HasFlag(string flag, bool status = true) => Flags.Any(f => f.Value == flag && f.Status == status);
+
+        public abstract CommandResult Evaluate(EntryRenderContext ctx);
+
+        public abstract override string ToString();
 
         public virtual void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
@@ -49,14 +58,6 @@ namespace DolDoc.Editor.Core
                     break;
             }
         }
-
-        public bool Selected { get; set; }
-
-        public abstract CommandResult Evaluate(EntryRenderContext ctx);
-
-        public abstract override string ToString();
-
-        public virtual bool Clickable => false;
 
         public virtual void Click()
         {
@@ -150,7 +151,9 @@ namespace DolDoc.Editor.Core
                     continue;
                 }
                 else
+                {
                     charsWritten++;
+                }
 
                 var chFlags = CharacterFlags.None;
                 if (ctx.Options.Underline)
@@ -184,28 +187,6 @@ namespace DolDoc.Editor.Core
             return charsWritten;
         }
 
-        private int CalculateStartRenderPositionAndCharsWritten(EntryRenderContext ctx, string str, out int charsWritten)
-        {
-            var offset = 0;
-            var renderPosition = ctx.RenderPosition;
-
-            if (HasFlag("CX"))
-                renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + ((ctx.State.Columns / 2) - (str.Length / 2));
-            else if (HasFlag("RX"))
-            {
-                offset = HasFlag("B", true) ? 3 : 2;
-                renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + (ctx.State.Columns - str.Length - offset);
-            }
-            else if (HasFlag("LX"))
-            {
-                offset = HasFlag("B", true) ? 1 : 0;
-                renderPosition = (renderPosition - (renderPosition % ctx.State.Columns) + offset);
-            }
-
-            charsWritten = renderPosition - ctx.RenderPosition + offset;
-            return renderPosition;
-        }
-
         protected string AsString(string cmd)
         {
             var builder = new StringBuilder();
@@ -224,6 +205,30 @@ namespace DolDoc.Editor.Core
 
             builder.Append('$');
             return builder.ToString();
+        }
+
+        private int CalculateStartRenderPositionAndCharsWritten(EntryRenderContext ctx, string str, out int charsWritten)
+        {
+            var offset = 0;
+            var renderPosition = ctx.RenderPosition;
+
+            if (HasFlag("CX"))
+            {
+                renderPosition = renderPosition - (renderPosition % ctx.State.Columns) + ((ctx.State.Columns / 2) - (str.Length / 2));
+            }
+            else if (HasFlag("RX"))
+            {
+                offset = HasFlag("B", true) ? 3 : 2;
+                renderPosition = renderPosition - (renderPosition % ctx.State.Columns) + (ctx.State.Columns - str.Length - offset);
+            }
+            else if (HasFlag("LX"))
+            {
+                offset = HasFlag("B", true) ? 1 : 0;
+                renderPosition = renderPosition - (renderPosition % ctx.State.Columns) + offset;
+            }
+
+            charsWritten = renderPosition - ctx.RenderPosition + offset;
+            return renderPosition;
         }
     }
 }

@@ -1,11 +1,16 @@
-﻿using DolDoc.Editor.Entries;
-using DolDoc.Editor.Forms;
-using Serilog;
+﻿// <copyright file="FormDocument.cs" company="Dennis Seller">
+// Copyright (c) Dennis Seller. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DolDoc.Editor.Entries;
+using DolDoc.Editor.Forms;
+using Serilog;
 
 namespace DolDoc.Editor.Core
 {
@@ -22,6 +27,14 @@ namespace DolDoc.Editor.Core
             OnMacro += FormDocument_OnMacro;
 
             Load(Generate());
+        }
+
+        public T DataObject { get; }
+
+        public override object GetData(string key)
+        {
+            var property = typeof(T).GetProperty(key);
+            return property.GetValue(DataObject);
         }
 
         private void FormDocument_OnMacro(Macro obj)
@@ -68,14 +81,6 @@ namespace DolDoc.Editor.Core
             methodInfo.Invoke(DataObject, new object[] { this });
         }
 
-        public override object GetData(string key)
-        {
-            var property = typeof(T).GetProperty(key);
-            return property.GetValue(DataObject);
-        }
-
-        public T DataObject { get; }
-
         private string Generate()
         {
             var builder = new StringBuilder();
@@ -111,7 +116,7 @@ namespace DolDoc.Editor.Core
 
         private string GetHeader(Type formType) =>
             formType.GetCustomAttribute<FormHeaderAttribute>()?.Header ?? string.Empty;
-        
+
         private string GetFooter(Type formType) =>
             formType.GetCustomAttribute<FormFooterAttribute>()?.Footer ?? string.Empty;
     }

@@ -1,23 +1,20 @@
-﻿using DolDoc.Core.Parser;
-using DolDoc.Editor.Entries;
-using DolDoc.Editor.Parser;
-using Serilog;
+﻿// <copyright file="Document.cs" company="Dennis Seller">
+// Copyright (c) Dennis Seller. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
+using DolDoc.Core.Parser;
+using DolDoc.Editor.Entries;
+using DolDoc.Editor.Parser;
 
 namespace DolDoc.Editor.Core
 {
     public class Document
     {
-        private IDolDocParser _parser;
-
-        public event Action<Document> OnUpdate;
-        public event Action<Button> OnButtonClick;
-        public event Action<string, object> OnFieldChange;
-        public event Action<Macro> OnMacro;
-        public event Action<string> OnPromptEntered;
+        private readonly IDolDocParser parser;
 
         public Document(string content, int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
             : this(columns, rows, binaryChunks)
@@ -31,16 +28,26 @@ namespace DolDoc.Editor.Core
             Columns = columns;
             BinaryChunks = binaryChunks;
 
-            _parser = new AntlrParser();
+            parser = new AntlrParser();
             Entries = new LinkedList<DocumentEntry>();
         }
+
+        public event Action<Document> OnUpdate;
+
+        public event Action<Button> OnButtonClick;
+
+        public event Action<string, object> OnFieldChange;
+
+        public event Action<Macro> OnMacro;
+
+        public event Action<string> OnPromptEntered;
 
         public int Columns { get; }
 
         public int Rows { get; }
 
         public LinkedList<DocumentEntry> Entries { get; private set; }
-        
+
         public IList<BinaryChunk> BinaryChunks { get; private set; }
 
         public void ButtonClicked(Button btn) => OnButtonClick?.Invoke(btn);
@@ -53,13 +60,13 @@ namespace DolDoc.Editor.Core
 
         public void Load(string contents)
         {
-            Entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
+            Entries = new LinkedList<DocumentEntry>(parser.Parse(contents));
             OnUpdate?.Invoke(this);
         }
 
         public void Write(string content)
         {
-            foreach (var entry in _parser.Parse(content))
+            foreach (var entry in parser.Parse(content))
                 Entries.AddLast(entry);
             OnUpdate?.Invoke(this);
         }

@@ -1,4 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿// <copyright file="Character.cs" company="Dennis Seller">
+// Copyright (c) Dennis Seller. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using System.Runtime.InteropServices;
 
 namespace DolDoc.Editor.Core
 {
@@ -8,6 +13,19 @@ namespace DolDoc.Editor.Core
     [StructLayout(LayoutKind.Sequential)]
     public struct Character
     {
+        public sbyte ShiftX;
+        public sbyte ShiftY;
+
+        /// <summary>
+        /// Combined color byte, upper half is background color, lower half is foreground color.
+        /// </summary>
+        public CombinedColor Color;
+
+        /// <summary>
+        /// The actual character value.
+        /// </summary>
+        public byte Char;
+
         public Character(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0)
         {
             Char = ch;
@@ -22,25 +40,11 @@ namespace DolDoc.Editor.Core
         }
 
         /// <summary>
-        /// The flags for this character (e.g. underlined, blink, etc.)
+        /// Gets the flags for this character (e.g. underlined, blink, etc.)
         /// </summary>
         public CharacterFlags Flags { get; }
 
-        public sbyte ShiftX;
-
-        public sbyte ShiftY;
-
         public byte Layer { get; }
-
-        /// <summary>
-        /// Combined color byte, upper half is background color, lower half is foreground color.
-        /// </summary>
-        public CombinedColor Color;
-
-        /// <summary>
-        /// The actual character value.
-        /// </summary>
-        public byte Char;
 
         /// <summary>
         /// Points to the <see cref="DocumentEntry"/> for this character.

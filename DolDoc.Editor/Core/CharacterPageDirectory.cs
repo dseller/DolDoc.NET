@@ -1,4 +1,9 @@
-﻿using System;
+﻿// <copyright file="CharacterPageDirectory.cs" company="Dennis Seller">
+// Copyright (c) Dennis Seller. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+
+using System;
 using System.Collections.Generic;
 
 namespace DolDoc.Editor.Core
@@ -6,12 +11,6 @@ namespace DolDoc.Editor.Core
     public class CharacterPageDirectory
     {
         private List<CharacterPage> _pages;
-
-        public int PageColumns { get; }
-
-        public int PageRows { get; }
-
-        public int PageCount => _pages.Count;
 
         public CharacterPageDirectory(int pageColumns, int pageRows)
         {
@@ -21,9 +20,15 @@ namespace DolDoc.Editor.Core
             _pages.Add(new CharacterPage(1, PageColumns, PageRows));
         }
 
+        public int PageColumns { get; }
+
+        public int PageRows { get; }
+
+        public int PageCount => _pages.Count;
+
         public Character this[int position]
         {
-            get 
+            get
             {
                 var page = GetPageForPosition(position % PageColumns, position / PageColumns);
                 return page[position % (page.Columns * page.Rows)];
