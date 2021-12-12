@@ -32,15 +32,16 @@ namespace DolDoc.Editor
         {
             Cursor = new Cursor(this);
             Document = doc;
+            _cursorInverted = false;
             _frameBuffer = frameBuffer;
             _renderBuffer = new byte[width * height];
-            Rows = doc.Rows;
-            Width = width;
-            Height = height;
-            Columns = doc.Columns;
-            _cursorInverted = false;
             _fontProvider = fontProvider ?? new TempleOSFontProvider();
             Font = _fontProvider.Get(font);
+
+            Width = width;
+            Height = height;
+            Rows = height / Font.Height;
+            Columns = width / Font.Width;
 
             RawMode = false;
 
@@ -55,8 +56,6 @@ namespace DolDoc.Editor
             Pages.Clear();
             Document = document;
             Document.OnUpdate += Document_OnUpdate;
-            Rows = Document.Rows;
-            Columns = Document.Columns;
             Cursor.DocumentPosition = 0;
             Document_OnUpdate(Document, false);
             Render();
@@ -88,7 +87,7 @@ namespace DolDoc.Editor
                 }
             }
             else
-                DocumentEntry.CreateTextCommand(new Flag[0], document.ToPlainText()).Evaluate(ctx);
+                Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
 
             Render();
         }
@@ -99,9 +98,9 @@ namespace DolDoc.Editor
 
         public int Height { get; private set; }
 
-        public int Columns { get; private set; }
+        public int Columns { get; }
 
-        public int Rows { get; private set; }
+        public int Rows { get; }
 
         public int CursorPosition => Cursor.DocumentPosition;
 
@@ -190,23 +189,14 @@ namespace DolDoc.Editor
 
         public void PreviousPage()
         {
-            //if (ViewLine == 0)
-            //    return;
-
-            //ViewLine -= Rows;
-            //if (ViewLine < 0)
-            //    ViewLine = 0;
-
-            //Render();
+            Cursor.PageUp();
+            RenderCursor();
         }
 
         public void NextPage()
         {
-            /*if (ViewOffset == _pages.Count - 1)
-                return;*/
-
-            //ViewLine += Rows;
-            //Render();
+            Cursor.PageDown();
+            RenderCursor();
         }
 
         public void LastPage()
@@ -215,7 +205,7 @@ namespace DolDoc.Editor
             //ViewOffset = 
 
             //ViewLine = _maxY - Rows + 1;
-            Render();
+            // Render();
         }
 
         public void Render()

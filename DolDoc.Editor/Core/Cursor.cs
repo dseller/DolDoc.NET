@@ -32,6 +32,9 @@ namespace DolDoc.Editor.Core
         /// </summary>
         public int WindowY => (DocumentY - ViewLine).Clamp(0, _viewerState.Rows);
 
+        /// <summary>
+        /// Gets or sets the offset at which the viewer's top line is placed in the document.
+        /// </summary>
         public int ViewLine { get; private set; }
 
         /// <summary>
@@ -130,6 +133,26 @@ namespace DolDoc.Editor.Core
             if (currentlySelectedEntry != null)
                 currentlySelectedEntry.Selected = false;
             SelectedEntry.Selected = true;
+        }
+
+        public void PageDown()
+        {
+            if (!_viewerState.Pages.HasPageForPosition(DocumentPosition + _viewerState.Rows * _viewerState.Columns))
+                return;
+
+            ViewLine += _viewerState.Rows;
+            DocumentPosition += _viewerState.Rows * _viewerState.Columns;
+        }
+
+        public void PageUp()
+        {
+            ViewLine -= _viewerState.Rows;
+            DocumentPosition -= _viewerState.Rows * _viewerState.Columns;
+
+            if (ViewLine < 0)
+                ViewLine = 0;
+            if (DocumentPosition < 0)
+                DocumentPosition = 0;
         }
 
         /// <summary>

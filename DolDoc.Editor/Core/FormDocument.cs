@@ -12,39 +12,41 @@ namespace DolDoc.Editor.Core
     public class FormDocument<T> : Document
         where T : class, new()
     {
-        public FormDocument(T dataObject = null, int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
-            : base(columns, rows, binaryChunks)
+        public FormDocument(T dataObject = null, IList<BinaryChunk> binaryChunks = null)
+            : base(binaryChunks)
         {
             DataObject = dataObject ?? new T();
 
             OnButtonClick += FormDocument_OnButtonClick;
             OnFieldChange += FormDocument_OnFieldChange;
-            OnMacro += FormDocument_OnMacro;
 
             Load(Generate());
         }
 
-        private void FormDocument_OnMacro(Macro obj)
+        public override void Macro(DocumentEntry entry)
         {
-            var method = obj.GetArgument("LE");
+            var method = entry.GetArgument("LE");
             if (string.IsNullOrEmpty(method))
             {
-                Log.Warning("No method {0} for macro", method);
+                base.Macro(entry);
                 return;
             }
 
             var methodInfo = typeof(T).GetMethod(method);
             if (methodInfo == null)
             {
-                Log.Warning("Could not find method {0} on type {1}", methodInfo, typeof(T));
+                base.Macro(entry);
                 return;
             }
 
-            methodInfo.Invoke(DataObject, new object[] { this, obj });
+            methodInfo.Invoke(DataObject, new object[] { this, entry });
         }
 
         private void FormDocument_OnFieldChange(string field, object value)
         {
+            if (string.IsNullOrWhiteSpace(field))
+                return;
+
             var property = typeof(T).GetProperty(field);
             property.SetValue(DataObject, value);
         }
@@ -70,11 +72,14 @@ namespace DolDoc.Editor.Core
 
         public override object GetData(string key)
         {
+            if (string.IsNullOrWhiteSpace(key))
+                return null;
+
             var property = typeof(T).GetProperty(key);
             return property.GetValue(DataObject);
         }
 
-        public void Reload() => Load(Generate());
+        public override void Reload() => Load(Generate());
 
         public T DataObject { get; }
 
@@ -119,10 +124,10 @@ namespace DolDoc.Editor.Core
             if (headerAttribute != null)
                 builder.Append(headerAttribute.Header);
 
-            var fnHeaderAttribute = formType.GetCustomAttribute<FormHeaderFunctionAttribute>();
-            if (fnHeaderAttribute != null)
+            var fnHeaderAttributes = formType.GetCustomAttributes<FormHeaderFunctionAttribute>();
+            foreach (var attribute in fnHeaderAttributes)
             {
-                var methodInfo = typeof(T).GetMethod(fnHeaderAttribute.Function);
+                var methodInfo = typeof(T).GetMethod(attribute.Function);
                 if (methodInfo != null)
                     builder.Append(methodInfo.Invoke(DataObject, new object[] { this }));
             }
@@ -138,10 +143,10 @@ namespace DolDoc.Editor.Core
             if (footerAttribute != null)
                 builder.Append(footerAttribute.Footer);
 
-            var fnFooterAttribute = formType.GetCustomAttribute<FormFooterFunctionAttribute>();
-            if (fnFooterAttribute != null)
+            var fnFooterAttributes = formType.GetCustomAttributes<FormFooterFunctionAttribute>();
+            foreach (var attribute in fnFooterAttributes)
             {
-                var methodInfo = typeof(T).GetMethod(fnFooterAttribute.Function);
+                var methodInfo = typeof(T).GetMethod(attribute.Function);
                 if (methodInfo != null)
                     builder.Append(methodInfo.Invoke(DataObject, new object[] { this }));
             }

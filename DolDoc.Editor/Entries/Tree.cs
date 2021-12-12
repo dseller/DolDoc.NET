@@ -35,19 +35,16 @@ namespace DolDoc.Editor.Entries
         public override void KeyPress(ViewerState state, Key key, char? character, int relativeOffset)
         {
             if (key == Key.SPACE || key == Key.ENTER)
-                Toggle();
-        }
-        
-        public override void Click(ViewerState state)
-        {
-            Toggle();
+                Toggle(state);
         }
 
-        public override string ToString() => $"$TR,\"{Tag}\"$";
+        public override void Click(ViewerState state) => Toggle(state);
+
+        public override string ToString() => AsString("TR");
 
         public override bool Clickable => true;
 
-        private void Toggle()
+        private void Toggle(ViewerState state)
         {
             if (HasFlag("C", false))
             {
@@ -56,6 +53,8 @@ namespace DolDoc.Editor.Entries
             }
             else
                 Flags.Add(new Flag(false, "C"));
+
+            state.Document.Reload();
         }
     }
 }

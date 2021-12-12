@@ -73,7 +73,7 @@ namespace DolDoc.Examples.SimpleForm
             var compositor = new Compositor<OpenGLNativeWindow>();
             var window = compositor.NewWindow();
             var obj = new TestForm();
-            window.Show("Form Test", 1024, 768, new FormDocument<TestForm>(obj, 128, 60));
+            window.Show("Form Test", 1024, 768, new FormDocument<TestForm>(obj));
 
             new Thread(() =>
             {

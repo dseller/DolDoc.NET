@@ -36,17 +36,17 @@ namespace DolDoc.Examples.FileBrowser
         {
             var compositor = new Compositor<OpenGLNativeWindow>();
             var window = compositor.NewWindow();
-            var document = new Document(128, 63);
+            var document = new Document();
 
-            void OnMacro(Macro macro)
+            void OnMacro(DocumentEntry entry)
             {
-                var command = macro.GetArgument("LE");
+                var command = entry.GetArgument("LE");
                 Log.Information("Executing macro {0}", command);
 
-                switch (macro.GetArgument("LE"))
+                switch (entry.GetArgument("LE"))
                 {
                     case "ChangeDir":
-                        document = new Document(DirectoryListing(macro.GetArgument("RE")), 128, 63, null);
+                        document = new Document(DirectoryListing(entry.GetArgument("RE")), null);
                         document.OnMacro += OnMacro;
                         window.State.LoadDocument(document);
                         break;

@@ -7,7 +7,7 @@ namespace DolDoc.Editor.Core
 {
     public static class DocumentLoader
     {
-        public static Document Load(Stream stream, int columns = 80, int rows = 60)
+        public static Document Load(Stream stream)
         {
             var binaryChunks = new List<BinaryChunk>();
 
@@ -28,7 +28,7 @@ namespace DolDoc.Editor.Core
                     binaryChunks.Add(new BinaryChunk(chunkId, flags, size, refCount, binaryData));
                 }
 
-                return new Document(text.Replace("\r\n", "\n"), columns, rows, binaryChunks: binaryChunks);
+                return new Document(text.Replace("\r\n", "\n"), binaryChunks: binaryChunks);
             }
         }
     }

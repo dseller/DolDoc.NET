@@ -64,7 +64,7 @@ namespace DolDoc.Renderer.OpenGL
                 }
 
                 nativeWindow.CenterWindow();
-                this.document = document ?? new Document(width / 8, height / 8);
+                this.document = document ?? new Document();
                 viewerState = new ViewerState(this, this.document, width, height, new YaffFontProvider(), "Terminal_VGA_cp861");
 
                 viewerState.Pages.Clear();
@@ -180,7 +180,7 @@ namespace DolDoc.Renderer.OpenGL
             GL.PixelZoom(1, -1);
 
             lock (framebufferLock)
-                GL.DrawPixels(1024, 768, PixelFormat.Rgb, PixelType.UnsignedByte, _framebuffer);
+                GL.DrawPixels(nativeWindow.Size.X, nativeWindow.Size.Y, PixelFormat.Rgb, PixelType.UnsignedByte, _framebuffer);
 
             graphicsContext.SwapBuffers();
         }

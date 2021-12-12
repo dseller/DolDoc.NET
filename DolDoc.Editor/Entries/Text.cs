@@ -12,6 +12,8 @@ namespace DolDoc.Editor.Entries
         {
         }
 
+        public static Text Create(IList<Flag> flags, string value) => new Text(flags, new[] { new Argument(null, value) });
+
         public override CommandResult Evaluate(EntryRenderContext ctx) => new CommandResult(true, WriteString(ctx, Tag));
 
         public override string ToString()

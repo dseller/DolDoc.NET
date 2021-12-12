@@ -13,10 +13,13 @@ namespace DolDoc.Editor.Core
     public abstract class DocumentEntry
     {
         /// <summary>
-        /// 
+        /// Gets the collection of flags for this entry.
         /// </summary>
         public IList<Flag> Flags { get; }
 
+        /// <summary>
+        /// Gets the collection of argumens for this entry.
+        /// </summary>
         public IList<Argument> Arguments { get; }
 
         public string Tag
@@ -36,9 +39,6 @@ namespace DolDoc.Editor.Core
             Flags = flags;
             Arguments = args;
         }
-
-        public static DocumentEntry CreateTextCommand(IList<Flag> flags, string value) =>
-            new Text(flags, new[] { new Argument(null, value) });
 
         public bool HasFlag(string flag, bool status = true) => Flags.Any(f => f.Value == flag && f.Status == status);
 
@@ -66,6 +66,8 @@ namespace DolDoc.Editor.Core
         }
 
         public string GetArgument(string key, string defaultValue = null) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value ?? defaultValue;
+
+        public bool HasArgument(string key) => Arguments.Any(arg => arg.Key == key);
 
         protected void WriteBorder(EntryRenderContext ctx, int length, int? renderPositionOverride = null)
         {

@@ -1,11 +1,9 @@
 ﻿using DolDoc.Core.Parser;
 using DolDoc.Editor.Entries;
 using DolDoc.Editor.Parser;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace DolDoc.Editor.Core
 {
@@ -16,28 +14,22 @@ namespace DolDoc.Editor.Core
         public event Action<Document, bool> OnUpdate;
         public event Action<Button> OnButtonClick;
         public event Action<string, object> OnFieldChange;
-        public event Action<Macro> OnMacro;
+        public event Action<DocumentEntry> OnMacro;
         public event Action<string> OnPromptEntered;
 
-        public Document(string content, int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
-            : this(columns, rows, binaryChunks)
+        public Document(string content, IList<BinaryChunk> binaryChunks = null)
+            : this(binaryChunks)
         {
             Load(content);
         }
 
-        public Document(int columns = 80, int rows = 60, IList<BinaryChunk> binaryChunks = null)
+        public Document(IList<BinaryChunk> binaryChunks = null)
         {
-            Rows = rows;
-            Columns = columns;
             BinaryChunks = binaryChunks;
 
             _parser = new AntlrParser();
             Entries = new LinkedList<DocumentEntry>();
         }
-
-        public int Columns { get; }
-
-        public int Rows { get; }
 
         public LinkedList<DocumentEntry> Entries { get; private set; }
         
@@ -47,7 +39,7 @@ namespace DolDoc.Editor.Core
 
         public void FieldChanged(string name, object value) => OnFieldChange?.Invoke(name, value);
 
-        public void Macro(Macro macro) => OnMacro?.Invoke(macro);
+        public virtual void Macro(DocumentEntry entry) => OnMacro?.Invoke(entry);
 
         public void PromptEntered(string value) => OnPromptEntered?.Invoke(value);
 
@@ -56,6 +48,8 @@ namespace DolDoc.Editor.Core
             Entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
             OnUpdate?.Invoke(this, true);
         }
+
+        public virtual void Reload() => OnUpdate?.Invoke(this, true);
 
         public void Write(string content)
         {
