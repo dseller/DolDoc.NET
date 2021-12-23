@@ -56,7 +56,7 @@ namespace DolDoc.Editor
             Pages.Clear();
             Document = document;
             Document.OnUpdate += Document_OnUpdate;
-            Cursor.DocumentPosition = 0;
+            Cursor.SetPosition(0);
             Document_OnUpdate(Document, false);
             Render();
         }
@@ -181,7 +181,7 @@ namespace DolDoc.Editor
             var entry = FindEntry(x, y);
             if (entry == null || !entry.Clickable)
             {
-                Cursor.DocumentPosition = (int)((x / Font.Width)) + (((int)(y / Font.Height)) * Columns) + (Cursor.ViewLine * Columns);
+                Cursor.SetPosition((int)((x / Font.Width)) + (((int)(y / Font.Height)) * Columns) + (Cursor.ViewLine * Columns));
             }
             else
             {

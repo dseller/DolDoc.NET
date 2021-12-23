@@ -53,6 +53,9 @@ namespace DolDoc.Editor.Core
 
         public void Write(string content)
         {
+            if (string.IsNullOrEmpty(content))
+                return;
+
             foreach (var entry in _parser.Parse(content))
                 Entries.AddLast(entry);
             OnUpdate?.Invoke(this, false);
