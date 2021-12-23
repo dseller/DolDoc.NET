@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLua" Version="1.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DolDoc.Editor\DolDoc.Editor.csproj" />
+    <ProjectReference Include="..\..\DolDoc.Renderer.OpenGL\DolDoc.Renderer.OpenGL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Fonts\Terminal_VGA_cp861.yaff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
