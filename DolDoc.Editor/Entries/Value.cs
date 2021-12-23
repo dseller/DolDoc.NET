@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("VA")]
     public class Value : DocumentEntry
     {
         public Value(IList<Flag> flags, IList<Argument> args) : base(flags, args)

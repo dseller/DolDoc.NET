@@ -5,6 +5,7 @@ using System.IO;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("LK")]
     public class Link : DocumentEntry
     {
         public Link(IList<Flag> flags, IList<Argument> args) 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("MA")]
     public class Macro : DocumentEntry
     {
         public Macro(IList<Flag> flags, IList<Argument> args) 

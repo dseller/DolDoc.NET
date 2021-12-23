@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("ID")]
     public class Indent : DocumentEntry
     {
         public Indent(IList<Flag> flags, IList<Argument> args) 

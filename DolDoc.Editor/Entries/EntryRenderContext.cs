@@ -1,13 +1,11 @@
 ﻿using DolDoc.Editor.Core;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace DolDoc.Editor.Commands
 {
     public class EntryRenderContext
     {
-        private Stack<RenderOptions> renderOptionsStack;
+        private readonly Stack<RenderOptions> renderOptionsStack;
 
         public EntryRenderContext(Document document, ViewerState state, RenderOptions renderOptions)
         {

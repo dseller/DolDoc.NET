@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("UL")]
     public class Underline : ContextSwitchEntryBase
     {
         public Underline(IList<Flag> flags, IList<Argument> args)
@@ -11,7 +12,7 @@ namespace DolDoc.Editor.Entries
         {
         }
 
-        public override string ToString() => $"$UL,{Tag}$";
+        public override string ToString() => AsString("UL");
 
         protected override void Set(EntryRenderContext ctx, bool status) => ctx.Options.Underline = status;
     }

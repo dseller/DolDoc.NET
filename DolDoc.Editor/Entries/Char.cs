@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("CH")]
     public class Char : DocumentEntry
     {
         public Char(IList<Flag> flags, IList<Argument> args) : base(flags, args)

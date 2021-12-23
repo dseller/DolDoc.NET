@@ -1,11 +1,10 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("CM")]
     public class CursorMove : DocumentEntry
     {
         public CursorMove(IList<Flag> flags, IList<Argument> args) 

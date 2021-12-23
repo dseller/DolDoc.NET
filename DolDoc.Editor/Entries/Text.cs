@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("TX")]
     public class Text : DocumentEntry
     {
         public Text(IList<Flag> flags, IList<Argument> args)

@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("LS")]
     public class List : DocumentEntry
     {
         private int selectedIndex;

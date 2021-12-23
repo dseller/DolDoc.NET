@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("TI")]
     public class Title : DocumentEntry
     {
         public Title(IList<Flag> flags, IList<Argument> args) : base(flags, args)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("BK")]
     public class Blink : ContextSwitchEntryBase
     {
         public Blink(IList<Flag> flags, IList<Argument> args) 

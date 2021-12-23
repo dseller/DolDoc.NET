@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("CL")]
     public class Clear : DocumentEntry
     {
         public Clear(IList<Flag> flags, IList<Argument> args) 

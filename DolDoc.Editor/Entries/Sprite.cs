@@ -1,12 +1,11 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("SP")]
     public class Sprite : DocumentEntry
     {
         public Sprites.Sprite SpriteObj { get; private set; }

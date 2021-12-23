@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("WW")]
     public class WordWrap : ContextSwitchEntryBase
     {
         public WordWrap(IList<Flag> flags, IList<Argument> args)
@@ -11,7 +12,7 @@ namespace DolDoc.Editor.Entries
         {
         }
 
-        public override string ToString() => $"WW,{Tag}$";
+        public override string ToString() => AsString("WW");
 
         protected override void Set(EntryRenderContext ctx, bool status) => ctx.Options.WordWrap = status;
     }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("BG")]
     public class Background : DocumentEntry
     {
         public Background(IList<Flag> flags, IList<Argument> args) 

@@ -20,9 +20,6 @@ namespace DolDoc.Editor.Parser
             var parser = new DolDocParser(commonTokenStream);
 
             var context = parser.start();
-            //Console.WriteLine(context.ToStringTree(parser));
-            //Console.WriteLine(string.Join(", ", commonTokenStream.GetTokens().Select(t => $"{parser.Vocabulary.GetSymbolicName(t.Type)} => '{t.Text}'")));
-
             var result = Visit(context);
 
             return result as IEnumerable<DocumentEntry>;

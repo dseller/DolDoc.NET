@@ -4,6 +4,7 @@ using System;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("ER")]
     public class Error : DocumentEntry
     {
         private string _errorMessage;

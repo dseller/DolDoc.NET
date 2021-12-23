@@ -1,39 +1,52 @@
 ﻿using DolDoc.Editor.Core;
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DolDoc.Editor.Entries
 {
     public static class EntryFactory
     {
+        private delegate DocumentEntry FactoryMethod(IList<Flag> flags, IList<Argument> args);
+        private static readonly Lazy<Dictionary<string, FactoryMethod>> FactoryMethods = new Lazy<Dictionary<string, FactoryMethod>>(Initialize);
+
         public static DocumentEntry Create(string cmd, IList<Flag> flags, IList<Argument> args)
         {
-            switch (cmd)
+            if (!FactoryMethods.Value.TryGetValue(cmd, out var fn))
+                return new Error($"Unrecognized cmd '{cmd}'.");
+
+            return fn(flags, args);
+        }
+
+        private static Dictionary<string, FactoryMethod> Initialize()
+        {
+            var result = new Dictionary<string, FactoryMethod>();
+            var assembly = typeof(EntryFactory).Assembly;
+            var types = assembly.GetTypes();
+
+            var paramFlags = Expression.Parameter(typeof(IList<Flag>), "flags");
+            var paramArgs = Expression.Parameter(typeof(IList<Argument>), "args");
+
+            foreach (var type in types)
             {
-                case "BG": return new Background(flags, args);
-                case "BK": return new Blink(flags, args);
-                case "BT": return new Button(flags, args);
-                case "CB": return new CheckBox(flags, args);
-                case "CH": return new Char(flags, args);
-                case "CL": return new Clear(flags, args);
-                case "CM": return new CursorMove(flags, args);
-                case "DA": return new Data(flags, args);
-                case "ER": return new Error(null);
-                case "FG": return new Foreground(flags, args);
-                case "ID": return new Indent(flags, args);
-                case "IV": return new Invert(flags, args);
-                case "LK": return new Link(flags, args);
-                case "LS": return new List(flags, args);
-                case "MA": return new Macro(flags, args);
-                case "PT": return new Prompt(flags, args);
-                case "SP": return new Sprite(flags, args);
-                case "TI": return new Title(flags, args);
-                case "TX": return new Text(flags, args);
-                case "TR": return new Tree(flags, args);
-                case "UL": return new Underline(flags, args);
-                case "VA": return new Value(flags, args);
-                case "WW": return new WordWrap(flags, args);
-                default: return new Error($"Unrecognized cmd '{cmd}'.");
+                var attrib = type.GetCustomAttribute<EntryAttribute>();
+                if (attrib == null)
+                    continue;
+
+                var ctor = type.GetConstructor(new[] { typeof(IList<Flag>), typeof(IList<Argument>) });
+                if (ctor == null)
+                    continue;
+
+                var exp = Expression.New(ctor, paramFlags, paramArgs);
+                var lambda = Expression.Lambda(typeof(FactoryMethod), exp, new[] { paramFlags, paramArgs });
+
+                var fn = (FactoryMethod)lambda.Compile();
+
+                result.Add(attrib.Command, fn);
             }
+
+            return result;
         }
     }
 }

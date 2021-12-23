@@ -5,6 +5,7 @@ using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("PT")]
     public class Prompt : DocumentEntry
     {
         private bool jumped;

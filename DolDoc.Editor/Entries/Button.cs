@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("BT")]
     public class Button : DocumentEntry
     {
         public Button(IList<Flag> flags, IList<Argument> args) : base(flags, args)

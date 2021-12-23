@@ -5,6 +5,7 @@ using System.Text;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("CB")]
     public class CheckBox : DocumentEntry
     {
         public CheckBox(IList<Flag> flags, IList<Argument> args) : base(flags, args)

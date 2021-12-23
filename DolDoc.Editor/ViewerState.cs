@@ -179,11 +179,16 @@ namespace DolDoc.Editor
         public void MouseClick(float x, float y)
         {
             var entry = FindEntry(x, y);
-            if (entry == null)
-                return;
+            if (entry == null || !entry.Clickable)
+            {
+                Cursor.DocumentPosition = (int)((x / Font.Width)) + (((int)(y / Font.Height)) * Columns) + (Cursor.ViewLine * Columns);
+            }
+            else
+            {
+                // Perform the click.
+                entry.Click(this);
+            }
 
-            // Perform the click.
-            entry.Click(this);
             Document.Refresh();
         }
 
@@ -304,7 +309,7 @@ namespace DolDoc.Editor
         {
             // Find the entry that is being clicked.
             var column = (int)Math.Floor(x / Font.Width);
-            var row = (int)Math.Floor(y / Font.Height);
+            var row = (int)(Math.Floor(y / Font.Height)) + Cursor.ViewLine;
 
             // Retrieve the entry belonging to the clicked character.
             var ch = Pages[column, row];

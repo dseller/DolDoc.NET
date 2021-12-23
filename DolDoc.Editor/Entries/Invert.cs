@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("IV")]
     public class Invert : ContextSwitchEntryBase
     {
         public Invert(IList<Flag> flags, IList<Argument> args) 
@@ -11,7 +12,7 @@ namespace DolDoc.Editor.Entries
         {
         }
 
-        public override string ToString() => $"$IV,{Tag}$";
+        public override string ToString() => AsString("IV");
 
         protected override void Set(EntryRenderContext ctx, bool status) => ctx.Options.Inverted = status;
     }

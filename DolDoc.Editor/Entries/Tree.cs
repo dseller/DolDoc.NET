@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace DolDoc.Editor.Entries
 {
+    [Entry("TR")]
     public class Tree : DocumentEntry
     {
         public Tree(IList<Flag> flags, IList<Argument> args)
