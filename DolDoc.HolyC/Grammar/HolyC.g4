@@ -368,6 +368,10 @@ staticAssertDeclaration
     :   '_Static_assert' '(' constantExpression ',' StringLiteral+ ')' ';'
     ;
 
+printStatement
+    :   StringLiteral ';'
+    ;
+
 statement
     :   labeledStatement
     |   compoundStatement
@@ -375,7 +379,8 @@ statement
     |   selectionStatement
     |   iterationStatement
     |   jumpStatement
-    |   ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (logicalOrExpression (',' logicalOrExpression)*)? (':' (logicalOrExpression (',' logicalOrExpression)*)?)* ')' ';'
+    |   printStatement
+    // |   ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (logicalOrExpression (',' logicalOrExpression)*)? (':' (logicalOrExpression (',' logicalOrExpression)*)?)* ')' ';'
     ;
 
 labeledStatement
@@ -431,7 +436,6 @@ jumpStatement
     :   ('goto' Identifier
     |   ('continue'| 'break')
     |   'return' expression?
-    |   'goto' unaryExpression // GCC extension
     )
     ';'
     ;
@@ -447,6 +451,7 @@ translationUnit
 externalDeclaration
     :   functionDefinition
     |   declaration
+    |   statement+
     |   ';' // stray ;
     ;
 
