@@ -80,7 +80,10 @@ namespace DolDoc.Editor.Core
                 DocumentPosition = FindNearestEntry(Direction.Right) ?? DocumentPosition;
 
             if (DocumentY > ViewLine + _viewerState.Rows)
+            {
                 ViewLine += (DocumentY - (ViewLine + _viewerState.Rows));
+                _viewerState.Pages.MakeDirty();
+            }
 
             if (currentlySelectedEntry != null)
                 currentlySelectedEntry.Selected = false;
@@ -119,7 +122,10 @@ namespace DolDoc.Editor.Core
                 DocumentPosition = FindNearestEntry(Direction.Up) ?? DocumentPosition;
 
             if (DocumentY < ViewLine)
+            {
                 ViewLine -= ViewLine - DocumentY;
+                _viewerState.Pages.MakeDirty();
+            }
 
             if (currentlySelectedEntry != null)
                 currentlySelectedEntry.Selected = false;
@@ -138,31 +144,42 @@ namespace DolDoc.Editor.Core
                 DocumentPosition = FindNearestEntry(Direction.Down) ?? DocumentPosition;
 
             if (DocumentY >= ViewLine + _viewerState.Rows)
+            {
                 ViewLine += (DocumentY - (ViewLine + _viewerState.Rows)) + 1;
+                _viewerState.Pages.MakeDirty();
+            }
 
             if (currentlySelectedEntry != null)
                 currentlySelectedEntry.Selected = false;
             SelectedEntry.Selected = true;
         }
 
-        public void PageDown()
+        public void PageDown(int? rows = null)
         {
-            if (!_viewerState.Pages.HasPageForPosition(DocumentPosition + _viewerState.Rows * _viewerState.Columns))
+            var rowsToScroll = rows ?? _viewerState.Rows;
+
+            if (!_viewerState.Pages.HasPageForPosition(DocumentPosition + rowsToScroll * _viewerState.Columns))
                 return;
 
-            ViewLine += _viewerState.Rows;
-            DocumentPosition += _viewerState.Rows * _viewerState.Columns;
+            ViewLine += rowsToScroll;
+            DocumentPosition += rowsToScroll * _viewerState.Columns;
+
+            _viewerState.Pages.MakeDirty();
         }
 
-        public void PageUp()
+        public void PageUp(int? rows = null)
         {
-            ViewLine -= _viewerState.Rows;
-            DocumentPosition -= _viewerState.Rows * _viewerState.Columns;
+            var rowsToScroll = rows ?? _viewerState.Rows;
+
+            ViewLine -= rowsToScroll;
+            DocumentPosition -= rowsToScroll * _viewerState.Columns;
 
             if (ViewLine < 0)
                 ViewLine = 0;
             if (DocumentPosition < 0)
                 DocumentPosition = 0;
+
+            _viewerState.Pages.MakeDirty();
         }
 
         /// <summary>

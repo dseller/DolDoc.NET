@@ -3,8 +3,8 @@ using System.IO;
 using System.Text;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
-using DolDoc.Editor.Entries;
 using DolDoc.Renderer.OpenGL;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace DolDoc.Examples.FileBrowser
@@ -34,7 +34,15 @@ namespace DolDoc.Examples.FileBrowser
         
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var serilogLogger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            var logFactory = new LoggerFactory();
+            logFactory.AddSerilog(serilogLogger);
+
+            var compositor = new Compositor<OpenGLNativeWindow>(logFactory);
             var window = compositor.NewWindow();
             var document = new Document();
 

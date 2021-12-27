@@ -2,6 +2,8 @@
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Forms;
 using DolDoc.Renderer.OpenGL;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -116,7 +118,15 @@ namespace DolDoc.Examples.TodoList
     {
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var serilogLogger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            var logFactory = new LoggerFactory();
+            logFactory.AddSerilog(serilogLogger);
+
+            var compositor = new Compositor<OpenGLNativeWindow>(logFactory);
             var window = compositor.NewWindow();
 
             var list = new TodoForm();

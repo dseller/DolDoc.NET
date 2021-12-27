@@ -3,6 +3,11 @@
         <OutputType>exe</OutputType>
 		<TargetFramework>net5.0</TargetFramework>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="Serilog" Version="2.10.0" />
+	  <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+	  <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\DolDoc.Editor\DolDoc.Editor.csproj" />

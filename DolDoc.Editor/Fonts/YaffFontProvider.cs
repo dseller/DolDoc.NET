@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using DolDoc.Editor.Core;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 
@@ -10,17 +11,19 @@ namespace DolDoc.Editor.Fonts
     /// </summary>
     public class YaffFontProvider : IFontProvider
     {
-        private readonly string _fontsFolder;
+        private readonly ILogger logger;
+        private readonly string fontsFolder;
 
         public YaffFontProvider(string fontsFolder = "Fonts")
         {
-            _fontsFolder = fontsFolder;
+            this.fontsFolder = fontsFolder;
+            logger = LogSingleton.Instance.CreateLogger<YaffFontProvider>();
         }
 
         public IFont Get(string name)
         {
             // TODO: this is the ugliest stuff ever, but meh it works.
-            using (var fs = File.Open($"{_fontsFolder}/{name}.yaff", FileMode.Open))
+            using (var fs = File.Open($"{fontsFolder}/{name}.yaff", FileMode.Open))
             {
                 using (var reader = new StreamReader(fs))
                 {
@@ -64,7 +67,7 @@ namespace DolDoc.Editor.Fonts
                             values.Add(key, value);
                     }
 
-                    Log.Information("YAFF Font {0} loaded with {1} glyphs", name, values.Count);
+                    logger.LogInformation("YAFF Font {0} loaded with {1} glyphs", name, values.Count);
 
                     // TODO: font width/height is still hardcoded here, only supports
                     // Courier_8 now.

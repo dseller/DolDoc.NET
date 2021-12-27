@@ -1,9 +1,11 @@
 using System;
+using System.Text;
 using System.Threading;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Forms;
 using DolDoc.Renderer.OpenGL;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace DolDoc.Examples.SimpleForm
@@ -22,6 +24,7 @@ namespace DolDoc.Examples.SimpleForm
 
     [FormHeader("$TI,\"Test Form\"$This is an $FG,RED$example$FG$ form. Enter the data below.\n\n")]
     [FormFooter("\n\n\n$BK,1$$FG,RED$$TX+B+CX,\"Please verify before submitting!\"$$BK,0$")]
+    [FormFooterFunction("GetPalette")]
     public class TestForm
     {
         private readonly Random _random;
@@ -64,13 +67,37 @@ namespace DolDoc.Examples.SimpleForm
             Log.Information("Readonly: {0}", ReadOnly);
             Log.Information("Gender: {0}", Gender);
         }
+
+        public string GetPalette(FormDocument<TestForm> form)
+        {
+            var builder = new StringBuilder();
+            builder.Append("\n\n\n");
+
+            for (var i = 0; i < 255; i++)
+            {
+                builder.Append($"$BG,{i}$ ");
+
+                if (i % 16 == 0 && i > 0)
+                    builder.Append("\n");
+            }
+
+            return builder.ToString();
+        }
     }
-    
+
     public static class Program
     {
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var serilogLogger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            var logFactory = new LoggerFactory();
+            logFactory.AddSerilog(serilogLogger);
+
+            var compositor = new Compositor<OpenGLNativeWindow>(logFactory);
             var window = compositor.NewWindow();
             var obj = new TestForm();
             window.Show("Form Test", 1024, 768, new FormDocument<TestForm>(obj));
@@ -83,6 +110,10 @@ namespace DolDoc.Examples.SimpleForm
                         obj.TheTime = DateTime.Now.ToString("yyyy/MM/dd hh:mm:ss tt");
                     else
                         obj.TheTime = DateTime.Now.ToString();
+
+                    // TODO: fix?
+                    window?.State?.Pages.MakeDirty();
+                    window?.State?.Render();
 
                     Thread.Sleep(1000);
                 }

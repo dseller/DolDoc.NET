@@ -2,13 +2,13 @@
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Rendering;
+using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -20,6 +20,7 @@ namespace DolDoc.Renderer.OpenGL
         private Timer timer;
         private Thread thread;
         private Document document;
+        private readonly ILogger logger;
         private ViewerState viewerState;
         private EgaColor[] _framebuffer;
         private object framebufferLock = new object();
@@ -31,6 +32,11 @@ namespace DolDoc.Renderer.OpenGL
 
         public void Clear() => Array.Fill(_framebuffer, EgaColor.Palette[15]);
 
+        public OpenGLNativeWindow()
+        {
+            logger = LogSingleton.Instance.CreateLogger<OpenGLNativeWindow>();
+        }
+
         public void Render(byte[] data)
         {
             lock (framebufferLock)
@@ -40,13 +46,19 @@ namespace DolDoc.Renderer.OpenGL
 
         public void RenderPartial(int x, int y, int width, int height, byte[] data)
         {
+            lock (framebufferLock)
+            {
+                for (int fy = 0; fy < height; fy++)
+                    for (int fx = 0; fx < width; fx++)
+                        _framebuffer[((fy + y) * nativeWindow.Size.X) + fx + x] = EgaColor.Palette[data[((fy + y) * nativeWindow.Size.X) + fx + x]];
+            }
         }
 
         public void Show(string title, int width, int height, Document document = null)
         {
             thread = new Thread(() =>
             {
-                Log.Verbose("Starting OpenGLNativeWindow thread...");
+                logger.LogDebug("Starting OpenGLNativeWindow thread...");
                 _framebuffer = new EgaColor[width * height];
 
                 nativeWindow = new NativeWindow(new NativeWindowSettings
@@ -71,7 +83,7 @@ namespace DolDoc.Renderer.OpenGL
                 document.Refresh();
 
                 ulong ticks = 0;
-                timer = new Timer(_ => viewerState.Tick(ticks++), null, 0, 1000/30);
+                timer = new Timer(_ => viewerState.Tick(ticks++), null, 0, 200);
 
                 OnLoad();
                 nativeWindow.KeyDown += NativeWindow_KeyDown;
@@ -84,7 +96,7 @@ namespace DolDoc.Renderer.OpenGL
                     nativeWindow.ProcessEvents();
                     // TODO: fps restrict
                     OnRenderFrame();
-                    Thread.Sleep(1);
+                    Thread.Sleep(50);
                 }
             });
 
@@ -95,7 +107,12 @@ namespace DolDoc.Renderer.OpenGL
 
         private void NativeWindow_MouseWheel(MouseWheelEventArgs obj)
         {
-            
+            if (obj.OffsetY < 0)
+                viewerState.Cursor.PageDown(8);
+            else
+                viewerState.Cursor.PageUp(8);
+
+            viewerState.Document.Refresh();
         }
 
         private void NativeWindow_MouseUp(MouseButtonEventArgs obj) => viewerState.MouseClick(nativeWindow.MousePosition.X, nativeWindow.MousePosition.Y);
@@ -188,7 +205,11 @@ namespace DolDoc.Renderer.OpenGL
             graphicsContext.SwapBuffers();
         }
 
-        public void Dispose() => nativeWindow.Close();
+        public void Dispose()
+        {
+            timer.Dispose();
+            nativeWindow.Close();
+        }
 
         public void SetTitle(string title)
         {

@@ -1,6 +1,6 @@
 ﻿using DolDoc.Editor.Entries;
 using DolDoc.Editor.Forms;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +12,12 @@ namespace DolDoc.Editor.Core
     public class FormDocument<T> : Document
         where T : class, new()
     {
+        private readonly ILogger logger;
+
         public FormDocument(T dataObject = null, IList<BinaryChunk> binaryChunks = null)
             : base(binaryChunks)
         {
+            logger = LogSingleton.Instance.CreateLogger<FormDocument<T>>();
             DataObject = dataObject ?? new T();
 
             OnButtonClick += FormDocument_OnButtonClick;
@@ -56,14 +59,14 @@ namespace DolDoc.Editor.Core
             var handlerMethod = obj.GetArgument("H");
             if (string.IsNullOrEmpty(handlerMethod))
             {
-                Log.Warning("No handler method specified.");
+                logger.LogWarning("No handler method specified.");
                 return;
             }
 
             var methodInfo = typeof(T).GetMethod(handlerMethod);
             if (methodInfo == null)
             {
-                Log.Warning("Could not find method {0} on type {1}", methodInfo, typeof(T));
+                logger.LogWarning("Could not find method {0} on type {1}", methodInfo, typeof(T));
                 return;
             }
 

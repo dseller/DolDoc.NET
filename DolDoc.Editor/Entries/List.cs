@@ -1,7 +1,7 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Forms;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,8 @@ namespace DolDoc.Editor.Entries
                     break;
             }
 
-            Log.Information("List widget: {0}", values);
+            var logger = LogSingleton.Instance.CreateLogger<List>();
+            logger.LogInformation("List widget: {0}", values);
         }
 
         public override CommandResult Evaluate(EntryRenderContext ctx)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DolDoc.Editor.Sprites
+﻿namespace DolDoc.Editor.Sprites
 {
     public abstract class SpriteElementBase
     {

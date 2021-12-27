@@ -62,6 +62,15 @@ namespace DolDoc.Editor.Core
                 page.Clear(color);
         }
 
+        /// <summary>
+        /// Mark all pages dirty.
+        /// </summary>
+        public void MakeDirty()
+        {
+            foreach (var page in _pages)
+                page.MakeDirty();
+        }
+
         public bool HasPageForPosition(int position)
         {
             int pageIndex = position / PageRows / PageColumns;

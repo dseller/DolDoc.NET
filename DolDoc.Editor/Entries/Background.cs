@@ -18,7 +18,12 @@ namespace DolDoc.Editor.Entries
             if (Arguments.Count == 0)
                 ctx.Options.BackgroundColor = ctx.Options.DefaultBackgroundColor;
             else
-                ctx.Options.BackgroundColor = (EgaColor)Enum.Parse(typeof(EgaColor), Tag, true);
+            {
+                if (Enum.TryParse<EgaColor>(Tag, true, out var color))
+                    ctx.Options.BackgroundColor = color;
+                else if (byte.TryParse(Tag, out var colorInt))
+                    ctx.Options.BackgroundColor = (EgaColor)colorInt;
+            }
 
             return new CommandResult(true);
         }

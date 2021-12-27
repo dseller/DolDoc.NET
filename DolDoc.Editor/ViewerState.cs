@@ -4,6 +4,7 @@ using DolDoc.Editor.Entries;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace DolDoc.Editor
@@ -22,21 +23,24 @@ namespace DolDoc.Editor
 
         public Cursor Cursor { get; }
 
-        private string _title;
-        private byte[] _renderBuffer;
-        private bool _cursorInverted;
-        private IFrameBufferWindow _frameBuffer;
-        private readonly IFontProvider _fontProvider;
+        private string title;
+        private byte[] renderBuffer;
+        private bool blinkInverted;
+        private IFrameBufferWindow frameBuffer;
+        private readonly IFontProvider fontProvider;
+        private readonly ILogger logger;
 
         public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
         {
+            logger = LogSingleton.Instance.CreateLogger<ViewerState>();
+
             Cursor = new Cursor(this);
             Document = doc;
-            _cursorInverted = false;
-            _frameBuffer = frameBuffer;
-            _renderBuffer = new byte[width * height];
-            _fontProvider = fontProvider ?? new TempleOSFontProvider();
-            Font = _fontProvider.Get(font);
+            blinkInverted = false;
+            this.frameBuffer = frameBuffer;
+            renderBuffer = new byte[width * height];
+            this.fontProvider = fontProvider ?? new TempleOSFontProvider();
+            Font = this.fontProvider.Get(font);
 
             Width = width;
             Height = height;
@@ -52,7 +56,7 @@ namespace DolDoc.Editor
 
         public void LoadDocument(Document document)
         {
-            _frameBuffer?.Clear();
+            frameBuffer?.Clear();
             Pages.Clear();
             Document = document;
             Document.OnUpdate += Document_OnUpdate;
@@ -65,7 +69,7 @@ namespace DolDoc.Editor
         {
             if (clear)
             {
-                _frameBuffer?.Clear();
+                frameBuffer?.Clear();
                 Pages.Clear();
             }
 
@@ -108,25 +112,29 @@ namespace DolDoc.Editor
 
         public string Title
         {
-            get => _title;
+            get => title;
 
             set
             {
-                _title = value;
-                _frameBuffer.SetTitle(value);
+                title = value;
+                frameBuffer.SetTitle(value);
             }
         }
 
         public void KeyPress(Key key)
         {
+            Pages[CursorPosition].Dirty = true;
+
             switch (key)
             {
                 case Key.PAGE_UP:
-                    PreviousPage();
+                    Cursor.PageUp();
+                    RenderCursor();
                     break;
 
                 case Key.PAGE_DOWN:
-                    NextPage();
+                    Cursor.PageDown();
+                    RenderCursor();
                     break;
 
                 case Key.ARROW_RIGHT:
@@ -166,18 +174,20 @@ namespace DolDoc.Editor
             var entry = FindEntry(x, y);
             if (entry == null)
             {
-                _frameBuffer.SetCursorType(CursorType.Pointer);
+                frameBuffer.SetCursorType(CursorType.Pointer);
                 return;
-            }    
+            }
 
             if (entry.Clickable)
-                _frameBuffer.SetCursorType(CursorType.Hand);
+                frameBuffer.SetCursorType(CursorType.Hand);
             else
-                _frameBuffer.SetCursorType(CursorType.Pointer);
+                frameBuffer.SetCursorType(CursorType.Pointer);
         }
 
         public void MouseClick(float x, float y)
         {
+            Pages[CursorPosition].Dirty = true;
+
             var entry = FindEntry(x, y);
             if (entry == null || !entry.Clickable)
             {
@@ -192,56 +202,47 @@ namespace DolDoc.Editor
             Document.Refresh();
         }
 
-        public void PreviousPage()
-        {
-            Cursor.PageUp();
-            RenderCursor();
-        }
-
-        public void NextPage()
-        {
-            Cursor.PageDown();
-            RenderCursor();
-        }
-
         public void LastPage()
         {
-            //_page = _pages.Count - 1;
-            //ViewOffset = 
-
-            //ViewLine = _maxY - Rows + 1;
-            // Render();
         }
 
         public void Render()
         {
-            Array.Clear(_renderBuffer, 0, _renderBuffer.Length);
-
+            var dirtyOnes = 0;
             for (int y = 0; y < Rows; y++)
                 for (int x = 0; x < Columns; x++)
                 {
                     if (!Pages.HasPageForPosition(x, y + Cursor.ViewLine))
                         Pages.GetOrCreatePage(x, y + Cursor.ViewLine);
 
-                    RenderCharacter(x, y, Pages[x, y + Cursor.ViewLine]);
+                    var ch = Pages[x, y + Cursor.ViewLine];
+                    if (ch.Dirty)
+                    {
+                        RenderCharacter(x, y, ch);
+                        ch.Dirty = false;
+                        dirtyOnes++;
+                    }
                 }
+
+            logger.LogDebug("Had {0} dirty chars", dirtyOnes);
 
             // render sprites. this is hacky, but for now it will do.
             foreach (var entry in Document.Entries)
                 if (entry is Sprite spriteEntry && spriteEntry.SpriteObj != null)
                     if ((spriteEntry.SpriteOffset * Font.Width * Font.Height) < Width * Height)
-                        spriteEntry.SpriteObj.WriteToFrameBuffer(this, _renderBuffer, (spriteEntry.SpriteOffset * Font.Width * Font.Height) - (Cursor.ViewLine * Columns * 8 * 8));
+                        spriteEntry.SpriteObj.WriteToFrameBuffer(this, renderBuffer, (spriteEntry.SpriteOffset * Font.Width * Font.Height) - (Cursor.ViewLine * Columns * 8 * 8));
 
-            _frameBuffer?.Render(_renderBuffer);
+            if (dirtyOnes > 0)
+                frameBuffer?.Render(renderBuffer);
         }
 
         private void RenderCursor()
         {
             for (int fx = 0; fx < Font.Width; fx++)
                 for (int fy = 0; fy < Font.Height; fy++)
-                    _renderBuffer[((((Cursor.WindowY * Font.Height) + fy) * Width) + (Cursor.WindowX * Font.Width) + fx)] ^= 0x0F;
+                    renderBuffer[((((Cursor.WindowY * Font.Height) + fy) * Width) + (Cursor.WindowX * Font.Width) + fx)] ^= 0x0F;
 
-            _frameBuffer.RenderPartial(Cursor.WindowX * Font.Width, Cursor.WindowY * Font.Height, Font.Width, Font.Height, _renderBuffer);
+            frameBuffer.RenderPartial(Cursor.WindowX * Font.Width, Cursor.WindowY * Font.Height, Font.Width, Font.Height, renderBuffer);
         }
 
         private void DoBlink(bool inverted)
@@ -254,7 +255,7 @@ namespace DolDoc.Editor
                         RenderCharacter(column, row, ch, inverted);
                 }
 
-            _frameBuffer.Render(_renderBuffer);
+            frameBuffer.Render(renderBuffer);
         }
 
         private void RenderCharacter(int column, int row, Character ch, bool inverted = false)
@@ -273,30 +274,22 @@ namespace DolDoc.Editor
                 {
                     var fontRow = character[(fy * Font.Width) / byteSize];
                     bool draw = ((fontRow >> (fx % byteSize)) & 0x01) == 0x01;
-                    _renderBuffer[(((row * Font.Height) + fy + ch.ShiftY) * Width) + (column * Font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
+                    renderBuffer[(((row * Font.Height) + fy + ch.ShiftY) * Width) + (column * Font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
                 }
 
             if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
             {
                 for (int i = 0; i < Font.Width; i++)
-                    _renderBuffer[(((row * Font.Height) + (Font.Height - 1)) * Width) + (column * Font.Width) + i] = (byte)fg;
+                    renderBuffer[(((row * Font.Height) + (Font.Height - 1)) * Width) + (column * Font.Width) + i] = (byte)fg;
             }
         }
 
         public void Tick(ulong ticks)
         {
-            // Blink every 200ms, one frame is 33ms, so every 6 frames
-            if (ticks % 6 == 0)
-            {
-                DoBlink(!_cursorInverted);
-                RenderCursor();
-                _cursorInverted = !_cursorInverted;
-            }
-            else if (ticks % 15 == 0)
-            {
-                Document.Refresh();
-                RenderCursor();
-            }
+            DoBlink(!blinkInverted);
+            RenderCursor();
+            blinkInverted = !blinkInverted;
+            // Render();
         }
 
         /// <summary>

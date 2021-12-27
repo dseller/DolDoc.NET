@@ -1,5 +1,5 @@
 ﻿using DolDoc.Editor.Extensions;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,6 +9,7 @@ namespace DolDoc.Editor.Core
     {
         public static Document Load(Stream stream)
         {
+            var logger = LogSingleton.Instance.CreateLogger("DocumentLoader");
             var binaryChunks = new List<BinaryChunk>();
 
             using (var reader = new BinaryReader(stream))
@@ -23,7 +24,7 @@ namespace DolDoc.Editor.Core
                     uint refCount = reader.ReadUInt32();
                     byte[] binaryData = reader.ReadBytes((int)size);
 
-                    Log.Information("Read binary chunk ID {0} with size {1}", chunkId, size);
+                    logger.LogInformation("Read binary chunk ID {0} with size {1}", chunkId, size);
 
                     binaryChunks.Add(new BinaryChunk(chunkId, flags, size, refCount, binaryData));
                 }

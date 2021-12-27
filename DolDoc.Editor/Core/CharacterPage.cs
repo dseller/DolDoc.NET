@@ -16,6 +16,8 @@
             Columns = columns;
             PageNumber = pageNo;
             _characters = new Character[rows * columns];
+            for (int i = 0; i < rows * columns; i++)
+                _characters[i] = new Character(null, i, 0x00, new CombinedColor(EgaColor.White, EgaColor.White), CharacterFlags.None);
 
             // TODO: get this from the state...
             Clear(EgaColor.White);
@@ -36,8 +38,17 @@
         public void Clear(EgaColor color)
         {
             for (int i = 0; i < _characters.Length; i++)
-                if ((_characters[i].Flags & CharacterFlags.Hold) == 0)
-                    _characters[i] = new Character(null, i, 0x00, new CombinedColor(EgaColor.White, EgaColor.White), CharacterFlags.None);
+                if ((_characters[i]?.Flags & CharacterFlags.Hold) == 0)
+                    _characters[i].Reset();
+        }
+
+        /// <summary>
+        /// Mark all characters in the page dirty.
+        /// </summary>
+        public void MakeDirty()
+        {
+            foreach (var ch in _characters)
+                ch.Dirty = true;
         }
     }
 }

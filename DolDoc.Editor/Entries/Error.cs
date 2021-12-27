@@ -1,26 +1,27 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
+using Microsoft.Extensions.Logging;
 
 namespace DolDoc.Editor.Entries
 {
     [Entry("ER")]
     public class Error : DocumentEntry
     {
-        private string _errorMessage;
+        private readonly string errorMessage;
 
-        public Error(string errorMsg) 
+        public Error(string errorMessage) 
             : base(null, null)
         {
-            _errorMessage = errorMsg;
+            this.errorMessage = errorMessage;
         }
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
-            Console.WriteLine("ERROR: " + _errorMessage);
+            var logger = LogSingleton.Instance.CreateLogger<Error>();
+            logger.LogError("Error on position {0}: {1}", ctx.RenderPosition, errorMessage);
             return new CommandResult(true);
         }
 
-        public override string ToString() => "$ER$";
+        public override string ToString() => AsString("ER");
     }
 }

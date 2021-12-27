@@ -1,12 +1,9 @@
-﻿using System.Runtime.InteropServices;
-
-namespace DolDoc.Editor.Core
+﻿namespace DolDoc.Editor.Core
 {
     /// <summary>
     /// Represents a character on the screen.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Character
+    public class Character
     {
         public Character(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0)
         {
@@ -15,6 +12,7 @@ namespace DolDoc.Editor.Core
             Entry = entry;
             Flags = flags;
             RelativeTextOffset = relativeTextOffset;
+            Dirty = true;
 
             Layer = layer;
             ShiftX = shiftX;
@@ -24,7 +22,7 @@ namespace DolDoc.Editor.Core
         /// <summary>
         /// The flags for this character (e.g. underlined, blink, etc.)
         /// </summary>
-        public CharacterFlags Flags { get; }
+        public CharacterFlags Flags { get; private set; }
 
         public sbyte ShiftX;
 
@@ -42,10 +40,12 @@ namespace DolDoc.Editor.Core
         /// </summary>
         public byte Char;
 
+        public bool Dirty { get; set; }
+
         /// <summary>
         /// Points to the <see cref="DocumentEntry"/> for this character.
         /// </summary>
-        public DocumentEntry Entry { get; }
+        public DocumentEntry Entry { get; private set; }
 
         /// <summary>
         /// The relative text offset, relative to the entry's text offset.
@@ -53,5 +53,14 @@ namespace DolDoc.Editor.Core
         public int RelativeTextOffset { get; }
 
         public bool HasEntry => Entry != null;
+
+        public void Reset()
+        {
+            Entry = null;
+            Char = 0x00;
+            Color = new CombinedColor(EgaColor.White, EgaColor.White);
+            Flags = CharacterFlags.None;
+            Dirty = true;
+        }
     }
 }
