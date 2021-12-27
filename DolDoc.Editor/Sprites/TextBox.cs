@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DolDoc.Editor.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -34,6 +35,14 @@ namespace DolDoc.Editor.Sprites
             // Right
             for (int i = 0; i < ctx.State.Font.Width + (2 * 2); i++)
                 frameBuffer[(i * ctx.State.Width) + (Value.Length * ctx.State.Font.Width) + pixelOffset + ((Y - Padding) * ctx.State.Width) + X + Padding] = 0x00;
+        }
+
+        public override void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)SpriteElementType.TextBox);
+            writer.Write(X);
+            writer.Write(Y);
+            writer.WriteNullTerminatedString(Value);
         }
 
         public override string ToString() => $"TextBox ({X}, {Y}) [{Value}]";

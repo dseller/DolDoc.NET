@@ -10,6 +10,11 @@ namespace DolDoc.Editor.Sprites
         {
         }
 
+        public Arrow(int x1, int y1, int x2, int y2)
+            : base(x1, y1, x2, y2)
+        {
+        }
+
         public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
         {
             // First, render the line.
@@ -34,8 +39,17 @@ namespace DolDoc.Editor.Sprites
         {
             var angle = Math.Atan2(y2 - y1, x2 - x1);
 
-            RenderLine(renderContext, frameBuffer, pixelOffset, x2, y2, (int)(x2 - size * Math.Cos(angle - Math.PI / 6)), (int)(y2 - size * Math.Sin(angle - Math.PI / 6)));
-            RenderLine(renderContext, frameBuffer, pixelOffset, x2, y2, (int)(x2 - size * Math.Cos(angle + Math.PI / 6)), (int)(y2 - size * Math.Sin(angle + Math.PI / 6)));
+            RenderLine(renderContext, frameBuffer, pixelOffset, x2, y2, (int)(x2 - size * Math.Cos(angle - Math.PI / 6)), (int)(y2 - size * Math.Sin(angle - Math.PI / 6)), renderContext.Color);
+            RenderLine(renderContext, frameBuffer, pixelOffset, x2, y2, (int)(x2 - size * Math.Cos(angle + Math.PI / 6)), (int)(y2 - size * Math.Sin(angle + Math.PI / 6)), renderContext.Color);
+        }
+
+        public override void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)SpriteElementType.Arrow);
+            writer.Write(X1);
+            writer.Write(Y1);
+            writer.Write(X2);
+            writer.Write(Y2);
         }
 
         public override string ToString() => $"Arrow ({X1}, {Y1}) => ({X2}, {Y2})";

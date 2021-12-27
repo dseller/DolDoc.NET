@@ -56,7 +56,7 @@ namespace DolDoc.Examples.FileBrowser
             document.OnMacro += OnMacro;
 
             document.Load(DirectoryListing());
-            window.Show("DolDoc.NET File Browser", 1024, 768, document);
+            window.Show("DolDoc.NET File Browser", 1600, 1200, document);
         }
     }
 }

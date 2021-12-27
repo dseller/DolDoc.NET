@@ -5,6 +5,7 @@ using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
+using System.IO;
 
 namespace DolDoc.Editor
 {
@@ -119,6 +120,19 @@ namespace DolDoc.Editor
 
         public void KeyPress(Key key)
         {
+            if (key == Key.F12)
+            {
+                // Write to file.
+                var output = Document.ToPlainText();
+                var path = $"dump_{Guid.NewGuid().ToString("n")}.dd";
+                using (var fs = File.Create(path))
+                using (var writer = new StreamWriter(fs))
+                    writer.Write(output);
+
+                Console.WriteLine($"Dumped document to {output}");
+                return;
+            }
+
             switch (key)
             {
                 case Key.PAGE_UP:

@@ -159,7 +159,8 @@ namespace DolDoc.Renderer.OpenGL
                 { Keys.Apostrophe, e.Shift ? Key.QUOTATION_MARK_DOUBLE : Key.QUOTATION_MARK_SINGLE },
                 { Keys.Equal, e.Shift ? Key.PLUS : Key.EQUAL_TO },
                 { Keys.Comma, e.Shift ? Key.LESS_THAN : Key.COMMA },
-                { Keys.Enter, Key.ENTER }
+                { Keys.Enter, Key.ENTER },
+                { Keys.F12, Key.F12 }
             };
 
             if (keys.TryGetValue(e.Key, out var key))
