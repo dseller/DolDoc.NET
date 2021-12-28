@@ -227,12 +227,12 @@ namespace DolDoc.Editor
 
         public void CloseDocument(bool save)
         {
-            if (save && Document.Path != null)
+            /*if (save && Document.Path != null)
             {
                 using (var fs = File.Open(Document.Path, FileMode.Create))
                 using (var writer = new StreamWriter(fs))
                     writer.Write(Document.ToPlainText());
-            }
+            }*/
 
             // If there is no parent document, close the whole application.
             if (Document.Parent == null)
