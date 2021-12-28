@@ -326,6 +326,8 @@ namespace DolDoc.Editor.Core
 		F11,
 		F12,
 		PRINT_SCREEN,
-		BREAK
+		BREAK,
+
+		SHIFT_ESC
 	}
 }
