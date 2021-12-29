@@ -30,7 +30,7 @@ namespace DolDoc.Editor.Core
         /// <summary>
         /// The row of the cursor in the window (not adjusted to the ViewLine)
         /// </summary>
-        public int WindowY => (DocumentY - ViewLine).Clamp(0, _viewerState.Rows);
+        public int WindowY => (DocumentY - ViewLine).Clamp(0, _viewerState.Rows - 1);
 
         /// <summary>
         /// Gets or sets the offset at which the viewer's top line is placed in the document.
@@ -50,7 +50,17 @@ namespace DolDoc.Editor.Core
         /// <summary>
         /// The index of the cursor in the document
         /// </summary>
-        public int DocumentPosition { get; set; }
+        public int DocumentPosition { get; private set; }
+
+        public void SetPosition(int position)
+        {
+            DocumentPosition = position;
+
+            if (DocumentY > ViewLine + _viewerState.Rows)
+                ViewLine += (DocumentY - (ViewLine + _viewerState.Rows)) + 1;
+            else if (DocumentY < ViewLine)
+                ViewLine -= ViewLine - DocumentY;
+        }
 
         /// <summary>
         /// Get the <seealso cref="DocumentEntry"/> that the cursor is currently selecting.

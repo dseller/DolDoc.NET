@@ -46,6 +46,14 @@ namespace DolDoc.Editor.Sprites
             }
         }
 
+        public override void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)SpriteElementType.Text);
+            writer.Write(X);
+            writer.Write(Y);
+            writer.WriteNullTerminatedString(Value);
+        }
+
         public override string ToString() => $"Text ({X}, {Y}) [{Value}]";
     }
 }

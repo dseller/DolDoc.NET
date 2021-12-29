@@ -68,7 +68,7 @@ namespace DolDoc.Tests.Editor
             var doc = new Document("$TX,\"Hello World!\"$");
             var state = new ViewerState(null, doc, 640, 480);
             var cursor = new Cursor(state);
-            cursor.DocumentPosition = 5;
+            cursor.SetPosition(5);
             doc.Refresh();
 
             cursor.Left();
@@ -87,7 +87,7 @@ namespace DolDoc.Tests.Editor
             var doc = new Document("$TX,\"ABC\"$$TX+CX,\"Centered\"$");
             var state = new ViewerState(null, doc, 640, 480);
             var cursor = new Cursor(state);
-            cursor.DocumentPosition = 36;
+            cursor.SetPosition(36);
             doc.Refresh();
 
             Assert.AreEqual(doc.Entries.First.Next.Value, cursor.SelectedEntry);
@@ -104,7 +104,7 @@ namespace DolDoc.Tests.Editor
             var doc = new Document("$TX,\"Hello World!\"$");
             var state = new ViewerState(null, doc, 640, 480);
             var cursor = new Cursor(state);
-            cursor.DocumentPosition = 2;
+            cursor.SetPosition(2);
             doc.Refresh();
 
             cursor.Up();
@@ -118,7 +118,7 @@ namespace DolDoc.Tests.Editor
             var doc = new Document("$TX,\"ABC\"$\nDEF");
             var state = new ViewerState(null, doc, 640, 480);
             var cursor = new Cursor(state);
-            cursor.DocumentPosition = state.Columns + 2;
+            cursor.SetPosition(state.Columns + 2);
             doc.Refresh();
 
             Assert.AreEqual(doc.Entries.First.Next.Value, cursor.SelectedEntry);
@@ -135,7 +135,7 @@ namespace DolDoc.Tests.Editor
             var doc = new Document(new string('A', 80 * 2));
             var state = new ViewerState(null, doc, 640, 480);
             var cursor = new Cursor(state);
-            cursor.DocumentPosition = state.Columns + 1;
+            cursor.SetPosition(state.Columns + 1);
             doc.Refresh();
 
             Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);

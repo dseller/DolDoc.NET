@@ -19,5 +19,12 @@ namespace DolDoc.Editor.Extensions
 
             return Encoding.ASCII.GetString(buffer.ToArray());
         }
+
+        public static void WriteNullTerminatedString(this BinaryWriter writer, string str)
+        {
+            foreach (var ch in Encoding.ASCII.GetBytes(str))
+                writer.Write(ch);
+            writer.Write((byte)0);
+        }
     }
 }

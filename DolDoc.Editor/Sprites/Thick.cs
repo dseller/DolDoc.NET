@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace DolDoc.Editor.Sprites
 {
@@ -17,6 +14,12 @@ namespace DolDoc.Editor.Sprites
         public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
         {
             ctx.Thickness = Thickness;
+        }
+
+        public override void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)SpriteElementType.Thick);
+            writer.Write(Thickness);
         }
     }
 }

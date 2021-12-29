@@ -24,7 +24,7 @@ namespace DolDoc.Editor.Entries
             var len = WriteString(ctx, toRender);
             if (!jumped)
             {
-                ctx.State.Cursor.DocumentPosition = ctx.RenderPosition;
+                ctx.State.Cursor.SetPosition(ctx.RenderPosition);
                 jumped = true;
             }
             return new CommandResult(true, len);
@@ -35,13 +35,24 @@ namespace DolDoc.Editor.Entries
             if (key == Key.ENTER)
             {
                 state.Document.PromptEntered(builder.ToString());
+                state.Cursor.Down();
                 return;
+            }
+            else if (key == Key.BACKSPACE)
+            {
+                if (builder.Length <= 0)
+                    return;
+
+                builder.Remove(relativeOffset - 1, 1);
+                state.Cursor.SetPosition(state.Cursor.DocumentPosition - 1);
             }
 
             if (!character.HasValue)
                 return;
-            state.Cursor.DocumentPosition++;
-            builder.Append(character.Value);
+            state.Cursor.SetPosition(state.Cursor.DocumentPosition + 1);
+
+            builder.Insert(relativeOffset, character.Value);
+
         }
 
         public override string ToString() => AsString("PT");
