@@ -11,16 +11,32 @@ namespace HolyCtest
             var input = @"
                 I32 Test(I8 value)
                 {
+                    ""Returning 111"";
                     return 111;
+                }
+
+                U8 *MemTest()
+                {
+                    U8 *data = MAlloc(32);
+
+                    return data;
                 }
 
                 I32 Chained()
                 {
                     I32 i = 1337;
-                    I32 x = Test();
-                    Kak();
+                    I32 x = Test;
+                    I32 v;
+                    i++;
+                    // i--;
+                    Kak;
+                    v = 1;
 
-                    return x + i - 10 + 50 - i * 2 / 4;
+                    U8 *what = MemTest;
+                    U8 *sss = ""Wha333t"";
+                    Print(sss);
+
+                    return x + 10 + (v * 1000) + 50 - i * 2 / 4;
                 }
 
                 // Test();

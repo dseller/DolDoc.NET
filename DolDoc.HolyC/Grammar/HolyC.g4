@@ -46,9 +46,10 @@ genericAssociation
 
 postfixExpression
     : primaryExpression '[' expression ']'                                                            # index
-    | primaryExpression '(' argumentExpressionList? ')'                                               # call
+    | primaryExpression '(' args=argumentExpressionList? ')'                                          # call
     | primaryExpression ('.' | '->') Identifier                                                       # dereference
-    | primaryExpression ('++' | '--')                                                                 # incDec
+    | primaryExpression '++'                                                                          # inc
+    | primaryExpression '--'                                                                          # dec
     | primaryExpression                                                                               # ignore0000
     ;
 
@@ -125,9 +126,9 @@ conditionalExpression
     ;
 
 assignmentExpression
-    :   conditionalExpression
-    |   unaryExpression assignmentOperator assignmentExpression
-    |   DigitSequence // for
+    :   conditionalExpression                                                               # ignore0004
+    |   unaryExpression assignmentOperator assignmentExpression                             # assign
+    //|   DigitSequence // for
     ;
 
 assignmentOperator
