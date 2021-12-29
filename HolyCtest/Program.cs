@@ -8,7 +8,24 @@ namespace HolyCtest
     {
         static void Main(string[] args)
         {
-            var input = "\"Hello World!\";";
+            var input = @"
+                I32 Test(I8 value)
+                {
+                    return 111;
+                }
+
+                I32 Chained()
+                {
+                    I32 i = 1337;
+                    I32 x = Test();
+                    Kak();
+
+                    return x + i - 10 + 50 - i * 2 / 4;
+                }
+
+                // Test();
+                // U8 *str = ""Test"";
+            ";
 
             var inputStream = new AntlrInputStream(input);
             var lexer = new HolyCLexer(inputStream);
@@ -20,7 +37,10 @@ namespace HolyCtest
 
 
             var context = parser.compilationUnit();
-            var result = visitor.Visit(context);
+            visitor.Visit(context);
+
+            var result = visitor.GetMethod("Chained").Invoke(null, null);
+            Console.WriteLine(result);
         }
     }
 }

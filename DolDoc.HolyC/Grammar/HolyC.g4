@@ -29,12 +29,11 @@
 /** C 2011 grammar built from the C11 Spec */
 grammar HolyC;
 
-
 primaryExpression
-    :   Identifier
-    |   Constant
-    |   StringLiteral+
-    |   '(' expression ')'
+    :   Identifier                  # ident
+    |   Constant                    # constant
+    |   StringLiteral+              # string
+    |   '(' expression ')'          # preference
     ;
 
 genericAssocList
@@ -46,15 +45,11 @@ genericAssociation
     ;
 
 postfixExpression
-    :
-    (   primaryExpression
-    |   '__extension__'? '(' typeName ')' '{' initializerList ','? '}'
-    )
-    ('[' expression ']'
-    | '(' argumentExpressionList? ')'
-    | ('.' | '->') Identifier
-    | ('++' | '--')
-    )*
+    : primaryExpression '[' expression ']'                                                            # index
+    | primaryExpression '(' argumentExpressionList? ')'                                               # call
+    | primaryExpression ('.' | '->') Identifier                                                       # dereference
+    | primaryExpression ('++' | '--')                                                                 # incDec
+    | primaryExpression                                                                               # ignore0000
     ;
 
 argumentExpressionList
@@ -66,8 +61,7 @@ unaryExpression
     ('++' |  '--' |  'sizeof')*
     (postfixExpression
     |   unaryOperator castExpression
-    |   ('sizeof' | '_Alignof') '(' typeName ')'
-    |   '&&' Identifier // GCC extension address of label
+    |   ('sizeof') '(' typeName ')'
     )
     ;
 
@@ -76,17 +70,22 @@ unaryOperator
     ;
 
 castExpression
-    :   '__extension__'? '(' typeName ')' castExpression
+    :   '(' typeName ')' castExpression
     |   unaryExpression
     |   DigitSequence // for
     ;
 
 multiplicativeExpression
-    :   castExpression (('*'|'/'|'%') castExpression)*
+    :   multiplicativeExpression '*' castExpression           # mul
+    |   multiplicativeExpression '/' castExpression           # div
+    |   multiplicativeExpression '%' castExpression           # mod
+    |   castExpression                                        # ignore0002
     ;
 
 additiveExpression
-    :   multiplicativeExpression (('+'|'-') multiplicativeExpression)*
+    :   additiveExpression '+' multiplicativeExpression       # add
+    |   additiveExpression '-' multiplicativeExpression       # sub
+    |   multiplicativeExpression                              # ignore0001
     ;
 
 shiftExpression
@@ -143,8 +142,13 @@ constantExpression
     :   conditionalExpression
     ;
 
+include
+    : IncludePrefix path=StringLiteral
+    ;
+
 declaration
     :   declarationSpecifiers initDeclaratorList? ';'
+    |   include
     |   staticAssertDeclaration
     ;
 
@@ -160,8 +164,6 @@ declarationSpecifier
     :   storageClassSpecifier
     |   typeSpecifier
     |   typeQualifier
-    |   functionSpecifier
-    |   alignmentSpecifier
     ;
 
 initDeclaratorList
@@ -191,7 +193,6 @@ typeSpecifier
     |   'I64'
     |   'U64'
     |   'F64')
-    |   atomicTypeSpecifier
     |   structOrUnionSpecifier
     |   enumSpecifier
     |   typedefName
@@ -247,24 +248,8 @@ enumerationConstant
     :   Identifier
     ;
 
-atomicTypeSpecifier
-    :   '_Atomic' '(' typeName ')'
-    ;
-
 typeQualifier
     :   'const'
-    |   'restrict'
-    |   'volatile'
-    |   '_Atomic'
-    ;
-
-functionSpecifier
-    :   ('inline'
-    |   '_Noreturn')
-    ;
-
-alignmentSpecifier
-    :   '_Alignas' '(' (typeName | constantExpression) ')'
     ;
 
 declarator
@@ -272,16 +257,16 @@ declarator
     ;
 
 directDeclarator
-    :   Identifier
-    |   '(' declarator ')'
-    |   directDeclarator '[' typeQualifierList? assignmentExpression? ']'
-    |   directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    |   directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    |   directDeclarator '[' typeQualifierList? '*' ']'
-    |   directDeclarator '(' parameterTypeList ')'
-    |   directDeclarator '(' identifierList? ')'
-    |   Identifier ':' DigitSequence  // bit field
-    |   '(' typeSpecifier? pointer directDeclarator ')' // function pointer like: (__cdecl *f)
+    :   Identifier                                                                            # placeholder
+    |   '(' declarator ')'                                                                    # noidea
+    |   directDeclarator '[' typeQualifierList? assignmentExpression? ']'                     # idk
+    //|   directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
+    //|   directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
+    |   directDeclarator '[' typeQualifierList? '*' ']'                                       # index2
+    |   directDeclarator '(' parameterTypeList ')'                                            # proto
+    |   directDeclarator '(' identifierList? ')'                                              # call2
+    //|   Identifier ':' DigitSequence  // bit field
+    //|   '(' typeSpecifier? pointer directDeclarator ')' // function pointer like: (__cdecl *f)
     ;
 
 nestedParenthesesBlock
@@ -374,12 +359,12 @@ printStatement
 
 statement
     :   labeledStatement
+    |   printStatement
     |   compoundStatement
     |   expressionStatement
     |   selectionStatement
     |   iterationStatement
     |   jumpStatement
-    |   printStatement
     // |   ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (logicalOrExpression (',' logicalOrExpression)*)? (':' (logicalOrExpression (',' logicalOrExpression)*)?)* ')' ';'
     ;
 
@@ -417,9 +402,6 @@ iterationStatement
     |   For '(' forCondition ')' statement
     ;
 
-//    |   'for' '(' expression? ';' expression?  ';' forUpdate? ')' statement
-//    |   For '(' declaration  expression? ';' expression? ')' statement
-
 forCondition
 	:   (forDeclaration | expression?) ';' forExpression? ';' forExpression?
 	;
@@ -433,11 +415,8 @@ forExpression
     ;
 
 jumpStatement
-    :   ('goto' Identifier
-    |   ('continue'| 'break')
-    |   'return' expression?
-    )
-    ';'
+    :   ('continue'| 'break') ';'       #continueBreak
+    |   'return' expression? ';'        #return
     ;
 
 compilationUnit
@@ -463,51 +442,25 @@ declarationList
     :   declaration+
     ;
 
-Auto : 'auto';
 Break : 'break';
 Case : 'case';
-Char : 'char';
 Const : 'const';
 Continue : 'continue';
 Default : 'default';
 Do : 'do';
-Double : 'double';
 Else : 'else';
 Enum : 'enum';
 Extern : 'extern';
-Float : 'float';
 For : 'for';
 Goto : 'goto';
 If : 'if';
 Inline : 'inline';
-Int : 'int';
-Long : 'long';
-Register : 'register';
-Restrict : 'restrict';
 Return : 'return';
-Short : 'short';
-Signed : 'signed';
 Sizeof : 'sizeof';
 Static : 'static';
-Struct : 'struct';
 Switch : 'switch';
-Typedef : 'typedef';
 Union : 'union';
-Unsigned : 'unsigned';
-Void : 'void';
-Volatile : 'volatile';
 While : 'while';
-
-Alignas : '_Alignas';
-Alignof : '_Alignof';
-Atomic : '_Atomic';
-Bool : '_Bool';
-Complex : '_Complex';
-Generic : '_Generic';
-Imaginary : '_Imaginary';
-Noreturn : '_Noreturn';
-StaticAssert : '_Static_assert';
-ThreadLocal : '_Thread_local';
 
 LeftParen : '(';
 RightParen : ')';
@@ -778,15 +731,7 @@ HexadecimalEscapeSequence
     ;
 
 StringLiteral
-    :   EncodingPrefix? '"' SCharSequence? '"'
-    ;
-
-fragment
-EncodingPrefix
-    :   'u8'
-    |   'u'
-    |   'U'
-    |   'L'
+    :   '"' SCharSequence? '"'
     ;
 
 fragment
@@ -807,9 +752,12 @@ ComplexDefine
         -> skip
     ;
 
+IncludePrefix
+    :   '#' Whitespace? 'include' Whitespace?
+    ;
+
 IncludeDirective
     :   '#' Whitespace? 'include' Whitespace? (('"' ~[\r\n]* '"') | ('<' ~[\r\n]* '>' )) Whitespace? Newline
-        -> skip
     ;
 
 // ignore the following asm blocks:
