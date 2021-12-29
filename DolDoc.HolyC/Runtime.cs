@@ -20,9 +20,8 @@ namespace DolDoc.HolyC
             Console.WriteLine("Yay!");
         }
 
-        public static void Print(byte[] bytes)
+        public static void Print(string str)
         {
-            var str = Encoding.ASCII.GetString(bytes);
             Console.WriteLine($"Print: '{str}'");
         }
 
@@ -38,6 +37,36 @@ namespace DolDoc.HolyC
         {
 
         }
+
+        /// <summary>
+        /// Compare two strings.
+        /// </summary>
+        public static long StrCmp(string st1, string st2) => string.Compare(st1, st2, false);
+
+        /// <summary>
+        /// Compare two strings, ignoring case.
+        /// </summary>
+        public static long StrICmp(string st1, string st2) => string.Compare(st1, st2, true);
+
+        /// <summary>
+        /// Compare N bytes in two strings.
+        /// </summary>
+        public static long StrNCmp(string st1, string st2, long n) => string.Compare(st1, 0, st2, 0, (int)n);
+
+        /// <summary>
+        /// Compare N bytes in two strings, ignoring case.
+        /// </summary>
+        public static long StrNICmp(string st1, string st2, long n) => string.Compare(st1, 0, st2, 0, (int)n, true);
+
+        /// <summary>
+        /// Scan for string in string.
+        /// </summary>
+        public static long StrMatch(string needle, string haystack) => haystack?.IndexOf(needle) ?? 0;
+
+        /// <summary>
+        /// Scan for string in string, ignoring case.
+        /// </summary>
+        public static long StrIMatch(string needle, string haystack) => haystack?.IndexOf(needle, StringComparison.InvariantCultureIgnoreCase) ?? 0;
 
         public static void Free(byte[] data)
         {

@@ -22,7 +22,7 @@ namespace HolyCtest
                     return data;
                 }
 
-                I32 Chained()
+                I64 Chained()
                 {
                     I32 i = 1337;
                     I32 x = Test;
@@ -36,7 +36,11 @@ namespace HolyCtest
                     U8 *sss = ""Wha333t"";
                     Print(sss);
 
-                    return x + 10 + (v * 1000) + 50 - i * 2 / 4;
+                    // return x + 10 + (v * 1000) + 50 - i * 2 / 4;
+                    // return StrNICmp(sss, ""Wha3dd33t"", 3);
+                    // return StrMatch(""3"", sss);
+
+                    return 8 >= 7 && 1 == 1 && Test == 111;
                 }
 
                 // Test();

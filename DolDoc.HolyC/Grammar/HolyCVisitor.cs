@@ -91,16 +91,98 @@ namespace DolDoc.HolyC.Grammar
             return null;
         }
 
+        public override object VisitShl([NotNull] HolyCParser.ShlContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Shl);
+            return null;
+        }
+
+        public override object VisitShr([NotNull] HolyCParser.ShrContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Shr);
+            return null;
+        }
+
+        public override object VisitEq([NotNull] HolyCParser.EqContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Ceq);
+            return null;
+        }
+
+        public override object VisitNeq([NotNull] HolyCParser.NeqContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Ceq);
+            ilGenerator.Emit(OpCodes.Not);
+            ilGenerator.Emit(OpCodes.Ldc_I4, 0b1);
+            ilGenerator.Emit(OpCodes.And);
+            return null;
+        }
+
+        public override object VisitLt([NotNull] HolyCParser.LtContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Clt);
+            return null;
+        }
+
+        public override object VisitLte([NotNull] HolyCParser.LteContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Cgt);
+            ilGenerator.Emit(OpCodes.Not);
+            ilGenerator.Emit(OpCodes.Ldc_I4, 0b1);
+            ilGenerator.Emit(OpCodes.And);
+
+            return null;
+        }
+
+        public override object VisitGt([NotNull] HolyCParser.GtContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Cgt);
+            return null;
+        }
+
+        public override object VisitGte([NotNull] HolyCParser.GteContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.Clt);
+            ilGenerator.Emit(OpCodes.Not);
+            ilGenerator.Emit(OpCodes.Ldc_I4, 0b1);
+            ilGenerator.Emit(OpCodes.And);
+            return null;
+        }
+
+        public override object VisitAnd([NotNull] HolyCParser.AndContext context)
+        {
+            Visit(context.children[0]);
+            Visit(context.children[2]);
+            ilGenerator.Emit(OpCodes.And);
+            return null;
+        }
+
         public override object VisitPrintStatement([NotNull] HolyCParser.PrintStatementContext context)
         {
             if (ilGenerator == null)
                 return null;
 
             var str = context.children[0].GetText();
-            // ilGenerator.Emit(OpCodes.Ldstr, str.Substring(1, str.Length - 2));
-            ilGenerator.Emit(OpCodes.Call, typeof(Encoding).GetProperty("ASCII").GetGetMethod());
             ilGenerator.Emit(OpCodes.Ldstr, str.Substring(1, str.Length - 2));
-            ilGenerator.Emit(OpCodes.Callvirt, typeof(Encoding).GetMethod("GetBytes", new Type[] { typeof(string) }));
+            //ilGenerator.Emit(OpCodes.Call, typeof(Encoding).GetProperty("ASCII").GetGetMethod());
+            //ilGenerator.Emit(OpCodes.Ldstr, str.Substring(1, str.Length - 2));
+            //ilGenerator.Emit(OpCodes.Callvirt, typeof(Encoding).GetMethod("GetBytes", new Type[] { typeof(string) }));
             ilGenerator.Emit(OpCodes.Call, typeof(Runtime).GetMethod("Print"));
 
             return null;
@@ -201,9 +283,10 @@ namespace DolDoc.HolyC.Grammar
         {
             var str = context.children[0].GetText();
 
-            ilGenerator.Emit(OpCodes.Call, typeof(Encoding).GetProperty("ASCII").GetGetMethod());
             ilGenerator.Emit(OpCodes.Ldstr, str.Substring(1, str.Length - 2));
-            ilGenerator.Emit(OpCodes.Callvirt, typeof(Encoding).GetMethod("GetBytes", new Type[] { typeof(string) }));
+            //ilGenerator.Emit(OpCodes.Call, typeof(Encoding).GetProperty("ASCII").GetGetMethod());
+            //ilGenerator.Emit(OpCodes.Ldstr, str.Substring(1, str.Length - 2));
+            //ilGenerator.Emit(OpCodes.Callvirt, typeof(Encoding).GetMethod("GetBytes", new Type[] { typeof(string) }));
 
             return null;
         }
@@ -245,6 +328,7 @@ namespace DolDoc.HolyC.Grammar
                 "I64" => typeof(long),
                 "U64" => typeof(long),
                 "F64" => typeof(double),
+                "Str" => typeof(string),
                 _ => throw new NotSupportedException("Unsupported " + type)
             };
         }

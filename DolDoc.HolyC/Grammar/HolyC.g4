@@ -30,10 +30,10 @@
 grammar HolyC;
 
 primaryExpression
-    :   Identifier                  # ident
-    |   Constant                    # constant
-    |   StringLiteral+              # string
-    |   '(' expression ')'          # preference
+    :   Identifier                                          # ident
+    |   Constant                                            # constant
+    |   StringLiteral+                                      # string
+    |   '(' expression ')'                                  # preference
     ;
 
 genericAssocList
@@ -45,12 +45,12 @@ genericAssociation
     ;
 
 postfixExpression
-    : primaryExpression '[' expression ']'                                                            # index
-    | primaryExpression '(' args=argumentExpressionList? ')'                                          # call
-    | primaryExpression ('.' | '->') Identifier                                                       # dereference
-    | primaryExpression '++'                                                                          # inc
-    | primaryExpression '--'                                                                          # dec
-    | primaryExpression                                                                               # ignore0000
+    : primaryExpression '[' expression ']'                     # index
+    | primaryExpression '(' args=argumentExpressionList? ')'   # call
+    | primaryExpression ('.' | '->') Identifier                # dereference
+    | primaryExpression '++'                                   # inc
+    | primaryExpression '--'                                   # dec
+    | primaryExpression                                        # ignore0000
     ;
 
 argumentExpressionList
@@ -90,15 +90,23 @@ additiveExpression
     ;
 
 shiftExpression
-    :   additiveExpression (('<<'|'>>') additiveExpression)*
+    :   shiftExpression '<<' additiveExpression               # shl
+    |   shiftExpression '>>' additiveExpression               # shr
+    |   additiveExpression                                    # ignore0006
     ;
 
 relationalExpression
-    :   shiftExpression (('<'|'>'|'<='|'>=') shiftExpression)*
+    :   relationalExpression '<' shiftExpression              # lt
+    |   relationalExpression '>' shiftExpression              # gt
+    |   relationalExpression '<=' shiftExpression             # lte
+    |   relationalExpression '>=' shiftExpression             # gte
+    |   shiftExpression                                       # ignore0008
     ;
 
 equalityExpression
-    :   relationalExpression (('=='| '!=') relationalExpression)*
+    :   equalityExpression '==' relationalExpression          # eq
+    |   equalityExpression '!=' relationalExpression          # neq
+    |   relationalExpression                                  # ignore0007
     ;
 
 andExpression
@@ -114,7 +122,8 @@ inclusiveOrExpression
     ;
 
 logicalAndExpression
-    :   inclusiveOrExpression ('&&' inclusiveOrExpression)*
+    :   logicalAndExpression '&&' inclusiveOrExpression       # and
+    |   inclusiveOrExpression                                 # ignore0010
     ;
 
 logicalOrExpression
