@@ -102,69 +102,11 @@ namespace DolDoc.Renderer.OpenGL
 
         private void NativeWindow_KeyDown(KeyboardKeyEventArgs e)
         {
-            if (e.Key == Keys.Escape)
-                Environment.Exit(0);
+            var key = KeyMap.GetKey(e);
+            if (key == null)
+                return; 
 
-            var keys = new Dictionary<Keys, Key>
-            {
-                { Keys.Up, Key.ARROW_UP },
-                { Keys.Left, Key.ARROW_LEFT },
-                { Keys.Down, Key.ARROW_DOWN },
-                { Keys.Right, Key.ARROW_RIGHT },
-                { Keys.Backspace, Key.BACKSPACE },
-                { Keys.Delete, Key.DEL },
-                { Keys.Home, Key.HOME },
-                { Keys.PageUp, Key.PAGE_UP },
-                { Keys.PageDown, Key.PAGE_DOWN },
-                { Keys.Space, Key.SPACE },
-                { Keys.Period, Key.DOT },
-                { Keys.A, e.Shift ? Key.A_UPPER : Key.A_LOWER },
-                { Keys.B, e.Shift ? Key.B_UPPER : Key.B_LOWER },
-                { Keys.C, e.Shift ? Key.C_UPPER : Key.C_LOWER },
-                { Keys.D, e.Shift ? Key.D_UPPER : Key.D_LOWER },
-                { Keys.E, e.Shift ? Key.E_UPPER : Key.E_LOWER },
-                { Keys.F, e.Shift ? Key.F_UPPER : Key.F_LOWER },
-                { Keys.G, e.Shift ? Key.G_UPPER : Key.G_LOWER },
-                { Keys.H, e.Shift ? Key.H_UPPER : Key.H_LOWER },
-                { Keys.I, e.Shift ? Key.I_UPPER : Key.I_LOWER },
-                { Keys.J, e.Shift ? Key.J_UPPER : Key.J_LOWER },
-                { Keys.K, e.Shift ? Key.K_UPPER : Key.K_LOWER },
-                { Keys.L, e.Shift ? Key.L_UPPER : Key.L_LOWER },
-                { Keys.M, e.Shift ? Key.M_UPPER : Key.M_LOWER },
-                { Keys.N, e.Shift ? Key.N_UPPER : Key.N_LOWER },
-                { Keys.O, e.Shift ? Key.O_UPPER : Key.O_LOWER },
-                { Keys.P, e.Shift ? Key.P_UPPER : Key.P_LOWER },
-                { Keys.Q, e.Shift ? Key.Q_UPPER : Key.Q_LOWER },
-                { Keys.R, e.Shift ? Key.R_UPPER : Key.R_LOWER },
-                { Keys.S, e.Shift ? Key.S_UPPER : Key.S_LOWER },
-                { Keys.T, e.Shift ? Key.T_UPPER : Key.T_LOWER },
-                { Keys.U, e.Shift ? Key.U_UPPER : Key.U_LOWER },
-                { Keys.V, e.Shift ? Key.V_UPPER : Key.V_LOWER },
-                { Keys.W, e.Shift ? Key.W_UPPER : Key.W_LOWER },
-                { Keys.X, e.Shift ? Key.X_UPPER : Key.X_LOWER },
-                { Keys.Y, e.Shift ? Key.Y_UPPER : Key.Y_LOWER },
-                { Keys.Z, e.Shift ? Key.Z_UPPER : Key.Z_LOWER },
-                { Keys.Slash, Key.SLASH_FOWARD },
-                { Keys.Backslash, Key.SLASH_BACKWARD },
-                { Keys.D1, e.Shift ? Key.EXCLAMAION_MARK : Key.NUMBER_1 },
-                { Keys.D2, e.Shift ? Key.SING_AT : Key.NUMBER_2 },
-                { Keys.D3, e.Shift ? Key.HASHTAG : Key.NUMBER_3 },
-                { Keys.D4, e.Shift ? Key.SING_DOLLAR : Key.NUMBER_4 },
-                { Keys.D5, e.Shift ? Key.PRECENT : Key.NUMBER_5 },
-                { Keys.D6, e.Shift ? Key.CARET : Key.NUMBER_6 },
-                { Keys.D7, e.Shift ? Key.AMPERSANT : Key.NUMBER_7 },
-                { Keys.D8, e.Shift ? Key.ASTERISK : Key.NUMBER_8 },
-                { Keys.D9, e.Shift ? Key.PARENTHESES_OPEN : Key.NUMBER_9 },
-                { Keys.D0, e.Shift ? Key.PARENTHESES_CLOSE : Key.NUMBER_0 },
-                { Keys.Apostrophe, e.Shift ? Key.QUOTATION_MARK_DOUBLE : Key.QUOTATION_MARK_SINGLE },
-                { Keys.Equal, e.Shift ? Key.PLUS : Key.EQUAL_TO },
-                { Keys.Comma, e.Shift ? Key.LESS_THAN : Key.COMMA },
-                { Keys.Enter, Key.ENTER },
-                { Keys.F12, Key.F12 }
-            };
-
-            if (keys.TryGetValue(e.Key, out var key))
-                viewerState.KeyPress(key);
+            viewerState.KeyPress(key.Value);
         }
 
         private void OnLoad()

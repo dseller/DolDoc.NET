@@ -17,10 +17,11 @@ namespace DolDoc.Editor.Core
         public event Action<DocumentEntry> OnMacro;
         public event Action<string> OnPromptEntered;
 
-        public Document(string content, IList<BinaryChunk> binaryChunks = null)
+        public Document(string content, IList<BinaryChunk> binaryChunks = null, string path = null)
             : this(binaryChunks)
         {
             Load(content);
+            Path = path;
         }
 
         public Document(IList<BinaryChunk> binaryChunks = null)
@@ -43,8 +44,21 @@ namespace DolDoc.Editor.Core
 
         public void PromptEntered(string value) => OnPromptEntered?.Invoke(value);
 
+        /// <summary>
+        /// The parent document, i.e. the document that opened this document.
+        /// </summary>
+        public Document Parent { get; internal set; }
+
+        /// <summary>
+        /// The path in the filesystem to the document. Only set to a value if the document originated from a document on disk.
+        /// </summary>
+        public string Path { get; }
+
         public void Load(string contents)
         {
+            if (string.IsNullOrEmpty(contents))
+                return;
+
             Entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
             OnUpdate?.Invoke(this, true);
         }
