@@ -14,7 +14,8 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
-		<PackageReference Include="Sigil" Version="5.0.0" />
+		<PackageReference Include="Wasmtime" Version="0.33.0-preview1" />
+		<PackageReference Include="WebAssembly" Version="1.2.0" />
 	</ItemGroup>
 
 </Project>

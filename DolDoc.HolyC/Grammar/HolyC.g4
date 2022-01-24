@@ -47,7 +47,7 @@ genericAssociation
 postfixExpression
     : primaryExpression '[' expression ']'                     # index
     | primaryExpression '(' args=argumentExpressionList? ')'   # call
-    | primaryExpression ('.' | '->') Identifier                # dereference
+    | primaryExpression ('.' | '->') Identifier                # getobj
     | primaryExpression '++'                                   # inc
     | primaryExpression '--'                                   # dec
     | primaryExpression                                        # ignore0000
@@ -59,15 +59,17 @@ argumentExpressionList
 
 unaryExpression
     :
+    '*'           sym=castExpression                            # pointerExpr
+    |
     ('++' |  '--' |  'sizeof')*
     (postfixExpression
-    |   unaryOperator castExpression
-    |   ('sizeof') '(' typeName ')'
-    )
+    |   unaryOperator castExpression                            
+    |   ('sizeof') '(' typeName ')'                             
+    )                                                       # ignore0100
     ;
 
 unaryOperator
-    :   '&' | '*' | '+' | '-' | '~' | '!'
+    :   '&' | '~' | '!'
     ;
 
 castExpression
@@ -136,7 +138,7 @@ conditionalExpression
 
 assignmentExpression
     :   conditionalExpression                                                               # ignore0004
-    |   unaryExpression assignmentOperator assignmentExpression                             # assign
+    |   dst=unaryExpression assignmentOperator src=assignmentExpression                             # assign
     //|   DigitSequence // for
     ;
 
@@ -152,13 +154,8 @@ constantExpression
     :   conditionalExpression
     ;
 
-include
-    : IncludePrefix path=StringLiteral
-    ;
-
 declaration
-    :   declarationSpecifiers initDeclaratorList? ';'
-    |   include
+    :   ts=typeSpecifier declarators=initDeclaratorList? ';'
     |   staticAssertDeclaration
     ;
 
@@ -171,29 +168,19 @@ declarationSpecifiers2
     ;
 
 declarationSpecifier
-    :   storageClassSpecifier
-    |   typeSpecifier
-    |   typeQualifier
+    :   tp=typeSpecifier
     ;
 
 initDeclaratorList
-    :   initDeclarator (',' initDeclarator)*
+    :   declarators+=initDeclarator (',' declarators+=initDeclarator)*
     ;
 
 initDeclarator
-    :   declarator ('=' initializer)?
+    :   d=declarator ('=' i=initializer)?
     ;
 
-storageClassSpecifier
-    :   'typedef'
-    |   'extern'
-    |   'static'
-    |   'auto'
-    |   'register'
-    ;
-
-typeSpecifier
-    :   ('U0'
+builtInType
+    : 'U0'
     |   'I8'
     |   'U8'
     |   'I16'
@@ -202,11 +189,13 @@ typeSpecifier
     |   'U32'
     |   'I64'
     |   'U64'
-    |   'F64')
+    |   'F64'
+    ;
+
+typeSpecifier
+    :   type=builtInType
     |   structOrUnionSpecifier
-    |   enumSpecifier
-    |   typedefName
-    |   typeSpecifier pointer
+    |   ptrType=builtInType ptr=pointer
     ;
 
 structOrUnionSpecifier
@@ -229,7 +218,7 @@ structDeclaration
     ;
 
 specifierQualifierList
-    :   (typeSpecifier| typeQualifier) specifierQualifierList?
+    :   typeSpecifier specifierQualifierList?
     ;
 
 structDeclaratorList
@@ -241,41 +230,17 @@ structDeclarator
     |   declarator? ':' constantExpression
     ;
 
-enumSpecifier
-    :   'enum' Identifier? '{' enumeratorList ','? '}'
-    |   'enum' Identifier
-    ;
-
-enumeratorList
-    :   enumerator (',' enumerator)*
-    ;
-
-enumerator
-    :   enumerationConstant ('=' constantExpression)?
-    ;
-
-enumerationConstant
-    :   Identifier
-    ;
-
-typeQualifier
-    :   'const'
-    ;
-
 declarator
-    :   pointer? directDeclarator
+    :   ptr=pointer? dd=directDeclarator
     ;
 
 directDeclarator
-    :   Identifier                                                                            # placeholder
-    |   '(' declarator ')'                                                                    # noidea
-    |   directDeclarator '[' typeQualifierList? assignmentExpression? ']'                     # idk
-    //|   directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    //|   directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    |   directDeclarator '[' typeQualifierList? '*' ']'                                       # index2
-    |   directDeclarator '(' parameterTypeList ')'                                            # proto
-    |   directDeclarator '(' identifierList? ')'                                              # call2
-    //|   Identifier ':' DigitSequence  // bit field
+    :   id=Identifier
+    |   '(' declarator ')'                                                           
+    |   dd=directDeclarator '[' size=Constant ']'
+    //|   directDeclarator '[' '*' ']'                       
+    |   dd=directDeclarator '(' parameterTypeList ')'                              
+    |   dd=directDeclarator '(' identifierList? ')'                       
     //|   '(' typeSpecifier? pointer directDeclarator ')' // function pointer like: (__cdecl *f)
     ;
 
@@ -286,11 +251,7 @@ nestedParenthesesBlock
     ;
 
 pointer
-    :  (('*'|'^') typeQualifierList?)+ // ^ - Blocks language extension
-    ;
-
-typeQualifierList
-    :   typeQualifier+
+    :  '*'
     ;
 
 parameterTypeList
@@ -302,7 +263,7 @@ parameterList
     ;
 
 parameterDeclaration
-    :   declarationSpecifiers declarator
+    :   declarationSpecifiers d=declarator
     |   declarationSpecifiers2 abstractDeclarator?
     ;
 
@@ -321,15 +282,10 @@ abstractDeclarator
 
 directAbstractDeclarator
     :   '(' abstractDeclarator ')'
-    |   '[' typeQualifierList? assignmentExpression? ']'
-    |   '[' 'static' typeQualifierList? assignmentExpression ']'
-    |   '[' typeQualifierList 'static' assignmentExpression ']'
-    |   '[' '*' ']'
+    |   '[' assignmentExpression? ']'
+    |   '[' 'static' assignmentExpression ']'
     |   '(' parameterTypeList? ')'
-    |   directAbstractDeclarator '[' typeQualifierList? assignmentExpression? ']'
-    |   directAbstractDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    |   directAbstractDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    |   directAbstractDeclarator '[' '*' ']'
+    |   directAbstractDeclarator '[' assignmentExpression? ']'
     |   directAbstractDeclarator '(' parameterTypeList? ')'
     ;
 
@@ -367,6 +323,11 @@ printStatement
     :   StringLiteral ';'
     ;
 
+preprocessorDirective
+    :   PpDefine key=Identifier    value=Constant       # define
+    |   PpInclude path=StringLiteral                    # include
+    ;
+
 statement
     :   labeledStatement
     |   printStatement
@@ -402,14 +363,14 @@ expressionStatement
     ;
 
 selectionStatement
-    :   'if' '(' expression ')' statement ('else' statement)?
-    |   'switch' '(' expression ')' statement
+    :   'if' '(' cond=expression ')' yes=statement ('else' no=statement)?           # if
+    |   'switch' '(' expression ')' statement                                       # switch
     ;
 
 iterationStatement
-    :   While '(' expression ')' statement
-    |   Do statement While '(' expression ')' ';'
-    |   For '(' forCondition ')' statement
+    :   While '(' cond=expression ')' st=statement                                  # while
+    |   Do statement While '(' expression ')' ';'                                   # doWhile
+    |   For '(' forCondition ')' statement                                          # for
     ;
 
 forCondition
@@ -440,6 +401,7 @@ translationUnit
 externalDeclaration
     :   functionDefinition
     |   declaration
+    |   preprocessorDirective
     |   statement+
     |   ';' // stray ;
     ;
@@ -519,6 +481,8 @@ RightShiftAssign : '>>=';
 AndAssign : '&=';
 XorAssign : '^=';
 OrAssign : '|=';
+PpDefine: '#define';
+PpInclude: '#include';
 
 Equal : '==';
 NotEqual : '!=';
@@ -565,7 +529,6 @@ HexQuad
 Constant
     :   IntegerConstant
     |   FloatingConstant
-    //|   EnumerationConstant
     |   CharacterConstant
     ;
 
@@ -757,19 +720,6 @@ SChar
     |   '\\\r\n' // Added line
     ;
 
-ComplexDefine
-    :   '#' Whitespace? 'define'  ~[#\r\n]*
-        -> skip
-    ;
-
-IncludePrefix
-    :   '#' Whitespace? 'include' Whitespace?
-    ;
-
-IncludeDirective
-    :   '#' Whitespace? 'include' Whitespace? (('"' ~[\r\n]* '"') | ('<' ~[\r\n]* '>' )) Whitespace? Newline
-    ;
-
 // ignore the following asm blocks:
 /*
     asm
@@ -780,23 +730,6 @@ IncludeDirective
 AsmBlock
     :   'asm' ~'{'* '{' ~'}'* '}'
 	-> skip
-    ;
-
-// ignore the lines generated by c preprocessor
-// sample line : '#line 1 "/home/dm/files/dk1.h" 1'
-LineAfterPreprocessing
-    :   '#line' Whitespace* ~[\r\n]*
-        -> skip
-    ;
-
-LineDirective
-    :   '#' Whitespace? DecimalConstant Whitespace? StringLiteral ~[\r\n]*
-        -> skip
-    ;
-
-PragmaDirective
-    :   '#' Whitespace? 'pragma' Whitespace ~[\r\n]*
-        -> skip
     ;
 
 Whitespace
@@ -820,3 +753,4 @@ LineComment
     :   '//' ~[\r\n]*
         -> skip
     ;
+
