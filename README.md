@@ -6,7 +6,7 @@ A .NET reimplementation of Terry Davis' [✝] [TempleOS](http://www.templeos.org
 
 **This is still heavily under development!**
 
-[![Jetbrains Logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png|width=180px)](https://jb.gg/OpenSourceSupport)
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="128" height="128">](https://jb.gg/OpenSourceSupport)
 
 ## Online Blazor proof of concept
 
