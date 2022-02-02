@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Forms;
+using DolDoc.Editor.Sprites;
 using DolDoc.Renderer.OpenGL;
 using Serilog;
 
@@ -20,7 +22,7 @@ namespace DolDoc.Examples.SimpleForm
         TwentyFourHours
     }
 
-    [FormHeader("$TI,\"Test Form\"$This is an $FG,RED$example$FG$ form. Enter the data below.\n\n")]
+    [FormHeader("$TI,\"Test Form\"$This is an $FG,RED$example$FG$ form. Enter the data below.$SP,BI=1$\n\n")]
     [FormFooter("\n\n\n$BK,1$$FG,RED$$TX+B+CX,\"Please verify before submitting!\"$$BK,0$")]
     public class TestForm
     {
@@ -70,10 +72,16 @@ namespace DolDoc.Examples.SimpleForm
     {
         public static void Main(string[] args)
         {
+            var spriteBuilder = new SpriteBuilder();
+            spriteBuilder.Add(new Color(Editor.Core.EgaColor.Cyan));
+            spriteBuilder.Add(new Arrow(50, 100, 100, 200));
+            var sprite = spriteBuilder.Serialize();
+
             var compositor = new Compositor<OpenGLNativeWindow>();
             var window = compositor.NewWindow();
             var obj = new TestForm();
-            window.Show("Form Test", 1024, 768, new FormDocument<TestForm>(obj));
+            var doc = new FormDocument<TestForm>(obj, new List<BinaryChunk>() { new BinaryChunk(1, 0, (uint)sprite.Length, 0, sprite) });
+            window.Show("Form Test", 1024, 768, doc);
 
             new Thread(() =>
             {

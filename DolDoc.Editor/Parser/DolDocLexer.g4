@@ -27,7 +27,7 @@ T_COLOR
 T_SYMBOL: [a-zA-Z][a-zA-Z0-9_]*;
 T_INTEGER: '-'? [0-9]+;
 T_COMMA: ',';
-T_STRING: '"' (~'"' | '\\' '"')* '"';
+T_STRING: '"' (~'"' | '\\' '"' | '\\' '\\')* '"';
 T_EQ: '=';
 T_PLUS: '+';
 T_MINUS: '-';

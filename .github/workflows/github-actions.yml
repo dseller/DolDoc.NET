@@ -6,16 +6,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Core SDK 5.0
+      - name: Setup .NET Core SDK 6.0
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.0'
+          dotnet-version: '6.0'
       - name: Test
         run: dotnet test --logger trx --results-directory "TestResults"
       - name: Upload dotnet test results
         uses: actions/upload-artifact@v2
         with:
-          name: dotnet-results-5.0
+          name: dotnet-results-6.0
           path: TestResults
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}

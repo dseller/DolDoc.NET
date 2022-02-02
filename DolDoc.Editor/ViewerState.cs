@@ -5,6 +5,7 @@ using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
+using System.IO;
 
 namespace DolDoc.Editor
 {
@@ -50,8 +51,11 @@ namespace DolDoc.Editor
             Pages = new CharacterPageDirectory(Columns, Rows);
         }
 
-        public void LoadDocument(Document document)
+        public void LoadDocument(Document document, bool child = false)
         {
+            if (child)
+                document.Parent = Document;
+
             _frameBuffer?.Clear();
             Pages.Clear();
             Document = document;
@@ -119,8 +123,29 @@ namespace DolDoc.Editor
 
         public void KeyPress(Key key)
         {
+            if (key == Key.F12)
+            {
+                // Write to file.
+                var output = Document.ToPlainText();
+                var path = $"dump_{Guid.NewGuid().ToString("n")}.dd";
+                using (var fs = File.Create(path))
+                using (var writer = new StreamWriter(fs))
+                    writer.Write(output);
+
+                Console.WriteLine($"Dumped document to {output}");
+                return;
+            }
+
             switch (key)
             {
+                case Key.ESC:
+                    CloseDocument(true);
+                    break;
+
+                case Key.SHIFT_ESC:
+                    CloseDocument(false);
+                    break;
+
                 case Key.PAGE_UP:
                     PreviousPage();
                     break;
@@ -168,7 +193,7 @@ namespace DolDoc.Editor
             {
                 _frameBuffer.SetCursorType(CursorType.Pointer);
                 return;
-            }    
+            }
 
             if (entry.Clickable)
                 _frameBuffer.SetCursorType(CursorType.Hand);
@@ -211,6 +236,27 @@ namespace DolDoc.Editor
 
             //ViewLine = _maxY - Rows + 1;
             // Render();
+        }
+
+        public void CloseDocument(bool save)
+        {
+            /*if (save && Document.Path != null)
+            {
+                using (var fs = File.Open(Document.Path, FileMode.Create))
+                using (var writer = new StreamWriter(fs))
+                    writer.Write(Document.ToPlainText());
+            }*/
+
+            // If there is no parent document, close the whole application.
+            if (Document.Parent == null)
+                Environment.Exit(0);
+
+            Document = Document.Parent;
+            _frameBuffer?.Clear();
+            Pages.Clear();
+            Cursor.SetPosition(0);
+            Document_OnUpdate(Document, false);
+            Render();
         }
 
         public void Render()

@@ -72,7 +72,7 @@ namespace DolDoc.Editor.Sprites
             foreach (var element in _spriteElements)
             {
                 element.Render(ctx, frameBuffer, pixelOffset);
-                // Console.WriteLine("Rendered {0}", element);
+                Console.WriteLine("Rendered {0}", element);
             }
         }
     }

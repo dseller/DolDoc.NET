@@ -26,7 +26,7 @@
         var stream = await Http.GetStreamAsync($"/documents/{fileName}");
 
         var fb = new Canvas2DFrameBuffer(JSRuntime);
-        var document = DocumentLoader.Load(stream);
+        var document = DocumentLoader.Load(stream, null);
         _state = new ViewerState(fb, document, 640, 480);
         _state.Pages.Clear();
         document.Refresh();

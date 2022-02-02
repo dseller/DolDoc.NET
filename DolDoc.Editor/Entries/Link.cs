@@ -49,8 +49,8 @@ namespace DolDoc.Editor.Entries
 
             using (var fs = File.Open(file, FileMode.Open))
             {
-                var document = DocumentLoader.Load(fs);
-                state.LoadDocument(document);
+                var document = DocumentLoader.Load(fs, file);
+                state.LoadDocument(document, true);
             }
         }
     }

@@ -32,5 +32,15 @@ namespace DolDoc.Editor.Sprites
                     _w);
             }
         }
+
+        public override void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)SpriteElementType.Bitmap);
+            writer.Write(_x);
+            writer.Write(_y);
+            writer.Write(_w);
+            writer.Write(_h);
+            writer.Write(_data);
+        }
     }
 }
