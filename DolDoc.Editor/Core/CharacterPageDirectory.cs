@@ -56,7 +56,7 @@ namespace DolDoc.Editor.Core
             return GetOrCreatePage(position % PageColumns, position / PageRows);
         }
 
-        public void Clear(EgaColor color = EgaColor.White)
+        public void Clear(EgaColor color)
         {
             foreach (var page in _pages)
                 page.Clear(color);

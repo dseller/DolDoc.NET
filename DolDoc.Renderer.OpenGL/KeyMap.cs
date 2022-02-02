@@ -64,6 +64,10 @@ namespace DolDoc.Renderer.OpenGL
             { Keys.Comma, Key.COMMA },
             { Keys.Enter, Key.ENTER },
             { Keys.Escape, Key.ESC },
+            { Keys.Semicolon, Key.COLON_SEMI },
+            { Keys.LeftBracket, Key.BRACKET_OPEN },
+            { Keys.RightBracket, Key.BRACKET_CLOSE },
+            { Keys.Minus, Key.MINUS },
             { Keys.F12, Key.F12 }
         };
 
@@ -108,6 +112,10 @@ namespace DolDoc.Renderer.OpenGL
             { Keys.Apostrophe, Key.QUOTATION_MARK_DOUBLE },
             { Keys.Equal, Key.PLUS},
             { Keys.Comma, Key.LESS_THAN },
+            { Keys.Semicolon, Key.COLON },
+            { Keys.LeftBracket, Key.BRACKET_CURLY_OPEN },
+            { Keys.RightBracket, Key.BRACKET_CURLY_CLOSE },
+            { Keys.Minus, Key.UNDERSCORE },
             { Keys.Escape, Key.SHIFT_ESC }
         };
 

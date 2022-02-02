@@ -1,18 +1,27 @@
 ﻿using DolDoc.Editor;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
+using DolDoc.Examples.Shell.Helpers;
 using DolDoc.Renderer.OpenGL;
 using NLua;
 using NLua.Exceptions;
-using Serilog;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
+using System.Runtime.InteropServices;
 
 namespace DolDoc.Examples.Shell
 {
     public class Program
     {
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        const int SW_HIDE = 0;
+        const int SW_SHOW = 5;
+
         private string pwd = Environment.CurrentDirectory;
         private Document document;
         private Lua lua;
@@ -31,7 +40,7 @@ namespace DolDoc.Examples.Shell
             }
             catch (LuaScriptException ex)
             {
-                document.Write($"$BG,RED$$FG,WHITE${ex.Message}$FG$$BG$\n");
+                document.Entries.AddLast(new Error(ex.ToString()));
             }
         }
 
@@ -42,23 +51,6 @@ namespace DolDoc.Examples.Shell
             document = new Document();
             lua = new Lua();
             lua.LoadCLRPackage();
-            
-
-            void OnMacro(DocumentEntry entry)
-            {
-                var command = entry.GetArgument("LE");
-                switch (command)
-                {
-                    //case "ChangeDir":
-                    //    pwd = entry.GetArgument("RE");
-                    //    document.Write(DirectoryListing(pwd));
-                    //    document.Write(RenderPrompt());
-                    //    //document = new Document(DirectoryListing(entry.GetArgument("RE")), null);
-                    //    //document.OnMacro += OnMacro;
-                    //    //window.State.LoadDocument(document);
-                    //    break;
-                }
-            }
 
             document.OnMacro += entry =>
             {
@@ -68,7 +60,7 @@ namespace DolDoc.Examples.Shell
                 }
                 catch (Exception ex)
                 {
-                    document.Write($"$BG,RED$$FG,WHITE${ex.ToString()}$FG$$BG$\n");
+                    document.Entries.AddLast(new Error(ex.ToString()));
                 }
             };
             document.OnPromptEntered += str =>
@@ -79,50 +71,34 @@ namespace DolDoc.Examples.Shell
                 }
                 catch (Exception ex)
                 {
-                    document.Write($"$BG,RED$$FG,WHITE${ex.ToString()}$FG$$BG$\n");
+                    document.Entries.AddLast(new Error(ex.ToString()));
                 }
-
-                    // document.Write($"\nEntered: $FG,RED${str}$FG$\n\n> $PT$\n");
-                    //var output = new StringBuilder();
-
-                    //if (str == "dir")
-                    //{
-                    //    document.Write(DirectoryListing(pwd));
-                    //    document.Write(RenderPrompt());
-                    //    return;
-                    //}
-
-                    //var p = new Process();
-                    //p.StartInfo.FileName = "cmd.exe";
-                    //p.StartInfo.Arguments = @"/c " + str;
-                    //p.StartInfo.WorkingDirectory = pwd;
-                    //p.StartInfo.CreateNoWindow = true;
-                    //p.StartInfo.RedirectStandardError = true;
-                    //p.StartInfo.RedirectStandardOutput = true;
-                    //p.StartInfo.RedirectStandardInput = false;
-                    //p.OutputDataReceived += (a, b) => output.Append(b.Data?.Replace("$", "$$") + "\n");
-                    //p.ErrorDataReceived += (a, b) => output.Append($"$FG,RED${b.Data?.Replace("$", "$$")}$FG$\n");
-                    //p.Start();
-                    //p.BeginErrorReadLine();
-                    //p.BeginOutputReadLine();
-                    //p.WaitForExit();
-
-                    //document.Write("\n\n" + output.ToString());
-                    //document.Write($"\n{RenderPrompt()}");
-                };
+            };
 
 
             lua.RegisterFunction("print", this, typeof(Program).GetMethod(nameof(Print)));
             lua.RegisterFunction("eval", this, typeof(Program).GetMethod(nameof(Eval)));
+            lua.RegisterFunction("reload", this, typeof(Program).GetMethod(nameof(Load)));
+            lua.RegisterFunction("directory_listing", typeof(DirectoryListing).GetMethod("List"));
+            lua["WORKING_DIRECTORY"] = Directory.GetCurrentDirectory();
+            Load();
+
+            window.Show("DolDoc.NET File Browser", 1600, 1200, document);
+        }
+
+        public void Load()
+        {
             if (File.Exists("scripts\\main.lua"))
                 lua.DoFile("scripts\\main.lua");
-
-            // document.Load("");
-            window.Show("DolDoc.NET File Browser", 1600, 1200, document);
         }
 
         static void Main(string[] args)
         {
+            var handle = GetConsoleWindow();
+
+            // Hide
+            ShowWindow(handle, SW_HIDE);
+
             Program p = new Program();
             p.Run();
         }

@@ -67,7 +67,7 @@ namespace DolDoc.Renderer.OpenGL
                 this.document = document ?? new Document();
                 viewerState = new ViewerState(this, this.document, width, height, new YaffFontProvider(), "Terminal_VGA_cp861");
 
-                viewerState.Pages.Clear();
+                viewerState.Pages.Clear(viewerState.DefaultBackgroundColor);
                 document.Refresh();
 
                 ulong ticks = 0;
