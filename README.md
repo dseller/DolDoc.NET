@@ -6,6 +6,8 @@ A .NET reimplementation of Terry Davis' [✝] [TempleOS](http://www.templeos.org
 
 **This is still heavily under development!**
 
+[![Jetbrains Logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)](https://jb.gg/OpenSourceSupport)
+
 ## Online Blazor proof of concept
 
 You can find a proof of concept of the DolDoc.NET formatting engine [here](http://dseller.github.io). Please note that at the time of writing, user input is not yet implemented. Also note that because DolDoc.NET is heavily under development,

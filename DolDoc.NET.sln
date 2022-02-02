@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.Examples.SimpleForm"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Renderers", "Renderers", "{287DBDA6-630C-494F-B783-328938AA3662}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolDoc.Examples.TodoList", "Examples\DolDoc.Examples.TodoList\DolDoc.Examples.TodoList.csproj", "{D3CA8FFF-9EE5-42B1-8C40-F7E712751786}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.Examples.TodoList", "Examples\DolDoc.Examples.TodoList\DolDoc.Examples.TodoList.csproj", "{D3CA8FFF-9EE5-42B1-8C40-F7E712751786}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,7 +62,6 @@ Global
 		{13E0DA19-A9B4-4B96-9311-5B6A158A9DA9}.Release|x86.ActiveCfg = Release|Any CPU
 		{13E0DA19-A9B4-4B96-9311-5B6A158A9DA9}.Release|x86.Build.0 = Release|Any CPU
 		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|x64.Build.0 = Debug|Any CPU
 		{7E414E77-22D5-4E24-810C-9371C9027BF5}.Debug|x86.ActiveCfg = Debug|Any CPU
