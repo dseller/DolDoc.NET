@@ -5,7 +5,7 @@ namespace DolDoc.Editor.Core
 {
     public class CharacterPageDirectory
     {
-        private List<CharacterPage> _pages;
+        private readonly List<CharacterPage> _pages;
 
         public int PageColumns { get; }
 

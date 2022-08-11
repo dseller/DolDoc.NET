@@ -1,6 +1,10 @@
-﻿namespace DolDoc.Editor.Core
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace DolDoc.Editor.Core
 {
-    public class CharacterPage
+    public class CharacterPage : IEnumerable<Character>
     {
         private Character[] _characters;
 
@@ -39,5 +43,9 @@
                 if ((_characters[i].Flags & CharacterFlags.Hold) == 0)
                     _characters[i] = new Character(null, i, 0x00, new CombinedColor(EgaColor.White, EgaColor.White), CharacterFlags.None);
         }
+
+        public IEnumerator<Character> GetEnumerator() => _characters.AsEnumerable().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => _characters.GetEnumerator();
     }
 }

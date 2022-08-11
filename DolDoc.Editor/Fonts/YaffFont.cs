@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DolDoc.Editor.Extensions;
 
 namespace DolDoc.Editor.Fonts
 {
@@ -7,7 +8,7 @@ namespace DolDoc.Editor.Fonts
     {
         private readonly IList<byte[]> glyphs;
 
-        public YaffFont(Dictionary<string, string> values, int width, int height)
+        public YaffFont(Dictionary<string, string> values, int width, int height, bool mirror)
         {
             Width = width;
             Height = height;
@@ -36,7 +37,13 @@ namespace DolDoc.Editor.Fonts
                             glyphs[i][segment] |= (byte)(1 << bt);
                         glyphEnumerator.MoveNext();
                     }
+
+                    if (mirror)
+                        glyphs[i][segment] = glyphs[i][segment].Reverse();
                 }
+
+                if (mirror)
+                    glyphs[i] = glyphs[i].Reverse().ToArray();
             }
         }
 

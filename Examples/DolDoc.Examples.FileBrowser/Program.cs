@@ -15,6 +15,7 @@ namespace DolDoc.Examples.FileBrowser
         {
             var builder = new StringBuilder();
             var d = new DirectoryInfo(path);
+            // builder.Append("Hello World!");
             builder.AppendFormat("\n$FG,CYAN$$TX+CX+B,\"DolDoc.NET File Browser\"$\n\n");
             builder.AppendFormat("$TI,\"{1}\"$$FG,RED$$UL,1$$TX+CX,\"Released under the MIT License, Copyright Dennis Seller 2018-{0}\"$$UL,0$\n\n", DateTime.Now.Year, d.FullName);
 
@@ -34,7 +35,7 @@ namespace DolDoc.Examples.FileBrowser
         
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var compositor = new Compositor<OpenTKWindow>();
             var window = compositor.NewWindow();
             var document = new Document();
 
