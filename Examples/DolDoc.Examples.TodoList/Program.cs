@@ -116,7 +116,7 @@ namespace DolDoc.Examples.TodoList
     {
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var compositor = new Compositor<OpenTKWindow>();
             var window = compositor.NewWindow();
 
             var list = new TodoForm();
