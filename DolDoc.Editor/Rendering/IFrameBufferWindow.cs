@@ -8,10 +8,6 @@ namespace DolDoc.Editor.Rendering
 
         void Clear();
 
-        void Render(byte[] data);
-
-        void RenderPartial(int x, int y, int width, int height, byte[] data);
-
         void SetTitle(string title);
 
         void SetCursorType(CursorType cursorType);

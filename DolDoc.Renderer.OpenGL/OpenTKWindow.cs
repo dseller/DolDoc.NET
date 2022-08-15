@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -58,8 +59,17 @@ namespace DolDoc.Renderer.OpenGL
             var chCounter = 1;
             foreach (var ch in page)
             {
-                var fg = EgaColor.Palette[(byte) ch.Color.Foreground];
-                var bg = EgaColor.Palette[(byte) ch.Color.Background];
+                EgaColor fg, bg;
+                if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
+                {
+                    fg = EgaColor.Palette[(byte) ((byte)ch.Color.Foreground ^ 0x0F)];
+                    bg = EgaColor.Palette[(byte) ((byte)ch.Color.Background ^ 0x0F)];
+                }
+                else
+                {
+                    fg = EgaColor.Palette[(byte) ch.Color.Foreground];
+                    bg = EgaColor.Palette[(byte) ch.Color.Background];
+                }
 
                 var x = chCounter % state.Columns;
                 var y = chCounter / state.Columns;
@@ -84,22 +94,21 @@ namespace DolDoc.Renderer.OpenGL
                 if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
                 {
                     GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
-                    
-                    // GL.Begin(BeginMode.Lines);
-                    // GL.Vertex2(new Vector2d(-1, 0));
-                    // GL.Vertex2(new Vector2d(1, 0));
-                    // GL.End();
-                    
-                    
                 }
 
                 chCounter++;
             }
-
+            
             //Code goes here.
             GL.Flush();
             Context.SwapBuffers();
             base.OnRenderFrame(args);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            state.CloseDocument(false);
+            e.Cancel = true;
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
@@ -119,6 +128,7 @@ namespace DolDoc.Renderer.OpenGL
     public class OpenTKWindow : IFrameBufferWindow
     {
         private Wnd window;
+        private Timer timer;
         private Thread thread;
         private Document document;
 
@@ -134,7 +144,7 @@ namespace DolDoc.Renderer.OpenGL
                 document.Refresh();
 
                 var settings = new GameWindowSettings();
-                settings.RenderFrequency = 30;
+                settings.RenderFrequency = 1;
                 var nativeSettings = new NativeWindowSettings
                 {
                     Size = new Vector2i(width, heigth),
@@ -145,7 +155,7 @@ namespace DolDoc.Renderer.OpenGL
                 };
 
                 ulong ticks = 0;
-                var timer = new Timer(_ => State.Tick(ticks++), null, 0, 1000 / 30);
+                timer = new Timer(_ => State.Tick(ticks++), null, 0, 1000 / 30);
 
                 using (window = new Wnd(State, settings, nativeSettings))
                 {
@@ -156,14 +166,6 @@ namespace DolDoc.Renderer.OpenGL
         }
 
         public void Clear()
-        {
-        }
-
-        public void Render(byte[] data)
-        {
-        }
-
-        public void RenderPartial(int x, int y, int width, int height, byte[] data)
         {
         }
 

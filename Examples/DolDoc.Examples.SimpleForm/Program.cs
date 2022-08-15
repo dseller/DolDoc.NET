@@ -77,7 +77,7 @@ namespace DolDoc.Examples.SimpleForm
             spriteBuilder.Add(new Arrow(50, 100, 100, 200));
             var sprite = spriteBuilder.Serialize();
 
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var compositor = new Compositor<OpenTKWindow>();
             var window = compositor.NewWindow();
             var obj = new TestForm();
             var doc = new FormDocument<TestForm>(obj, new List<BinaryChunk>() { new BinaryChunk(1, 0, (uint)sprite.Length, 0, sprite) });

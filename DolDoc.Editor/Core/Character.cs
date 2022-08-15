@@ -1,14 +1,21 @@
-﻿using System.Runtime.InteropServices;
-
-namespace DolDoc.Editor.Core
+﻿namespace DolDoc.Editor.Core
 {
     /// <summary>
     /// Represents a character on the screen.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Character
+    public class Character
     {
-        public Character(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0)
+        private CombinedColor color;
+        private sbyte shiftX, shiftY;
+        private byte layer, ch;
+        private CharacterFlags flags;
+
+        public Character(int index)
+        {
+            Index = index;
+        }
+        
+        public void Write(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0)
         {
             Char = ch;
             Color = color;
@@ -21,36 +28,94 @@ namespace DolDoc.Editor.Core
             ShiftY = shiftY;
         }
 
+        public int Index { get; }
+        
+        public bool Dirty { get; set; }
+
         /// <summary>
         /// The flags for this character (e.g. underlined, blink, etc.)
         /// </summary>
-        public CharacterFlags Flags { get; }
+        public CharacterFlags Flags
+        {
+            get => flags;
+            set
+            {  
+                if (flags != value)
+                    Dirty = true;
+                flags = value;
+            }
+        }
 
-        public sbyte ShiftX;
+        public sbyte ShiftX
+        {
+            get => shiftX;
+            set
+            {
+                if (shiftX != value)
+                    Dirty = true;
+                shiftX = value;
+            }
+        }
 
-        public sbyte ShiftY;
+        public sbyte ShiftY
+        {
+            get => shiftY;
+            set
+            {
+                if (shiftY != value)
+                    Dirty = true;
+                shiftY = value;
+            }
+        }
 
-        public byte Layer { get; }
+        public byte Layer
+        {
+            get => layer;
+            set
+            {
+                if (layer != value)
+                    Dirty = true;
+                layer = value;
+            }
+        }
 
         /// <summary>
         /// Combined color byte, upper half is background color, lower half is foreground color.
         /// </summary>
-        public CombinedColor Color;
+        public CombinedColor Color
+        {
+            get => color;
+            set
+            {
+                if (color != value)
+                    Dirty = true;
+                color = value;
+            }
+        }
 
         /// <summary>
         /// The actual character value.
         /// </summary>
-        public byte Char;
+        public byte Char
+        {
+            get => ch;
+            set
+            {
+                if (ch != value)
+                    Dirty = true;
+                ch = value;
+            }
+        }
 
         /// <summary>
         /// Points to the <see cref="DocumentEntry"/> for this character.
         /// </summary>
-        public DocumentEntry Entry { get; }
+        public DocumentEntry Entry { get; private set; }
 
         /// <summary>
         /// The relative text offset, relative to the entry's text offset.
         /// </summary>
-        public int RelativeTextOffset { get; }
+        public int RelativeTextOffset { get; private set; }
 
         public bool HasEntry => Entry != null;
     }

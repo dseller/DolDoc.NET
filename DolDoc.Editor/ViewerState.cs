@@ -14,18 +14,15 @@ namespace DolDoc.Editor
     /// </summary>
     public class ViewerState : IInputListener, ITickListener
     {
-        private const EgaColor DefaultBackgroundColor = EgaColor.White;
-        private const EgaColor DefaultForegroundColor = EgaColor.Black;
-
         public Document Document { get; private set; }
 
-        public IFont Font { get; private set; }
+        public IFont Font;
 
         public Cursor Cursor { get; }
 
         private string _title;
         private bool _cursorInverted;
-        private IFrameBufferWindow _frameBuffer;
+        private readonly IFrameBufferWindow _frameBuffer;
         private readonly IFontProvider _fontProvider;
 
         public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
@@ -70,7 +67,7 @@ namespace DolDoc.Editor
                 Pages.Clear();
             }
 
-            var renderOptions = new RenderOptions(DefaultForegroundColor, DefaultBackgroundColor);
+            var renderOptions = new RenderOptions();
             var ctx = new EntryRenderContext(document, this, renderOptions);
 
             if (!RawMode)
@@ -89,15 +86,13 @@ namespace DolDoc.Editor
             }
             else
                 Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
-
-            // Render();
         }
 
-        public CharacterPageDirectory Pages { get; private set; }
+        public CharacterPageDirectory Pages { get; }
 
-        public int Width { get; private set; }
+        public int Width { get; }
 
-        public int Height { get; private set; }
+        public int Height { get; }
 
         public int Columns { get; }
 
@@ -280,57 +275,21 @@ namespace DolDoc.Editor
         //     _frameBuffer?.Render(_renderBuffer);
         // }
 
-        private void RenderCursor()
-        {
-            // for (int fx = 0; fx < Font.Width; fx++)
-            //     for (int fy = 0; fy < Font.Height; fy++)
-            //         _renderBuffer[((((Cursor.WindowY * Font.Height) + fy) * Width) + (Cursor.WindowX * Font.Width) + fx)] ^= 0x0F;
-            //
-            // _frameBuffer.RenderPartial(Cursor.WindowX * Font.Width, Cursor.WindowY * Font.Height, Font.Width, Font.Height, _renderBuffer);
-        }
+        private void RenderCursor() => Pages[Cursor.DocumentPosition].Flags ^= CharacterFlags.Inverted;
 
         private void DoBlink(bool inverted)
         {
-            // for (int row = 0; row < Rows; row++)
-            //     for (int column = 0; column < Columns; column++)
-            //     {
-            //         var ch = Pages[column, row];
-            //         if ((ch.Flags & CharacterFlags.Blink) == CharacterFlags.Blink)
-            //             RenderCharacter(column, row, ch, inverted);
-            //     }
-            //
-            // _frameBuffer.Render(_renderBuffer);
+            for (int row = 0; row < Rows; row++)
+                for (int column = 0; column < Columns; column++)
+                {
+                    var ch = Pages[column, row];
+                    if ((ch.Flags & CharacterFlags.Blink) == CharacterFlags.Blink)
+                        ch.Flags ^= CharacterFlags.Inverted;
+                }
         }
-
-        // private void RenderCharacter(int column, int row, Character ch, bool inverted = false)
-        // {
-        //     if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
-        //         inverted = true;
-        //
-        //     var bg = inverted ? ch.Color.Foreground : ch.Color.Background;
-        //     var fg = inverted ? ch.Color.Background : ch.Color.Foreground;
-        //
-        //     byte[] character = Font[ch.Char];
-        //     const int byteSize = 8;
-        //
-        //     for (int fy = 0; fy < Font.Height; fy++)
-        //         for (int fx = 0; fx < Font.Width; fx++)
-        //         {
-        //             var fontRow = character[(fy * Font.Width) / byteSize];
-        //             bool draw = ((fontRow >> (fx % byteSize)) & 0x01) == 0x01;
-        //             _renderBuffer[(((row * Font.Height) + fy + ch.ShiftY) * Width) + (column * Font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
-        //         }
-        //
-        //     if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-        //     {
-        //         for (int i = 0; i < Font.Width; i++)
-        //             _renderBuffer[(((row * Font.Height) + (Font.Height - 1)) * Width) + (column * Font.Width) + i] = (byte)fg;
-        //     }
-        // }
 
         public void Tick(ulong ticks)
         {
-            // Blink every 200ms, one frame is 33ms, so every 6 frames
             if (ticks % 6 == 0)
             {
                 DoBlink(!_cursorInverted);
@@ -338,10 +297,11 @@ namespace DolDoc.Editor
                 _cursorInverted = !_cursorInverted;
             }
             else if (ticks % 15 == 0)
-            {
                 Document.Refresh();
-                RenderCursor();
-            }
+            
+            // Blink every 200ms, one frame is 33ms, so every 6 frames
+
+            
         }
 
         /// <summary>

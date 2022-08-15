@@ -20,6 +20,8 @@ namespace DolDoc.Editor.Core
             Columns = columns;
             PageNumber = pageNo;
             _characters = new Character[rows * columns];
+            for (int i = 0; i < _characters.Length; i++)
+                _characters[i] = new Character((pageNo * columns * rows) + i);
 
             // TODO: get this from the state...
             Clear(EgaColor.White);
@@ -41,7 +43,7 @@ namespace DolDoc.Editor.Core
         {
             for (int i = 0; i < _characters.Length; i++)
                 if ((_characters[i].Flags & CharacterFlags.Hold) == 0)
-                    _characters[i] = new Character(null, i, 0x00, new CombinedColor(EgaColor.White, EgaColor.White), CharacterFlags.None);
+                    _characters[i].Write(null, i, 0x00, new CombinedColor(EgaColor.White, EgaColor.White), CharacterFlags.None);
         }
 
         public IEnumerator<Character> GetEnumerator() => _characters.AsEnumerable().GetEnumerator();
