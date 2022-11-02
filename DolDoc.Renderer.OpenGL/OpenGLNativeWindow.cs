@@ -13,6 +13,7 @@ using System.Threading;
 
 namespace DolDoc.Renderer.OpenGL
 {
+    [Obsolete("Use OpenTKWindow")]
     public class OpenGLNativeWindow : IFrameBufferWindow, IDisposable
     {
         private Timer timer;

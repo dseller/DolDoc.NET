@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -26,10 +25,6 @@ namespace DolDoc.Renderer.OpenGL
             this.state = state;
             filledBitmap = Enumerable.Repeat((byte) 0xFF, (state.Font.Width * state.Font.Height) / 8).ToArray();
             underlineBitmap = new byte[(state.Font.Width * state.Font.Height) / 8];
-            // underlineBitmap[state.Font.Height-1]
-            // Array.Fill(underlineBitmap, 0xFF, state.Font.Height - 1, state.Font.Width);
-            // underlineBitmap[..-state.Font.Width];
-            // Array.Fill<byte>(underlineBitmap, 0xFF, state.Font.Height - 2, 8 / state.Font.Width);
             underlineBitmap[(underlineBitmap.Length - 1)/8] = 0xFF;
         }
 
@@ -54,53 +49,46 @@ namespace DolDoc.Renderer.OpenGL
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.Disable(EnableCap.Lighting);
-
-            var page = state.CurrentPage;
-            var chCounter = 1;
-            foreach (var ch in page)
-            {
-                EgaColor fg, bg;
-                if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
-                {
-                    fg = EgaColor.Palette[(byte) ((byte)ch.Color.Foreground ^ 0x0F)];
-                    bg = EgaColor.Palette[(byte) ((byte)ch.Color.Background ^ 0x0F)];
-                }
-                else
-                {
-                    fg = EgaColor.Palette[(byte) ch.Color.Foreground];
-                    bg = EgaColor.Palette[(byte) ch.Color.Background];
-                }
-
-                var x = chCounter % state.Columns;
-                var y = chCounter / state.Columns;
-
-                GL.Color3(bg.RD, bg.GD, bg.BD);
-                GL.WindowPos2((x - 1) * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
-                GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, filledBitmap);
-
-                GL.Color3(fg.RD, fg.GD, fg.BD);
-                GL.WindowPos2((x - 1) * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
-
-                // GL.Color3((sbyte)bg.R, (sbyte)bg.G, (sbyte)bg.B);
-                // GL.Rect(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height),
-                //     (x + 1) * state.Font.Width, Size.Y - ((y + 2) * state.Font.Height));
-
-                GL.Bitmap(state.Font.Width, state.Font.Height,
-                    0, 0,
-                    0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
-                    0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
-                    state.Font[ch.Char]);
-
-                if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-                {
-                    GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
-                }
-
-                chCounter++;
-            }
             
-            //Code goes here.
-            GL.Flush();
+            for (int y = 0; y < state.Rows; y++)
+                for (int x = 0; x < state.Columns; x++)
+                {
+                    if (!state.Pages.HasPageForPosition(x, y + state.Cursor.ViewLine))
+                        state.Pages.GetOrCreatePage(x, y + state.Cursor.ViewLine);
+            
+                    var ch = state.Pages[x, y + state.Cursor.ViewLine]; 
+                    EgaColor fg, bg;
+                    if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
+                    {
+                        fg = EgaColor.Palette[(byte) ((byte)ch.Color.Foreground ^ 0x0F)];
+                        bg = EgaColor.Palette[(byte) ((byte)ch.Color.Background ^ 0x0F)];
+                    }
+                    else
+                    {
+                        fg = EgaColor.Palette[(byte) ch.Color.Foreground];
+                        bg = EgaColor.Palette[(byte) ch.Color.Background];
+                    }
+
+                    GL.Color3(bg.RD, bg.GD, bg.BD);
+                    GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
+                    GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, filledBitmap);
+
+                    GL.Color3(fg.RD, fg.GD, fg.BD);
+                    GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
+
+                    GL.Bitmap(state.Font.Width, state.Font.Height,
+                        0, 0,
+                        0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
+                        0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
+                        state.Font[ch.Char]);
+
+                    if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
+                    {
+                        GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
+                    }
+                }
+            
+            // GL.Flush();
             Context.SwapBuffers();
             base.OnRenderFrame(args);
         }
@@ -151,7 +139,7 @@ namespace DolDoc.Renderer.OpenGL
                     Profile = ContextProfile.Compatability,
                     WindowBorder = WindowBorder.Fixed,
                     IsEventDriven = false,
-                    Title = title,
+                    Title = title
                 };
 
                 ulong ticks = 0;
@@ -159,6 +147,7 @@ namespace DolDoc.Renderer.OpenGL
 
                 using (window = new Wnd(State, settings, nativeSettings))
                 {
+                    window.VSync = VSyncMode.On;
                     window.Run();
                 }
             });
@@ -171,6 +160,9 @@ namespace DolDoc.Renderer.OpenGL
 
         public void SetTitle(string title)
         {
+            if (window == null)
+                return;
+            window.Title = title;
         }
 
         public void SetCursorType(CursorType cursorType)

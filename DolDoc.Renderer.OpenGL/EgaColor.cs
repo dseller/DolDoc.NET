@@ -5,7 +5,7 @@ namespace DolDoc.Renderer.OpenGL
     [StructLayout(LayoutKind.Sequential)]
     public struct EgaColor
     {
-        public static EgaColor[] Palette = new[]
+        public static readonly EgaColor[] Palette = new[]
         {
             new EgaColor(0x00, 0x00, 0x00),
             new EgaColor(0x00, 0x00, 0xAA),
