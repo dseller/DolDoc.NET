@@ -5,7 +5,7 @@ namespace DolDoc.Editor.Core
 {
     public class CharacterPageDirectory
     {
-        private List<CharacterPage> _pages;
+        private readonly List<CharacterPage> _pages;
 
         public int PageColumns { get; }
 
@@ -25,7 +25,7 @@ namespace DolDoc.Editor.Core
         {
             get 
             {
-                var page = GetPageForPosition(position % PageColumns, position / PageColumns);
+                var page = GetOrCreatePageForPosition(position % PageColumns, position / PageColumns);
                 if (page == null)
                     return default;
                 return page[position % (page.Columns * page.Rows)];

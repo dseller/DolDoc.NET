@@ -7,14 +7,13 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace DolDoc.Renderer.OpenGL
 {
+    [Obsolete("Use OpenTKWindow")]
     public class OpenGLNativeWindow : IFrameBufferWindow, IDisposable
     {
         private Timer timer;
@@ -30,17 +29,6 @@ namespace DolDoc.Renderer.OpenGL
         public ViewerState State => viewerState;
 
         public void Clear() => Array.Fill(_framebuffer, EgaColor.Palette[15]);
-
-        public void Render(byte[] data)
-        {
-            lock (framebufferLock)
-                for (int i = 0; i < data.Length; i++)
-                    _framebuffer[i] = EgaColor.Palette[data[i]];
-        }
-
-        public void RenderPartial(int x, int y, int width, int height, byte[] data)
-        {
-        }
 
         public void Show(string title, int width, int height, Document document = null)
         {

@@ -10,10 +10,12 @@ namespace DolDoc.Editor.Fonts
     /// </summary>
     public class YaffFontProvider : IFontProvider
     {
+        private readonly bool mirror;
         private readonly string _fontsFolder;
 
-        public YaffFontProvider(string fontsFolder = "Fonts")
+        public YaffFontProvider(bool mirror = true, string fontsFolder = "Fonts")
         {
+            this.mirror = mirror;
             _fontsFolder = fontsFolder;
         }
 
@@ -68,7 +70,7 @@ namespace DolDoc.Editor.Fonts
 
                     // TODO: font width/height is still hardcoded here, only supports
                     // Courier_8 now.
-                    return new YaffFont(values, 8, 12);
+                    return new YaffFont(values, 8, 12, mirror);
                 }
             }
 

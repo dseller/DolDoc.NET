@@ -1,6 +1,10 @@
-﻿namespace DolDoc.Editor.Core
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace DolDoc.Editor.Core
 {
-    public class CharacterPage
+    public class CharacterPage : IEnumerable<Character>
     {
         private Character[] _characters;
 
@@ -16,9 +20,11 @@
             Columns = columns;
             PageNumber = pageNo;
             _characters = new Character[rows * columns];
+            for (int i = 0; i < _characters.Length; i++)
+                _characters[i] = new Character((pageNo * columns * rows) + i);
 
             // TODO: get this from the state...
-            Clear(EgaColor.Black);
+            Clear(EgaColor.White);
         }
 
         public Character this[int pos]
@@ -37,7 +43,11 @@
         {
             for (int i = 0; i < _characters.Length; i++)
                 if ((_characters[i].Flags & CharacterFlags.Hold) == 0)
-                    _characters[i] = new Character(null, i, 0x00, new CombinedColor(color, color), CharacterFlags.None);
+                    _characters[i].Write(null, i, 0x00, new CombinedColor(color, color), CharacterFlags.None);
         }
+
+        public IEnumerator<Character> GetEnumerator() => _characters.AsEnumerable().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => _characters.GetEnumerator();
     }
 }
