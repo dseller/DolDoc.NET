@@ -16,6 +16,7 @@ namespace DolDoc.Editor.Core
         public event Action<string, object> OnFieldChange;
         public event Action<DocumentEntry> OnMacro;
         public event Action<string> OnPromptEntered;
+        public event Action<string> OnSave;
 
         public Document(string content, IList<BinaryChunk> binaryChunks = null, string path = null)
             : this(binaryChunks)
@@ -78,6 +79,8 @@ namespace DolDoc.Editor.Core
         public void Refresh() => OnUpdate?.Invoke(this, false);
 
         public virtual object GetData(string key) => null;
+
+        public virtual void Save() => OnSave?.Invoke(ToPlainText());
 
         public string ToPlainText() => Entries.Aggregate(string.Empty, (acc, entry) =>
         {

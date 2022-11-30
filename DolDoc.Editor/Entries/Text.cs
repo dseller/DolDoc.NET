@@ -1,6 +1,5 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
 using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
@@ -19,7 +18,7 @@ namespace DolDoc.Editor.Entries
 
         public override string ToString()
         {
-            if (Arguments.Count == 1)
+            if (Arguments.Count == 1 && Flags.Count == 0)
                 return Tag;
             return AsString("TX");
         }
@@ -47,7 +46,6 @@ namespace DolDoc.Editor.Entries
                     if (relativeOffset > 0)
                     {
                         Arguments[0].Value = Arguments[0].Value.Remove(relativeOffset - 1, 1);
-                        //state.CursorPosition--;
                         state.Cursor.Left();
                     }
                     else if (state.Pages[state.CursorPosition - 1].HasEntry)

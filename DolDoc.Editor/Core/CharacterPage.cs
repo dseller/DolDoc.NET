@@ -14,7 +14,7 @@ namespace DolDoc.Editor.Core
 
         public int Rows { get; }
 
-        public CharacterPage(int pageNo, int columns, int rows)
+        public CharacterPage(ViewerState viewerState, int pageNo, int columns, int rows)
         {
             Rows = rows;
             Columns = columns;
@@ -23,8 +23,7 @@ namespace DolDoc.Editor.Core
             for (int i = 0; i < _characters.Length; i++)
                 _characters[i] = new Character((pageNo * columns * rows) + i);
 
-            // TODO: get this from the state...
-            Clear(EgaColor.White);
+            Clear(viewerState.DefaultBackgroundColor);
         }
 
         public Character this[int pos]

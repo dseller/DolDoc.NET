@@ -44,9 +44,10 @@ namespace DolDoc.Editor
 
             RawMode = false;
 
-            doc.OnUpdate += Document_OnUpdate;
+            if (doc != null)
+                doc.OnUpdate += Document_OnUpdate;
 
-            Pages = new CharacterPageDirectory(Columns, Rows);
+            Pages = new CharacterPageDirectory(this, Columns, Rows);
         }
 
         public void LoadDocument(Document document, bool child = false)
@@ -243,6 +244,9 @@ namespace DolDoc.Editor
                 using (var writer = new StreamWriter(fs))
                     writer.Write(Document.ToPlainText());
             }*/
+            
+            if (save)
+                Document.Save();
 
             // If there is no parent document, close the whole application.
             if (Document.Parent == null)

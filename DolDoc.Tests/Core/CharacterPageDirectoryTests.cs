@@ -1,4 +1,5 @@
-﻿using DolDoc.Editor.Core;
+﻿using DolDoc.Editor;
+using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,10 +8,18 @@ namespace DolDoc.Tests.Core
     [TestClass]
     public class CharacterPageDirectoryTests
     {
+        private ViewerState viewerState;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            viewerState = new ViewerState(null, null, 100, 100);
+        }
+        
         [TestMethod]
         public void ItCreatesInitialPage()
         {
-            var pd = new CharacterPageDirectory(100, 100);
+            var pd = new CharacterPageDirectory(viewerState, 100, 100);
 
             Assert.AreEqual(1, pd.PageCount);
         }
@@ -18,7 +27,7 @@ namespace DolDoc.Tests.Core
         [TestMethod]
         public void ItRetrievesInitialPage()
         {
-            var pd = new CharacterPageDirectory(100, 100);
+            var pd = new CharacterPageDirectory(viewerState, 100, 100);
 
             var page = pd.GetOrCreatePage(0, 0);
 
@@ -31,7 +40,7 @@ namespace DolDoc.Tests.Core
         [TestMethod]
         public void ItCreatesNewPages()
         {
-            var pd = new CharacterPageDirectory(10, 10);
+            var pd = new CharacterPageDirectory(viewerState, 10, 10);
 
             var page1 = pd.GetOrCreatePage(0, 15);
             Assert.IsNotNull(page1);
@@ -47,7 +56,7 @@ namespace DolDoc.Tests.Core
         [TestMethod]
         public void ItNormalizesLocalPageCoordinates()
         {
-            var pd = new CharacterPageDirectory(10, 1);
+            var pd = new CharacterPageDirectory(viewerState, 10, 1);
             pd[5, 6].Write(new Text(null, null), 0, 0xFF, null, CharacterFlags.None);
 
             Assert.AreEqual(7, pd.PageCount);
@@ -58,7 +67,7 @@ namespace DolDoc.Tests.Core
         [TestMethod]
         public void ItNormalizesLocalPagePosition()
         {
-            var pd = new CharacterPageDirectory(80, 60);
+            var pd = new CharacterPageDirectory(viewerState, 80, 60);
             pd[4801].Write(new Text(null, null), 0, 0xFF, null, CharacterFlags.None);
 
             Assert.AreEqual(2, pd.PageCount);
@@ -69,7 +78,7 @@ namespace DolDoc.Tests.Core
         [TestMethod]
         public void PageCoordinatesAndPositionsMatch()
         {
-            var pd = new CharacterPageDirectory(80, 60);
+            var pd = new CharacterPageDirectory(viewerState, 80, 60);
             pd[0, 60].Write(new Text(null, null), 0, 0xFF, null, CharacterFlags.None);
 
             Assert.AreEqual(2, pd.GetOrCreatePage(60 * 80).PageNumber);
@@ -80,7 +89,7 @@ namespace DolDoc.Tests.Core
         [TestMethod]
         public void Test80x60Pages()
         {
-            var pd = new CharacterPageDirectory(80, 60);
+            var pd = new CharacterPageDirectory(viewerState, 80, 60);
 
             for (int i = 0; i < 80 * 60; i++)
                 pd[i].Write(new Text(null, null), 0, (byte)'A', null, CharacterFlags.None);

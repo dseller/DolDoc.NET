@@ -59,7 +59,9 @@ function OnPrompt(str)
 		if str:sub(1, 1) == "#" then
 			print(eval(str:sub(2)))
 		else
-			print(io.popen(str, "r"):read("*a"))
+	        local bla = io.popen(str, "r")
+	        bla:setvbuf("line")
+			print(bla:read("*a"))
 		end
 	else
 		cmd()

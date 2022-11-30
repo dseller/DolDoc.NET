@@ -6,6 +6,7 @@ using DolDoc.Renderer.OpenGL;
 using NLua;
 using NLua.Exceptions;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -46,7 +47,7 @@ namespace DolDoc.Examples.Shell
 
         public void Run()
         {
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var compositor = new Compositor<OpenTKWindow>();
             var window = compositor.NewWindow();
             document = new Document();
             lua = new Lua();
@@ -74,6 +75,23 @@ namespace DolDoc.Examples.Shell
                     document.Entries.AddLast(new Error(ex.ToString()));
                 }
             };
+            document.OnSave += contents =>
+            {
+                try
+                {
+                    var prelude = $"\n\n$FG,RED$ --- SESSION STORED ON {DateTime.Now.ToString(CultureInfo.InvariantCulture)} --- $FG$\n\n";
+                    var path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    using (var fs = File.Open(Path.Combine(path, "ddsh.buffer.dd"), FileMode.Create))
+                    {
+                        using (var writer = new StreamWriter(fs))
+                            writer.Write(contents + prelude);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    document.Entries.AddLast(new Error(ex.ToString()));
+                }
+            };
 
 
             lua.RegisterFunction("print", this, typeof(Program).GetMethod(nameof(Print)));
@@ -81,6 +99,20 @@ namespace DolDoc.Examples.Shell
             lua.RegisterFunction("reload", this, typeof(Program).GetMethod(nameof(Load)));
             lua.RegisterFunction("directory_listing", typeof(DirectoryListing).GetMethod("List"));
             lua["WORKING_DIRECTORY"] = Directory.GetCurrentDirectory();
+            
+            var bufferPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ddsh.buffer.dd");
+            if (File.Exists(bufferPath))
+            {
+                using (var fs = File.Open(bufferPath, FileMode.Open))
+                {
+                    using (var reader = new StreamReader(fs))
+                    {
+                        var contents = reader.ReadToEnd();
+                        document.Write(contents);
+                    }
+                }
+            }
+            
             Load();
 
             window.Show("DolDoc.NET File Browser", 1600, 1200, document);

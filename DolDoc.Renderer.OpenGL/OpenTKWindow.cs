@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -41,14 +42,15 @@ namespace DolDoc.Renderer.OpenGL
             base.OnLoad();
         }
 
+        private double blaat;
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             GL.MatrixMode(MatrixMode.Projection);
             GL.Ortho(0, Size.X, 0, Size.Y, -1, 1);
             GL.Viewport(0, 0, Size.X, Size.Y);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            GL.Disable(EnableCap.Lighting);
+            // GL.Clear(ClearBufferMask.ColorBufferBit);
+            // GL.Disable(EnableCap.Lighting);
             
             for (int y = 0; y < state.Rows; y++)
                 for (int x = 0; x < state.Columns; x++)
@@ -91,6 +93,7 @@ namespace DolDoc.Renderer.OpenGL
             // GL.Flush();
             Context.SwapBuffers();
             base.OnRenderFrame(args);
+            Thread.Sleep(1);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -147,7 +150,8 @@ namespace DolDoc.Renderer.OpenGL
 
                 using (window = new Wnd(State, settings, nativeSettings))
                 {
-                    window.VSync = VSyncMode.On;
+                    window.VSync = VSyncMode.Off;
+                    window.RenderFrequency = 30;
                     window.Run();
                 }
             });
