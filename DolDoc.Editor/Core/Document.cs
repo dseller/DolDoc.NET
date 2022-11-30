@@ -9,13 +9,16 @@ namespace DolDoc.Editor.Core
 {
     public class Document
     {
-        private IDolDocParser _parser;
+        private readonly object syncRoot = new object();
+        private readonly IDolDocParser parser;
+        private readonly LinkedList<DocumentEntry> entries;
 
         public event Action<Document, bool> OnUpdate;
         public event Action<Button> OnButtonClick;
         public event Action<string, object> OnFieldChange;
         public event Action<DocumentEntry> OnMacro;
         public event Action<string> OnPromptEntered;
+        public event Action<string> OnSave;
 
         public Document(string content, IList<BinaryChunk> binaryChunks = null, string path = null)
             : this(binaryChunks)
@@ -28,11 +31,20 @@ namespace DolDoc.Editor.Core
         {
             BinaryChunks = binaryChunks;
 
-            _parser = new AntlrParser();
-            Entries = new LinkedList<DocumentEntry>();
+            parser = new AntlrParser();
+            entries = new LinkedList<DocumentEntry>();
         }
 
-        public LinkedList<DocumentEntry> Entries { get; private set; }
+        public DocumentEntry[] Entries
+        {
+            get
+            {
+                lock (syncRoot)
+                {
+                    return entries.ToArray();
+                }
+            }
+        }
         
         public IList<BinaryChunk> BinaryChunks { get; private set; }
 
@@ -59,7 +71,14 @@ namespace DolDoc.Editor.Core
             if (string.IsNullOrEmpty(contents))
                 return;
 
-            Entries = new LinkedList<DocumentEntry>(_parser.Parse(contents));
+            lock (syncRoot)
+            {
+                entries.Clear();
+                var parsed = parser.Parse(contents);
+                foreach (var entry in parsed)
+                    entries.AddLast(entry);
+            }
+
             OnUpdate?.Invoke(this, true);
         }
 
@@ -70,14 +89,36 @@ namespace DolDoc.Editor.Core
             if (string.IsNullOrEmpty(content))
                 return;
 
-            foreach (var entry in _parser.Parse(content))
-                Entries.AddLast(entry);
+            var parsed = parser.Parse(content);
+            lock (syncRoot)
+            {
+                foreach (var entry in parsed)
+                   entries.AddLast(entry);
+            }
+
             OnUpdate?.Invoke(this, false);
+        }
+
+        public void Write(DocumentEntry entry)
+        {
+            lock (syncRoot)
+                entries.AddLast(entry);
+            OnUpdate?.Invoke(this, false);
+        }
+
+        public void Remove(DocumentEntry entry)
+        {
+            lock (syncRoot)
+            {
+                entries.Remove(entry);
+            }
         }
 
         public void Refresh() => OnUpdate?.Invoke(this, false);
 
         public virtual object GetData(string key) => null;
+
+        public virtual void Save() => OnSave?.Invoke(ToPlainText());
 
         public string ToPlainText() => Entries.Aggregate(string.Empty, (acc, entry) =>
         {

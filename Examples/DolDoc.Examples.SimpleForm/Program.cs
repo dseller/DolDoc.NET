@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Forms;
 using DolDoc.Editor.Sprites;
 using DolDoc.Renderer.OpenGL;
-using Serilog;
 
 namespace DolDoc.Examples.SimpleForm
 {
@@ -61,10 +61,10 @@ namespace DolDoc.Examples.SimpleForm
 
         public void OnSubmit(FormDocument<TestForm> form)
         {
-            Log.Information("Submitting form:");
-            Log.Information("FileName: {0}", FileName);
-            Log.Information("Readonly: {0}", ReadOnly);
-            Log.Information("Gender: {0}", Gender);
+            Debug.WriteLine($"Submitting form:");
+            Debug.WriteLine($"FileName: {FileName}");
+            Debug.WriteLine($"Readonly: {ReadOnly}");
+            Debug.WriteLine($"Gender: {Gender}");
         }
     }
     
@@ -77,7 +77,7 @@ namespace DolDoc.Examples.SimpleForm
             spriteBuilder.Add(new Arrow(50, 100, 100, 200));
             var sprite = spriteBuilder.Serialize();
 
-            var compositor = new Compositor<OpenGLNativeWindow>();
+            var compositor = new Compositor<OpenTKWindow>();
             var window = compositor.NewWindow();
             var obj = new TestForm();
             var doc = new FormDocument<TestForm>(obj, new List<BinaryChunk>() { new BinaryChunk(1, 0, (uint)sprite.Length, 0, sprite) });

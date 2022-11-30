@@ -1,4 +1,5 @@
-﻿using DolDoc.Editor.Commands;
+﻿using System;
+using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using System.Collections.Generic;
 using System.IO;
@@ -49,8 +50,15 @@ namespace DolDoc.Editor.Entries
 
             using (var fs = File.Open(file, FileMode.Open))
             {
-                var document = DocumentLoader.Load(fs, file);
-                state.LoadDocument(document, true);
+                try
+                {
+                    var document = DocumentLoader.Load(fs, file);
+                    state.LoadDocument(document, true);
+                }
+                catch (Exception ex)
+                {
+                    state.Document.Write(new Error(ex.ToString()));
+                }
             }
         }
     }

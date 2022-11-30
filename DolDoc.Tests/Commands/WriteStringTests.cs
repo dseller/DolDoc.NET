@@ -28,8 +28,8 @@ namespace DolDoc.Tests.Commands
 
             _document.Load(str);
 
-            var ws = _document.Entries.First;
-            var result = ws.Value.Evaluate(_commandContext);
+            var ws = _document.Entries[0];
+            var result = ws.Evaluate(_commandContext);
 
             Assert.AreEqual(true, result.Success);
             Assert.AreEqual(str.Length, result.WrittenCharacters);
@@ -57,8 +57,8 @@ namespace DolDoc.Tests.Commands
             _commandContext.Options.WordWrap = true;
 
             _document.Load(LoremIpsum);
-            var ws = _document.Entries.First;
-            var result = ws.Value.Evaluate(_commandContext);
+            var ws = _document.Entries[0];
+            var result = ws.Evaluate(_commandContext);
 
             Assert.AreEqual(true, result.Success);
             Assert.AreEqual(LoremIpsum.Length + 22, result.WrittenCharacters);

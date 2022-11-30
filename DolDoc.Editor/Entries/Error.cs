@@ -1,26 +1,44 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
-using System;
+using System.Collections.Generic;
 
 namespace DolDoc.Editor.Entries
 {
     [Entry("ER")]
     public class Error : DocumentEntry
     {
-        private string _errorMessage;
+        private readonly string _errorMessage;
 
         public Error(string errorMsg) 
-            : base(null, null)
+            : base(new List<Flag>(), new List<Argument>() { new Argument(null, errorMsg) })
         {
             _errorMessage = errorMsg;
         }
 
-        public override CommandResult Evaluate(EntryRenderContext ctx)
+        public Error(IList<Flag> flags, IList<Argument> args) : base(flags, args)
         {
-            Console.WriteLine("ERROR: " + _errorMessage);
-            return new CommandResult(true);
+            _errorMessage = Tag;
         }
 
-        public override string ToString() => "$ER$";
+        public override CommandResult Evaluate(EntryRenderContext ctx)
+        {
+            if (_errorMessage == null)
+                return new CommandResult(true);
+            
+            ctx.PushOptions(new RenderOptions
+            {
+                BackgroundColor = EgaColor.Red,
+                ForegroundColor = EgaColor.White,
+                // Blink = true
+            });
+
+            var written = WriteString(ctx, _errorMessage);
+
+            ctx.PopOptions();
+
+            return new CommandResult(true, written);
+        }
+
+        public override string ToString() => AsString("ER");
     }
 }

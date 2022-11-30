@@ -73,7 +73,7 @@ namespace DolDoc.Tests.Editor
 
             cursor.Left();
 
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
             Assert.AreEqual(4, cursor.DocumentPosition);
         }
 
@@ -90,12 +90,12 @@ namespace DolDoc.Tests.Editor
             cursor.SetPosition(36);
             doc.Refresh();
 
-            Assert.AreEqual(doc.Entries.First.Next.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[1], cursor.SelectedEntry);
 
             cursor.Left();
 
             Assert.AreEqual(2, cursor.DocumentPosition);
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
         }
 
         [TestMethod]
@@ -121,12 +121,12 @@ namespace DolDoc.Tests.Editor
             cursor.SetPosition(state.Columns + 2);
             doc.Refresh();
 
-            Assert.AreEqual(doc.Entries.First.Next.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[1], cursor.SelectedEntry);
 
             cursor.Up();
 
             Assert.AreEqual(2, cursor.DocumentPosition);
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
         }
 
         [TestMethod]
@@ -138,12 +138,12 @@ namespace DolDoc.Tests.Editor
             cursor.SetPosition(state.Columns + 1);
             doc.Refresh();
 
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
 
             cursor.Up();
 
             Assert.AreEqual(1, cursor.DocumentPosition);
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
         }
 
         [TestMethod]
@@ -167,12 +167,12 @@ namespace DolDoc.Tests.Editor
             var cursor = new Cursor(state);
             doc.Refresh();
 
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
 
             cursor.Down();
 
             Assert.AreEqual(state.Columns, cursor.DocumentPosition);
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
         }
 
         [TestMethod]
@@ -183,12 +183,12 @@ namespace DolDoc.Tests.Editor
             var cursor = new Cursor(state);
             doc.Refresh();
 
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
 
             cursor.Down();
 
             Assert.AreEqual(state.Columns, cursor.DocumentPosition);
-            Assert.AreEqual(doc.Entries.First.Next.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[1], cursor.SelectedEntry);
         }
 
         [TestMethod]
@@ -199,7 +199,7 @@ namespace DolDoc.Tests.Editor
             var cursor = new Cursor(state);
             doc.Refresh();
 
-            Assert.AreEqual(doc.Entries.First.Value, cursor.SelectedEntry);
+            Assert.AreEqual(doc.Entries[0], cursor.SelectedEntry);
 
             for (int i = 0; i < 62; i++)
                 cursor.Down();

@@ -47,7 +47,7 @@ namespace DolDoc.Editor.Core
             switch (key)
             {
                 case Key.DEL:
-                    state.Document.Entries.Remove(this);
+                    state.Document.Remove(this);
                     break;
             }
         }
@@ -67,6 +67,14 @@ namespace DolDoc.Editor.Core
 
         public string GetArgument(string key, string defaultValue = null) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value ?? defaultValue;
 
+        public void SetArgument(string key, string value)
+        {
+            if (!HasArgument(key))
+                Arguments.Add(new Argument(key, value));
+            else
+                Arguments.First(arg => arg.Key == key).Value = value;
+        }
+
         public bool HasArgument(string key) => Arguments.Any(arg => arg.Key == key);
 
         protected void WriteBorder(EntryRenderContext ctx, int length, int? renderPositionOverride = null)
@@ -75,22 +83,22 @@ namespace DolDoc.Editor.Core
             var renderPosition = renderPositionOverride ?? ctx.RenderPosition;
 
             // Write top border
-            ctx.State.Pages[renderPosition - ctx.State.Columns - 1] = new Character(this, 0, 0xDA, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - ctx.State.Columns - 1].Write(this, 0, 0xDA, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
             for (int i = 0; i < length; i++)
-                ctx.State.Pages[renderPosition - ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[renderPosition - ctx.State.Columns + length] = new Character(this, 0, 0xBF, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+                ctx.State.Pages[renderPosition - ctx.State.Columns + i].Write(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - ctx.State.Columns + length].Write(this, 0, 0xBF, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
             // Write bottom border
-            ctx.State.Pages[renderPosition + ctx.State.Columns - 1] = new Character(this, 0, 0xC0, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + ctx.State.Columns - 1].Write(this, 0, 0xC0, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
             for (int i = 0; i < length; i++)
-                ctx.State.Pages[renderPosition + ctx.State.Columns + i] = new Character(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[renderPosition + ctx.State.Columns + length] = new Character(this, 0, 0xD9, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+                ctx.State.Pages[renderPosition + ctx.State.Columns + i].Write(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + ctx.State.Columns + length].Write(this, 0, 0xD9, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
             // Write left border
-            ctx.State.Pages[renderPosition - 1] = new Character(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - 1].Write(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
             // Write right border
-            ctx.State.Pages[renderPosition + length] = new Character(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + length].Write(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
         }
 
         /// <summary>
@@ -133,7 +141,7 @@ namespace DolDoc.Editor.Core
                 if (renderPosition % ctx.State.Columns == 0)
                 {
                     for (int indent = 0; indent < ctx.Options.Indentation; indent++)
-                        ctx.State.Pages[renderPosition + indent] = new Character(this, indent, (byte)' ', new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+                        ctx.State.Pages[renderPosition + indent].Write(this, indent, (byte)' ', new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
 
                     renderPosition += ctx.Options.Indentation;
                     charsWritten += ctx.Options.Indentation;
@@ -170,7 +178,7 @@ namespace DolDoc.Editor.Core
                 if (Arguments.Any(arg => arg.Key == "SX"))
                     shiftX = byte.Parse(Arguments.First(arg => arg.Key == "SX").Value);*/
 
-                ctx.State.Pages[renderPosition++] = new Character(
+                ctx.State.Pages[renderPosition++].Write(
                     this,
                     i,
                     (byte)str[i],

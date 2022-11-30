@@ -28,11 +28,16 @@ And more :)
 
 There are a few examples in the Examples folder:
 
+- Shell: an experimental shell using Lua as its scripting language.
 - FileBrowser: simple file browser using TempleOS directory listings.
 - SimpleForm: a test form that uses C# bindings.
 - TodoList: a test todo list app using C# bindings.
 
 ## Screenshots
+
+The shell example:
+
+![shell](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/shell.png)
 
 The file browser example:
 
