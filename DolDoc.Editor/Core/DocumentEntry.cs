@@ -47,7 +47,7 @@ namespace DolDoc.Editor.Core
             switch (key)
             {
                 case Key.DEL:
-                    state.Document.Entries.Remove(this);
+                    state.Document.Remove(this);
                     break;
             }
         }
@@ -66,6 +66,14 @@ namespace DolDoc.Editor.Core
         }
 
         public string GetArgument(string key, string defaultValue = null) => Arguments.FirstOrDefault(arg => arg.Key == key)?.Value ?? defaultValue;
+
+        public void SetArgument(string key, string value)
+        {
+            if (!HasArgument(key))
+                Arguments.Add(new Argument(key, value));
+            else
+                Arguments.First(arg => arg.Key == key).Value = value;
+        }
 
         public bool HasArgument(string key) => Arguments.Any(arg => arg.Key == key);
 

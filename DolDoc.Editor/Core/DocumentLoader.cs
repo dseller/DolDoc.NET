@@ -1,6 +1,6 @@
 ﻿using DolDoc.Editor.Extensions;
-using Serilog;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace DolDoc.Editor.Core
@@ -23,7 +23,7 @@ namespace DolDoc.Editor.Core
                     uint refCount = reader.ReadUInt32();
                     byte[] binaryData = reader.ReadBytes((int)size);
 
-                    Log.Information("Read binary chunk ID {0} with size {1}", chunkId, size);
+                    Debug.WriteLine($"Read binary chunk ID {chunkId} with size {size}");
 
                     binaryChunks.Add(new BinaryChunk(chunkId, flags, size, refCount, binaryData));
                 }

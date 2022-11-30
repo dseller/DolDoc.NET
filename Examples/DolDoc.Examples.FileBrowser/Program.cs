@@ -1,10 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
 using DolDoc.Renderer.OpenGL;
-using Serilog;
 
 namespace DolDoc.Examples.FileBrowser
 {
@@ -41,7 +41,7 @@ namespace DolDoc.Examples.FileBrowser
             void OnMacro(DocumentEntry entry)
             {
                 var command = entry.GetArgument("LE");
-                Log.Information("Executing macro {0}", command);
+                Debug.WriteLine($"Executing macro {command}");
 
                 switch (entry.GetArgument("LE"))
                 {

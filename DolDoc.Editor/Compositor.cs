@@ -1,6 +1,6 @@
 ﻿using DolDoc.Editor.Rendering;
-using Serilog;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DolDoc.Editor
 {
@@ -19,7 +19,7 @@ namespace DolDoc.Editor
 
         public Window<TFrameBuffer> NewWindow()
         {
-            Log.Information("Creating new window...");
+            Debug.WriteLine("Creating new window...");
 
             var fb = new TFrameBuffer();
             var window = new Window<TFrameBuffer>(this, fb);

@@ -1,5 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -12,7 +12,6 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
-using Serilog;
 
 namespace DolDoc.Renderer.OpenGL
 {
@@ -127,7 +126,7 @@ namespace DolDoc.Renderer.OpenGL
         {
             thread = new Thread(() =>
             {
-                Log.Verbose("Opening OpenTKWindow!");
+                Debug.WriteLine("Opening OpenTKWindow!");
 
                 this.document = document ?? new Document();
 

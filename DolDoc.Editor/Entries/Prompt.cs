@@ -14,7 +14,7 @@ namespace DolDoc.Editor.Entries
         public Prompt(IList<Flag> flags, IList<Argument> args) : base(flags, args)
         {
             jumped = false;
-            builder = new StringBuilder();
+            builder = new StringBuilder(Tag ?? string.Empty);
         }
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
@@ -52,7 +52,8 @@ namespace DolDoc.Editor.Entries
             state.Cursor.SetPosition(state.Cursor.DocumentPosition + 1);
 
             builder.Insert(relativeOffset, character.Value);
-
+            // Tag = builder.ToString();
+            SetArgument(null, builder.ToString());
         }
 
         public override string ToString() => AsString("PT");

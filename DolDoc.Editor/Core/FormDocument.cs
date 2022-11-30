@@ -1,8 +1,8 @@
 ﻿using DolDoc.Editor.Entries;
 using DolDoc.Editor.Forms;
-using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -56,14 +56,14 @@ namespace DolDoc.Editor.Core
             var handlerMethod = obj.GetArgument("H");
             if (string.IsNullOrEmpty(handlerMethod))
             {
-                Log.Warning("No handler method specified.");
+                Debug.WriteLine("No handler method specified.");
                 return;
             }
 
             var methodInfo = typeof(T).GetMethod(handlerMethod);
             if (methodInfo == null)
             {
-                Log.Warning("Could not find method {0} on type {1}", methodInfo, typeof(T));
+                Debug.WriteLine($"Could not find method {methodInfo} on type {typeof(T)}");
                 return;
             }
 

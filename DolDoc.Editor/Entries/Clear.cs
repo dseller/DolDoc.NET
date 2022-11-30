@@ -26,7 +26,7 @@ namespace DolDoc.Editor.Entries
             }
 
             foreach (var item in toRemove)
-                ctx.Document.Entries.Remove(item);
+                ctx.Document.Remove(item);
 
             return new CommandResult(true, refreshRequested: true);
         }

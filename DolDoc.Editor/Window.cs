@@ -1,9 +1,6 @@
 ﻿using DolDoc.Editor.Core;
 using DolDoc.Editor.Rendering;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 
 namespace DolDoc.Editor
 {
@@ -21,7 +18,7 @@ namespace DolDoc.Editor
 
         public void Show(string title, int width, int height, Document document = null)
         {
-            Log.Information("Showing window, width={0}, height={1}", width, height);
+            Debug.WriteLine($"Showing window, width={width}, height={height}");
             frameBufferWindow.Show(title, width, height, document);
         }
 

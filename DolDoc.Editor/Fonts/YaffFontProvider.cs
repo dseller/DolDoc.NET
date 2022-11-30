@@ -1,5 +1,5 @@
-﻿using Serilog;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace DolDoc.Editor.Fonts
@@ -61,12 +61,11 @@ namespace DolDoc.Editor.Fonts
                             currentLine = reader.ReadLine();
                         }
 
-                        // Log.Verbose("Adding glyph with keys: {0}, value: {1}", keys.ToArray(), value);
                         foreach (var key in keys)
                             values.Add(key, value);
                     }
 
-                    Log.Information("YAFF Font {0} loaded with {1} glyphs", name, values.Count);
+                    Debug.WriteLine($"YAFF Font {name} loaded with {values.Count} glyphs");
 
                     // TODO: font width/height is still hardcoded here, only supports
                     // Courier_8 now.

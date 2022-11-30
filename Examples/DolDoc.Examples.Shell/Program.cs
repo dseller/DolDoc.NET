@@ -6,9 +6,12 @@ using DolDoc.Renderer.OpenGL;
 using NLua;
 using NLua.Exceptions;
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace DolDoc.Examples.Shell
 {
@@ -41,7 +44,7 @@ namespace DolDoc.Examples.Shell
             }
             catch (LuaScriptException ex)
             {
-                document.Entries.AddLast(new Error(ex.ToString()));
+                document.Write(new Error(ex.ToString()));
             }
         }
 
@@ -61,7 +64,7 @@ namespace DolDoc.Examples.Shell
                 }
                 catch (Exception ex)
                 {
-                    document.Entries.AddLast(new Error(ex.ToString()));
+                    document.Write(new Error(ex.ToString()));
                 }
             };
             document.OnPromptEntered += str =>
@@ -72,7 +75,7 @@ namespace DolDoc.Examples.Shell
                 }
                 catch (Exception ex)
                 {
-                    document.Entries.AddLast(new Error(ex.ToString()));
+                    document.Write(new Error(ex.ToString()));
                 }
             };
             document.OnSave += contents =>
@@ -89,7 +92,7 @@ namespace DolDoc.Examples.Shell
                 }
                 catch (Exception ex)
                 {
-                    document.Entries.AddLast(new Error(ex.ToString()));
+                    document.Write(new Error(ex.ToString()));
                 }
             };
 
@@ -98,6 +101,7 @@ namespace DolDoc.Examples.Shell
             lua.RegisterFunction("eval", this, typeof(Program).GetMethod(nameof(Eval)));
             lua.RegisterFunction("reload", this, typeof(Program).GetMethod(nameof(Load)));
             lua.RegisterFunction("directory_listing", typeof(DirectoryListing).GetMethod("List"));
+            lua.RegisterFunction("shell", this, typeof(Program).GetMethod(nameof(Shell)));
             lua["WORKING_DIRECTORY"] = Directory.GetCurrentDirectory();
             
             var bufferPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ddsh.buffer.dd");
@@ -118,6 +122,48 @@ namespace DolDoc.Examples.Shell
             window.Show("DolDoc.NET File Browser", 1600, 1200, document);
         }
 
+        public void Shell(string cmd, Action<string> outputWriter)
+        {
+            if (string.IsNullOrWhiteSpace(cmd))
+                return;
+            
+            var tokens = cmd.Split(new[] { ' ' }, 2);
+            var psi = new ProcessStartInfo
+            {
+                FileName = tokens[0],
+                Arguments = tokens.Length > 1 ? tokens[1] : string.Empty,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            };
+
+            var process = new Process
+            {
+                StartInfo = psi
+            };
+
+            try
+            {
+                process.Start();
+                new Thread(() =>
+                {
+                    while (!process.StandardOutput.EndOfStream)
+                    {
+                        var line = process.StandardOutput.ReadLine();
+                        outputWriter?.Invoke(line + "\n");
+                        Debug.WriteLine("Wrote a line!");
+                    }
+                }).Start();
+            }
+            catch (Win32Exception ex)
+            {
+                if (ex.NativeErrorCode != 2)
+                    throw;
+                
+                document.Write(new Error("Command not found"));
+            }
+        }
+
         public void Load()
         {
             if (File.Exists("scripts\\main.lua"))
@@ -134,40 +180,5 @@ namespace DolDoc.Examples.Shell
             Program p = new Program();
             p.Run();
         }
-
-        //private static string RenderPrompt()
-        //{
-        //    var builder = new StringBuilder();
-        //    var segments = pwd.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
-        //    var accumulator = string.Empty;
-
-        //    foreach (var segment in segments)
-        //    {
-        //        accumulator += $"{segment}{Path.AltDirectorySeparatorChar}";
-        //        builder.Append($"$MA,\"{segment}\",LE=\"ChangeDir\",RE=\"{accumulator}\"${Path.AltDirectorySeparatorChar}");
-        //    }
-
-        //    builder.Append("> $PT$");
-        //    return "\n\n" + builder.ToString();//.Replace("\\", "\\\\");
-        //}
-
-        //private static string DirectoryListing(string path = ".")
-        //{
-        //    var builder = new StringBuilder();
-        //    var d = new DirectoryInfo(path);
-        //    builder.AppendFormat("\n\n$FG,BLUE$Directory of {0}\n", d.FullName);
-
-        //    builder.AppendFormat("DATE       TIME  SIZE\n");
-        //    builder.AppendFormat("0000/00/00 00:00 0000 $MA,\".\",LE=\"ChangeDir\",RE=\"{0}\"$\n", d.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        //    if (d.Parent != null)
-        //        builder.AppendFormat("0000/00/00 00:00 0000 $MA,\"..\",LE=\"ChangeDir\",RE=\"{0}\"$\n", d.Parent.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-
-        //    foreach (var directory in d.EnumerateDirectories())
-        //        builder.AppendFormat("{0} {1} {2:X4} $MA,\"{3}\",LE=\"ChangeDir\",RE=\"{4}\"$\n", directory.LastWriteTime.ToString("yyyy/MM/dd"), directory.LastWriteTime.ToString("HH:mm"), 0, directory.Name, directory.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        //    foreach (var file in d.EnumerateFiles())
-        //        builder.AppendFormat("{0} {1} {2:X4} $LK,\"{4}\",A=\"{3}\"$\n", file.LastWriteTime.ToString("yyyy/MM/dd"), file.LastWriteTime.ToString("HH:mm"), file.Length / 1024, file.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), file.Name);
-
-        //    return builder.ToString();
-        //}
     }
 }

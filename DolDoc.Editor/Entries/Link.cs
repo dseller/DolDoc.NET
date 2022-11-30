@@ -57,7 +57,7 @@ namespace DolDoc.Editor.Entries
                 }
                 catch (Exception ex)
                 {
-                    state.Document.Entries.AddLast(new Error(ex.ToString()));
+                    state.Document.Write(new Error(ex.ToString()));
                 }
             }
         }

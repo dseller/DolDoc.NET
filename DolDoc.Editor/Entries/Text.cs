@@ -50,7 +50,7 @@ namespace DolDoc.Editor.Entries
                     }
                     else if (state.Pages[state.CursorPosition - 1].HasEntry)
                     {
-                        state.Document.Entries.Remove(state.Pages[state.CursorPosition - 1].Entry);
+                        state.Document.Remove(state.Pages[state.CursorPosition - 1].Entry);
                         // TODO: update cursor minus length of entry
                         // state.CursorPosition -=  
                     }
