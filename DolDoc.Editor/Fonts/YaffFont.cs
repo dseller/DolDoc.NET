@@ -14,10 +14,9 @@ namespace DolDoc.Editor.Fonts
             Height = height;
 
             glyphs = new byte[255][];
-            for (int i = 0; i < 255; i++)
+            for (var i = 0; i < 255; i++)
             {
-                var asHex = string.Format("0x{0:x2}", i);
-                if (!values.TryGetValue(asHex, out var glyph) || string.IsNullOrWhiteSpace(glyph))
+                if (!values.TryGetValue($"0x{i:x2}", out var glyph) || string.IsNullOrWhiteSpace(glyph))
                 {
                     glyphs[i] = Enumerable.Repeat<byte>(0x00, Width * Height).ToArray();
                     continue;
@@ -25,25 +24,27 @@ namespace DolDoc.Editor.Fonts
 
                 glyphs[i] = new byte[(Width * Height)/8];
 
-                var glyphEnumerator = glyph.GetEnumerator();
-                glyphEnumerator.MoveNext();
-
-                var bytes = Width * Height / 8;
-                for (int segment = 0; segment < bytes; segment++)
+                using (var glyphEnumerator = glyph.GetEnumerator())
                 {
-                    for (int bt = 0; bt < 8; bt++)
+                    glyphEnumerator.MoveNext();
+
+                    var bytes = Width * Height / 8;
+                    for (int segment = 0; segment < bytes; segment++)
                     {
-                        if (glyphEnumerator.Current == '@')
-                            glyphs[i][segment] |= (byte)(1 << bt);
-                        glyphEnumerator.MoveNext();
+                        for (int bt = 0; bt < 8; bt++)
+                        {
+                            if (glyphEnumerator.Current == '@')
+                                glyphs[i][segment] |= (byte) (1 << bt);
+                            glyphEnumerator.MoveNext();
+                        }
+
+                        if (mirror)
+                            glyphs[i][segment] = glyphs[i][segment].Reverse();
                     }
 
                     if (mirror)
-                        glyphs[i][segment] = glyphs[i][segment].Reverse();
+                        glyphs[i] = glyphs[i].Reverse().ToArray();
                 }
-
-                if (mirror)
-                    glyphs[i] = glyphs[i].Reverse().ToArray();
             }
         }
 

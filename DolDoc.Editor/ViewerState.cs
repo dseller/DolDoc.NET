@@ -37,7 +37,7 @@ namespace DolDoc.Editor
             Cursor = new Cursor(this);
             Document = doc;
             this.frameBuffer = frameBuffer;
-            this.fontProvider = fontProvider ?? new TempleOSFontProvider();
+            this.fontProvider = fontProvider ?? new YaffFontProvider();
             Font = this.fontProvider.Get(font);
 
             Width = width;

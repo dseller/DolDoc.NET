@@ -22,7 +22,7 @@ namespace DolDoc.Examples.SimpleForm
         TwentyFourHours
     }
 
-    [FormHeader("$TI,\"Test Form\"$This is an $FG,RED$example$FG$ form. Enter the data below.$SP,BI=1$\n\n")]
+    [FormHeader("$TI,\"Test Form\"$This is an $FG,RED$example$FG$ form. Enter the data below.\n\n")]
     [FormFooter("\n\n\n$BK,1$$FG,RED$$TX+B+CX,\"Please verify before submitting!\"$$BK,0$")]
     public class TestForm
     {
@@ -72,15 +72,10 @@ namespace DolDoc.Examples.SimpleForm
     {
         public static void Main(string[] args)
         {
-            var spriteBuilder = new SpriteBuilder();
-            spriteBuilder.Add(new Color(Editor.Core.EgaColor.Cyan));
-            spriteBuilder.Add(new Arrow(50, 100, 100, 200));
-            var sprite = spriteBuilder.Serialize();
-
             var compositor = new Compositor<OpenTKWindow>();
             var window = compositor.NewWindow();
             var obj = new TestForm();
-            var doc = new FormDocument<TestForm>(obj, new List<BinaryChunk>() { new BinaryChunk(1, 0, (uint)sprite.Length, 0, sprite) });
+            var doc = new FormDocument<TestForm>(obj);
             window.Show("Form Test", 1024, 768, doc);
 
             new Thread(() =>

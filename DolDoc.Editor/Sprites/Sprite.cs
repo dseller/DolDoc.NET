@@ -57,6 +57,10 @@ namespace DolDoc.Editor.Sprites
                             case SpriteElementType.Thick:
                                 spriteElements.Add(new Thick(reader));
                                 break;
+                            
+                            case SpriteElementType.Circle:
+                                spriteElements.Add(new Circle(reader));
+                                break;
 
                             default:
                                 Console.WriteLine("Encountered unsupported sprite element '{0}', aborting sprite loading", elementType);

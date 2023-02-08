@@ -42,7 +42,7 @@
             new EgaColorRgbBitmap(0xFF, 0xFF, 0xFF)
         };
 
-        public EgaColorRgbBitmap(byte r, byte g, byte b)
+        private EgaColorRgbBitmap(byte r, byte g, byte b)
         {
             R = r;
             G = g;

@@ -23,19 +23,18 @@ namespace DolDoc.Editor.Sprites
             Y2 = y2;
         }
 
-        public int X1 { get; }
+        protected int X1 { get; }
 
-        public int Y1 { get; }
+        protected int Y1 { get; }
 
-        public int X2 { get; }
+        protected int X2 { get; }
 
-        public int Y2 { get; }
+        protected int Y2 { get; }
 
 		public override void Render(SpriteRenderContext ctx, int x, int y) => RenderLine(ctx, x + X1, y + Y1, x + X2, y + Y2, ctx.Color);
 
 		protected void RenderLine(SpriteRenderContext renderContext, int x1, int y1, int x2, int y2, EgaColor color = EgaColor.Black)
         {
-            GL.LineWidth(renderContext.Thickness == 0 ? 1 : renderContext.Thickness);
             GL.Begin(BeginMode.Lines);
             GL.Vertex2(x1, renderContext.State.Height - (y1 + 1));
             GL.Vertex2(x2, renderContext.State.Height - (y2 + 1));

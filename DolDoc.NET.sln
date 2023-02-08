@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\github-actions.yml = .github\workflows\github-actions.yml
 		README.md = README.md
+		Fonts\Terminal_VGA_cp861.yaff = Fonts\Terminal_VGA_cp861.yaff
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{26B584C1-DB26-4E59-B9D0-FD060AE4F6D8}"
@@ -28,6 +29,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.Examples.TodoList", "Examples\DolDoc.Examples.TodoList\DolDoc.Examples.TodoList.csproj", "{D3CA8FFF-9EE5-42B1-8C40-F7E712751786}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolDoc.Examples.Shell", "Examples\DolDoc.Examples.Shell\DolDoc.Examples.Shell.csproj", "{1BEF9336-0C48-4613-8865-8C66F424F100}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolDoc.Examples.Sprites", "Examples\DolDoc.Examples.Sprites\DolDoc.Examples.Sprites.csproj", "{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,6 +137,18 @@ Global
 		{1BEF9336-0C48-4613-8865-8C66F424F100}.Release|x64.Build.0 = Release|Any CPU
 		{1BEF9336-0C48-4613-8865-8C66F424F100}.Release|x86.ActiveCfg = Release|Any CPU
 		{1BEF9336-0C48-4613-8865-8C66F424F100}.Release|x86.Build.0 = Release|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Debug|x64.Build.0 = Debug|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Debug|x86.Build.0 = Debug|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Release|x64.ActiveCfg = Release|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Release|x64.Build.0 = Release|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Release|x86.ActiveCfg = Release|Any CPU
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -145,6 +160,7 @@ Global
 		{C5F23BCC-BD51-48F6-9C37-E8E819069C0D} = {26B584C1-DB26-4E59-B9D0-FD060AE4F6D8}
 		{D3CA8FFF-9EE5-42B1-8C40-F7E712751786} = {26B584C1-DB26-4E59-B9D0-FD060AE4F6D8}
 		{1BEF9336-0C48-4613-8865-8C66F424F100} = {26B584C1-DB26-4E59-B9D0-FD060AE4F6D8}
+		{E45CCFA7-E085-47FD-AD0D-3ADA24B5788E} = {26B584C1-DB26-4E59-B9D0-FD060AE4F6D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {16DFAE06-9638-4DC9-B6AF-1900276FDE75}

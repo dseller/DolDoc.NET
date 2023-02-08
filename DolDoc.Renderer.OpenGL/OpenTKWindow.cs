@@ -162,7 +162,7 @@ namespace DolDoc.Renderer.OpenGL
                     Title = title
                 };
 
-                State = new ViewerState(this, this.document, width, heigth, new YaffFontProvider(), "Terminal_VGA_cp861");
+                State = new ViewerState(this, this.document, width, heigth);
                 using (window = new Wnd(State, settings, nativeSettings))
                 {
                     this.document.Refresh();

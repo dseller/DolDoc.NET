@@ -4,16 +4,19 @@ namespace DolDoc.Editor.Sprites
 {
     public class Bitmap : SpriteElementBase
     {
-        private int _x, _y, _w, _h;
-        private byte[] _data;
+        private readonly int x;
+        private readonly int y;
+        private readonly int w;
+        private readonly int h;
+        private readonly byte[] data;
 
         public Bitmap(BinaryReader reader)
         {
-            _x = reader.ReadInt32();
-            _y = reader.ReadInt32();
-            _w = reader.ReadInt32();
-            _h = reader.ReadInt32();
-            _data = reader.ReadBytes(_w * _h);
+            x = reader.ReadInt32();
+            y = reader.ReadInt32();
+            w = reader.ReadInt32();
+            h = reader.ReadInt32();
+            data = reader.ReadBytes(w * h);
         }
 
         public override void Render(SpriteRenderContext ctx, int x, int y)
@@ -23,11 +26,11 @@ namespace DolDoc.Editor.Sprites
         public override void Serialize(BinaryWriter writer)
         {
             writer.Write((byte)SpriteElementType.Bitmap);
-            writer.Write(_x);
-            writer.Write(_y);
-            writer.Write(_w);
-            writer.Write(_h);
-            writer.Write(_data);
+            writer.Write(x);
+            writer.Write(y);
+            writer.Write(w);
+            writer.Write(h);
+            writer.Write(data);
         }
     }
 }

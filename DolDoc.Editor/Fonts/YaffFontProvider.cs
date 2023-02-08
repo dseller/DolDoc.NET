@@ -12,19 +12,27 @@ namespace DolDoc.Editor.Fonts
     {
         private readonly bool mirror;
         private readonly string _fontsFolder;
+        private readonly bool useDefault;
 
-        public YaffFontProvider(bool mirror = true, string fontsFolder = "Fonts")
+        public YaffFontProvider(bool mirror = true, string fontsFolder = "Fonts", bool useDefault = true)
         {
             this.mirror = mirror;
             _fontsFolder = fontsFolder;
+            this.useDefault = useDefault;
         }
 
         public IFont Get(string name)
         {
+            Stream stream;
+            if (useDefault)
+                stream = typeof(YaffFontProvider).Assembly.GetManifestResourceStream("DolDoc.Editor.Fonts.Terminal_VGA_cp861.yaff");
+            else
+                stream = File.Open($"{_fontsFolder}/{name}.yaff", FileMode.Open);
+            
             // TODO: this is the ugliest stuff ever, but meh it works.
-            using (var fs = File.Open($"{_fontsFolder}/{name}.yaff", FileMode.Open))
+            using (stream)
             {
-                using (var reader = new StreamReader(fs))
+                using (var reader = new StreamReader(stream))
                 {
                     var values = new Dictionary<string, string>();
                     while (!reader.EndOfStream)

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\DolDoc.Editor\DolDoc.Editor.csproj" />
+      <ProjectReference Include="..\..\DolDoc.Renderer.OpenGL\DolDoc.Renderer.OpenGL.csproj" />
+    </ItemGroup>
+
+</Project>

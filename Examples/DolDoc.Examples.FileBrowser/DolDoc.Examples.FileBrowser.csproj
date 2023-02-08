@@ -320,7 +320,7 @@
 	  <None Update="Documents\Windows.DD">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <None Update="Fonts\Terminal_VGA_cp861.yaff">
+	  <None Update="..\..\Fonts\Terminal_VGA_cp861.yaff">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>

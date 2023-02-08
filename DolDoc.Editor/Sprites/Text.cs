@@ -22,11 +22,11 @@ namespace DolDoc.Editor.Sprites
             Value = text;
         }
 
-        public int X { get; }
+        protected int X { get; }
 
-        public int Y { get; }
+        protected int Y { get; }
 
-        public string Value { get; }
+        protected string Value { get; }
 
         public override void Render(SpriteRenderContext ctx, int x, int y)
         {
