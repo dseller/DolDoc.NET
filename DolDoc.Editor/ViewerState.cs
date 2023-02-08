@@ -25,11 +25,13 @@ namespace DolDoc.Editor
         public Cursor Cursor { get; }
 
         private string title;
+        private bool cursorInverted;
         private readonly IFrameBufferWindow frameBuffer;
         private readonly IFontProvider fontProvider;
 
         public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
         {
+            cursorInverted = false;
             Cursor = new Cursor(this);
             Document = doc;
             this.frameBuffer = frameBuffer;
@@ -282,18 +284,19 @@ namespace DolDoc.Editor
                         ch.Flags ^= CharacterFlags.Inverted;
                 }
         }
+        
+        private void RenderCursor() => Pages[Cursor.DocumentPosition].Flags ^= CharacterFlags.Inverted;
 
         public void Tick(ulong ticks)
         {
-            // TODO: fix (cursor) blinking
-            // if (ticks % 15 == 0)
-            // {
-            //     // Document.Refresh();
-            //     DoBlink();
-            //     Dirty = true;
-            // }
-            
             // Blink every 200ms, one frame is 33ms, so every 6 frames
+            if (ticks % 15 == 0)
+            {
+                DoBlink();
+                RenderCursor();
+                cursorInverted = !cursorInverted;
+                // frameBuffer.Render(new Rectangle(Cursor.WindowX - 1, Cursor.WindowY - 1, 3, 3));
+            }
         }
 
         /// <summary>

@@ -28,13 +28,13 @@ namespace DolDoc.Renderer.OpenGL
             this.state = state;
             filledBitmap = Enumerable.Repeat((byte) 0xFF, (state.Font.Width * state.Font.Height) / 8).ToArray();
             underlineBitmap = new byte[(state.Font.Width * state.Font.Height) / 8];
-            underlineBitmap[(underlineBitmap.Length - 1)/8] = 0xFF;
+            underlineBitmap[(underlineBitmap.Length - 1) / 8] = 0xFF;
             renderQueue = new Queue<Rectangle>();
         }
 
         public void QueueRender(Rectangle rect)
         {
-            lock(renderQueueLock)
+            lock (renderQueueLock)
                 renderQueue.Enqueue(rect);
         }
 
@@ -47,7 +47,7 @@ namespace DolDoc.Renderer.OpenGL
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.LineWidth(2.5f);
-            
+
             GL.MatrixMode(MatrixMode.Projection);
             GL.Ortho(0, Size.X, 0, Size.Y, -1, 1);
             GL.Viewport(0, 0, Size.X, Size.Y);
@@ -57,59 +57,54 @@ namespace DolDoc.Renderer.OpenGL
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            Rectangle[] rects;
-            lock (renderQueueLock)
-            {
-                if (renderQueue.Count == 0)
-                    return;
-                
-                rects = renderQueue.ToArray();
-                renderQueue.Clear();
-            }
-            
-            foreach (var rect in rects)
-            {
-                for (int y = rect.Y; y < rect.Height; y++)
+            // Rectangle[] rects;
+            // lock (renderQueueLock)
+            // {
+            //     if (renderQueue.Count == 0)
+            //         return;
+            //     
+            //     rects = renderQueue.ToArray();
+            //     renderQueue.Clear();
+            // }
+
+            for (int y = 0; y < state.Rows; y++)
+                for (int x = 0; x < state.Columns; x++)
                 {
-                    for (int x = rect.X; x < rect.Width; x++)
+                    if (!state.Pages.HasPageForPosition(x, y + state.Cursor.ViewLine))
+                        state.Pages.GetOrCreatePage(x, y + state.Cursor.ViewLine);
+
+                    var ch = state.Pages[x, y + state.Cursor.ViewLine];
+                    EgaColor fg, bg;
+                    if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
                     {
-                        if (!state.Pages.HasPageForPosition(x, y + state.Cursor.ViewLine))
-                            state.Pages.GetOrCreatePage(x, y + state.Cursor.ViewLine);
-            
-                        var ch = state.Pages[x, y + state.Cursor.ViewLine]; 
-                        EgaColor fg, bg;
-                        if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
-                        {
-                            fg = EgaColor.Palette[(byte) ((byte)ch.Color.Foreground ^ 0x0F)];
-                            bg = EgaColor.Palette[(byte) ((byte)ch.Color.Background ^ 0x0F)];
-                        }
-                        else
-                        {
-                            fg = EgaColor.Palette[(byte) ch.Color.Foreground];
-                            bg = EgaColor.Palette[(byte) ch.Color.Background];
-                        }
+                        fg = EgaColor.Palette[(byte) ((byte) ch.Color.Foreground ^ 0x0F)];
+                        bg = EgaColor.Palette[(byte) ((byte) ch.Color.Background ^ 0x0F)];
+                    }
+                    else
+                    {
+                        fg = EgaColor.Palette[(byte) ch.Color.Foreground];
+                        bg = EgaColor.Palette[(byte) ch.Color.Background];
+                    }
 
-                        GL.Color3(bg.RD, bg.GD, bg.BD);
-                        GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
-                        GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, filledBitmap);
+                    GL.Color3(bg.RD, bg.GD, bg.BD);
+                    GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
+                    GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, filledBitmap);
 
-                        GL.Color3(fg.RD, fg.GD, fg.BD);
-                        GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
+                    GL.Color3(fg.RD, fg.GD, fg.BD);
+                    GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
 
-                        GL.Bitmap(state.Font.Width, state.Font.Height,
-                            0, 0,
-                            0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
-                            0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
-                            state.Font[ch.Char]);
+                    GL.Bitmap(state.Font.Width, state.Font.Height,
+                        0, 0,
+                        0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
+                        0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
+                        state.Font[ch.Char]);
 
-                        if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-                        {
-                            GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
-                        }
+                    if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
+                    {
+                        GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
                     }
                 }
-            }
-            
+
             Context.SwapBuffers();
             base.OnRenderFrame(args);
             Thread.Sleep(1);
@@ -157,7 +152,7 @@ namespace DolDoc.Renderer.OpenGL
                     Size = new Vector2i(width, heigth),
                     Profile = ContextProfile.Compatability,
                     WindowBorder = WindowBorder.Fixed,
-                    IsEventDriven = false,
+                    IsEventDriven = true,
                     Title = title
                 };
 
@@ -165,10 +160,10 @@ namespace DolDoc.Renderer.OpenGL
                 using (window = new Wnd(State, settings, nativeSettings))
                 {
                     this.document.Refresh();
-                    
+
                     ulong ticks = 0;
                     timer = new Timer(_ => State.Tick(ticks++), null, 0, 1000 / 30);
-                    
+
                     window.VSync = VSyncMode.On;
                     window.RenderFrequency = 30;
                     window.Run();
