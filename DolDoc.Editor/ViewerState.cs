@@ -5,6 +5,7 @@ using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
+using System.Drawing;
 using System.IO;
 
 namespace DolDoc.Editor
@@ -19,22 +20,21 @@ namespace DolDoc.Editor
         
         public Document Document { get; private set; }
 
-        public bool Dirty;
         public IFont Font;
 
         public Cursor Cursor { get; }
 
-        private string _title;
-        private readonly IFrameBufferWindow _frameBuffer;
-        private readonly IFontProvider _fontProvider;
+        private string title;
+        private readonly IFrameBufferWindow frameBuffer;
+        private readonly IFontProvider fontProvider;
 
         public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
         {
             Cursor = new Cursor(this);
             Document = doc;
-            _frameBuffer = frameBuffer;
-            _fontProvider = fontProvider ?? new TempleOSFontProvider();
-            Font = _fontProvider.Get(font);
+            this.frameBuffer = frameBuffer;
+            this.fontProvider = fontProvider ?? new TempleOSFontProvider();
+            Font = this.fontProvider.Get(font);
 
             Width = width;
             Height = height;
@@ -54,7 +54,7 @@ namespace DolDoc.Editor
             if (child)
                 document.Parent = Document;
 
-            _frameBuffer?.Clear();
+            frameBuffer?.Clear();
             Pages.Clear(DefaultForegroundColor);
             Document = document;
             Document.OnUpdate += Document_OnUpdate;
@@ -66,12 +66,13 @@ namespace DolDoc.Editor
         {
             if (clear)
             {
-                _frameBuffer?.Clear();
+                frameBuffer?.Clear();
                 Pages.Clear(DefaultBackgroundColor);
             }
 
             var renderOptions = new RenderOptions(DefaultForegroundColor, DefaultBackgroundColor);
             var ctx = new EntryRenderContext(document, this, renderOptions);
+            var startPosition = ctx.RenderPosition;
 
             if (!RawMode)
             {
@@ -88,9 +89,13 @@ namespace DolDoc.Editor
                 }
             }
             else
-                Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
+            {
+                var result = Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
+                ctx.RenderPosition += result?.WrittenCharacters ?? 0;
+            }
 
-            Dirty = true;
+            // TODO: calculate render rectangle
+            frameBuffer?.Render(new Rectangle(0, 0, Columns, Rows));
         }
 
         public CharacterPageDirectory Pages { get; }
@@ -111,12 +116,12 @@ namespace DolDoc.Editor
 
         public string Title
         {
-            get => _title;
+            get => title;
 
             set
             {
-                _title = value;
-                _frameBuffer.SetTitle(value);
+                title = value;
+                frameBuffer.SetTitle(value);
             }
         }
 
@@ -186,14 +191,14 @@ namespace DolDoc.Editor
             var entry = FindEntry(x, y);
             if (entry == null)
             {
-                _frameBuffer.SetCursorType(CursorType.Pointer);
+                frameBuffer.SetCursorType(CursorType.Pointer);
                 return;
             }
 
             if (entry.Clickable)
-                _frameBuffer.SetCursorType(CursorType.Hand);
+                frameBuffer.SetCursorType(CursorType.Hand);
             else
-                _frameBuffer.SetCursorType(CursorType.Pointer);
+                frameBuffer.SetCursorType(CursorType.Pointer);
         }
 
         public void MouseClick(float x, float y)
@@ -238,7 +243,7 @@ namespace DolDoc.Editor
                 Environment.Exit(0);
 
             Document = Document.Parent;
-            _frameBuffer?.Clear();
+            frameBuffer?.Clear();
             Pages.Clear(DefaultBackgroundColor);
             Cursor.SetPosition(0);
             Document_OnUpdate(Document, false);
