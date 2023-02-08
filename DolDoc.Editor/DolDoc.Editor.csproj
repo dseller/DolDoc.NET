@@ -30,5 +30,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
+		<PackageReference Include="OpenTK.Graphics" Version="4.7.5" />
 	</ItemGroup>
 </Project>

@@ -1,6 +1,8 @@
 ﻿using DolDoc.Editor.Core;
 using DolDoc.Editor.Extensions;
 using System.IO;
+using System.Linq;
+using OpenTK.Graphics.OpenGL;
 
 namespace DolDoc.Editor.Sprites
 {
@@ -13,36 +15,38 @@ namespace DolDoc.Editor.Sprites
             Value = reader.ReadNullTerminatedString();
         }
 
+        public Text(int x, int y, string text)
+        {
+            X = x;
+            Y = y;
+            Value = text;
+        }
+
         public int X { get; }
 
         public int Y { get; }
 
         public string Value { get; }
 
-        public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
+        public override void Render(SpriteRenderContext ctx, int x, int y)
         {
-            // foreach (char ch in Value)
+            var bgColor = EgaColorRgbBitmap.Palette[(byte)ctx.State.DefaultBackgroundColor];
+            var fgColor = EgaColorRgbBitmap.Palette[(byte)ctx.Color];
+            var filledBitmap = Enumerable.Repeat((byte) 0xFF, (ctx.State.Font.Width * ctx.State.Font.Height) / 8).ToArray();
             for (int i = 0; i < Value.Length; i++)
             {
-                // var character = SysFont.Font[(byte)Value[i]];
-                //for (int fx = 0; fx < 8; fx++)
-                //    for (int fy = 0; fy < 8; fy++)
-                //    {
-                //        bool draw = ((character >> ((fy * 8) + fx)) & 0x01) == 0x01;
-                //        frameBuffer[((fy + Y) * 640) + (fx + X) + pixelOffset + (i * 8)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
-                //    }
+                GL.Color3(bgColor.RD, bgColor.GD, bgColor.BD);
+                GL.WindowPos2(x + X + (i * ctx.State.Font.Width),  ctx.State.Height - (y + Y + 1));
+                GL.Bitmap(ctx.State.Font.Width, ctx.State.Font.Height, 0, 0, 0, 0, filledBitmap);
 
-                byte[] character = ctx.State.Font[(byte)Value[i]];
-                const int byteSize = 8;
+                GL.Color3(fgColor.RD, fgColor.GD, fgColor.BD);
+                GL.WindowPos2(x + X + (i  * ctx.State.Font.Width), ctx.State.Height - (y + Y + 1));
 
-                for (int fy = 0; fy < ctx.State.Font.Height; fy++)
-                    for (int fx = 0; fx < ctx.State.Font.Width; fx++)
-                    {
-                        var fontRow = character[(fy * ctx.State.Font.Width) / byteSize];
-                        bool draw = ((fontRow >> (fx % byteSize)) & 0x01) == 0x01;
-                        frameBuffer[((fy + Y) * ctx.State.Width) + (fx + X) + pixelOffset + (i * ctx.State.Font.Width)] = draw ? (byte)ctx.Color : (byte)EgaColor.White;
-                        //frameBuffer[(((row * _font.Height) + fy) * Width) + (column * _font.Width) + fx + ch.ShiftX] = draw ? (byte)fg : (byte)bg;
-                    }
+                GL.Bitmap(ctx.State.Font.Width, ctx.State.Font.Height,
+                    0, 0,
+                    0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
+                    0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
+                    ctx.State.Font[(byte)Value[i]]);
             }
         }
 

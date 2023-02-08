@@ -1,6 +1,7 @@
 ﻿using DolDoc.Editor.Core;
 using System;
 using System.IO;
+using OpenTK.Graphics.OpenGL;
 
 namespace DolDoc.Editor.Sprites
 {
@@ -30,46 +31,15 @@ namespace DolDoc.Editor.Sprites
 
         public int Y2 { get; }
 
-		public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset) => RenderLine(ctx, frameBuffer, pixelOffset, X1, Y1, X2, Y2, ctx.Color);
+		public override void Render(SpriteRenderContext ctx, int x, int y) => RenderLine(ctx, x + X1, y + Y1, x + X2, y + Y2, ctx.Color);
 
-		protected void RenderLine(SpriteRenderContext renderContext, byte[] frameBuffer, int pixelOffset, int x1, int y1, int x2, int y2, EgaColor color = EgaColor.Black)
+		protected void RenderLine(SpriteRenderContext renderContext, int x1, int y1, int x2, int y2, EgaColor color = EgaColor.Black)
         {
-            int w = x2 - x1;
-            int h = y2 - y1;
-            int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-            if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
-            if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
-            if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
-            int longest = Math.Abs(w);
-            int shortest = Math.Abs(h);
-            if (!(longest > shortest))
-            {
-                longest = Math.Abs(h);
-                shortest = Math.Abs(w);
-                if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
-                dx2 = 0;
-            }
-            int numerator = longest >> 1;
-            for (int i = 0; i <= longest; i++)
-            {
-                // putpixel(x, y, color);
-                if ((y1 * renderContext.State.Width) + x1 + pixelOffset < 0)
-                    continue;
-
-                frameBuffer[(y1 * renderContext.State.Width) + x1 + pixelOffset] = (byte)color;
-                numerator += shortest;
-                if (!(numerator < longest))
-                {
-                    numerator -= longest;
-                    x1 += dx1;
-                    y1 += dy1;
-                }
-                else
-                {
-                    x1 += dx2;
-                    y1 += dy2;
-                }
-            }
+            GL.LineWidth(renderContext.Thickness == 0 ? 1 : renderContext.Thickness);
+            GL.Begin(BeginMode.Lines);
+            GL.Vertex2(x1, renderContext.State.Height - (y1 + 1));
+            GL.Vertex2(x2, renderContext.State.Height - (y2 + 1));
+            GL.End();
         }
 
         public override void Serialize(BinaryWriter writer)

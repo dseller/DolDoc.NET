@@ -1,30 +1,33 @@
 ﻿using DolDoc.Editor.Core;
 using System.IO;
+using OpenTK.Graphics.OpenGL;
 
 namespace DolDoc.Editor.Sprites
 {
     public class Color : SpriteElementBase
     {
+        private readonly EgaColor color;
+        
         public Color(BinaryReader reader)
         {
-            _color = (EgaColor)reader.ReadByte();
+            color = (EgaColor)reader.ReadByte();
         }
 
-        public Color(EgaColor c) => _color = c;
+        public Color(EgaColor c) => color = c;
 
-        private EgaColor _color;
-
-        public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
+        public override void Render(SpriteRenderContext ctx, int x, int y)
         {
-            ctx.Color = _color;
+            ctx.Color = color;
+            var c = EgaColorRgbBitmap.Palette[(byte) color];
+            GL.Color3(c.RD, c.GD, c.BD);
         }
 
         public override void Serialize(BinaryWriter writer)
         {
             writer.Write((byte)SpriteElementType.Color);
-            writer.Write((byte)_color);
+            writer.Write((byte)color);
         }
 
-        public override string ToString() => $"Color ({_color})";
+        public override string ToString() => $"Color ({color})";
     }
 }

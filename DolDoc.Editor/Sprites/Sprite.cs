@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenTK.Graphics.OpenGL;
 
 namespace DolDoc.Editor.Sprites
 {
     public class Sprite
     {
-        private List<SpriteElementBase> _spriteElements;
+        private readonly List<SpriteElementBase> spriteElements;
 
         public Sprite(byte[] data)
         {
-            _spriteElements = new List<SpriteElementBase>();
+            spriteElements = new List<SpriteElementBase>();
             Load(data);
         }
 
@@ -30,31 +31,31 @@ namespace DolDoc.Editor.Sprites
                         switch (elementType)
                         {
                             case SpriteElementType.Arrow:
-                                _spriteElements.Add(new Arrow(reader));
+                                spriteElements.Add(new Arrow(reader));
                                 break;
 
                             case SpriteElementType.Bitmap:
-                                _spriteElements.Add(new Bitmap(reader));
+                                spriteElements.Add(new Bitmap(reader));
                                 break;
 
                             case SpriteElementType.Color:
-                                _spriteElements.Add(new Color(reader));
+                                spriteElements.Add(new Color(reader));
                                 break;
 
                             case SpriteElementType.Line:
-                                _spriteElements.Add(new Line(reader));
+                                spriteElements.Add(new Line(reader));
                                 break;
 
                             case SpriteElementType.Text:
-                                _spriteElements.Add(new Text(reader));
+                                spriteElements.Add(new Text(reader));
                                 break;
 
                             case SpriteElementType.TextBox:
-                                _spriteElements.Add(new TextBox(reader));
+                                spriteElements.Add(new TextBox(reader));
                                 break;
 
                             case SpriteElementType.Thick:
-                                _spriteElements.Add(new Thick(reader));
+                                spriteElements.Add(new Thick(reader));
                                 break;
 
                             default:
@@ -66,14 +67,14 @@ namespace DolDoc.Editor.Sprites
             }
         }
 
-        public void WriteToFrameBuffer(ViewerState state, byte[] frameBuffer, int pixelOffset)
+        public void Render(ViewerState state, int x, int y)
         {
+            GL.PushAttrib(AttribMask.ColorBufferBit);
+            GL.Color3(0, 0, 0);
             var ctx = new SpriteRenderContext(state);
-            foreach (var element in _spriteElements)
-            {
-                element.Render(ctx, frameBuffer, pixelOffset);
-                Console.WriteLine("Rendered {0}", element);
-            }
+            foreach (var element in spriteElements)
+                element.Render(ctx, x, y);
+            GL.PopAttrib();
         }
     }
 }

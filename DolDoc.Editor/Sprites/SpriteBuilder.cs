@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DolDoc.Editor.Sprites
 {
@@ -11,9 +8,9 @@ namespace DolDoc.Editor.Sprites
     {
         private readonly List<SpriteElementBase> elements;
 
-        public SpriteBuilder()
+        public SpriteBuilder(params SpriteElementBase[] elements)
         {
-            elements = new List<SpriteElementBase>();
+            this.elements = elements.ToList();
         }
 
         public void Add(SpriteElementBase element) => elements.Add(element);

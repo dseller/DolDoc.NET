@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Rendering;
 using OpenTK.Graphics.OpenGL;
@@ -67,6 +68,8 @@ namespace DolDoc.Renderer.OpenGL
             //     renderQueue.Clear();
             // }
 
+            var spritesToRender = new List<(Sprite, int, int)>();
+            
             for (int y = 0; y < state.Rows; y++)
                 for (int x = 0; x < state.Columns; x++)
                 {
@@ -74,16 +77,16 @@ namespace DolDoc.Renderer.OpenGL
                         state.Pages.GetOrCreatePage(x, y + state.Cursor.ViewLine);
 
                     var ch = state.Pages[x, y + state.Cursor.ViewLine];
-                    EgaColor fg, bg;
+                    EgaColorRgbBitmap fg, bg;
                     if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
                     {
-                        fg = EgaColor.Palette[(byte) ((byte) ch.Color.Foreground ^ 0x0F)];
-                        bg = EgaColor.Palette[(byte) ((byte) ch.Color.Background ^ 0x0F)];
+                        fg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Foreground ^ 0x0F)];
+                        bg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Background ^ 0x0F)];
                     }
                     else
                     {
-                        fg = EgaColor.Palette[(byte) ch.Color.Foreground];
-                        bg = EgaColor.Palette[(byte) ch.Color.Background];
+                        fg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Foreground];
+                        bg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Background];
                     }
 
                     GL.Color3(bg.RD, bg.GD, bg.BD);
@@ -100,10 +103,13 @@ namespace DolDoc.Renderer.OpenGL
                         state.Font[ch.Char]);
 
                     if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-                    {
                         GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
-                    }
+                    if (ch.Entry is Sprite s)
+                        spritesToRender.Add((s, x, y));
                 }
+            
+            foreach (var s in spritesToRender)
+                s.Item1.SpriteObj.Render(state, s.Item2 * state.Font.Width, s.Item3 * state.Font.Height);
 
             Context.SwapBuffers();
             base.OnRenderFrame(args);

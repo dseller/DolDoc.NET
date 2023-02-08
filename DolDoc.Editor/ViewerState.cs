@@ -15,8 +15,8 @@ namespace DolDoc.Editor
     /// </summary>
     public class ViewerState : IInputListener, ITickListener
     {
-        public EgaColor DefaultBackgroundColor { get; set; } = EgaColor.Black;
-        public EgaColor DefaultForegroundColor { get; set; } = EgaColor.White;
+        public EgaColor DefaultBackgroundColor { get; set; } = EgaColor.White;
+        public EgaColor DefaultForegroundColor { get; set; } = EgaColor.Black;
         
         public Document Document { get; private set; }
 
@@ -57,7 +57,7 @@ namespace DolDoc.Editor
                 document.Parent = Document;
 
             frameBuffer?.Clear();
-            Pages.Clear(DefaultForegroundColor);
+            Pages.Clear(DefaultBackgroundColor);
             Document = document;
             Document.OnUpdate += Document_OnUpdate;
             Cursor.SetPosition(0);

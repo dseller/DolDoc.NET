@@ -9,9 +9,14 @@ namespace DolDoc.Editor.Sprites
             Thickness = reader.ReadInt32();
         }
 
+        public Thick(int thickness)
+        {
+            Thickness = thickness;
+        }
+
         public int Thickness { get; }
 
-        public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
+        public override void Render(SpriteRenderContext ctx, int x, int y)
         {
             ctx.Thickness = Thickness;
         }

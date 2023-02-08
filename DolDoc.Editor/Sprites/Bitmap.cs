@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace DolDoc.Editor.Sprites
 {
@@ -19,18 +16,8 @@ namespace DolDoc.Editor.Sprites
             _data = reader.ReadBytes(_w * _h);
         }
 
-        public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
+        public override void Render(SpriteRenderContext ctx, int x, int y)
         {
-            //for (int y = _y + pixelOffset; y < _h + pixelOffset + _y; y++)
-            for (int y = 0; y < _h; y++)
-            {
-                Array.Copy(
-                    _data, 
-                    y * _w, 
-                    frameBuffer, 
-                    pixelOffset + (y * ctx.State.Width) + (_y * ctx.State.Width) + _x, 
-                    _w);
-            }
         }
 
         public override void Serialize(BinaryWriter writer)
