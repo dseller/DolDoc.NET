@@ -52,6 +52,7 @@ namespace DolDoc.Examples.Shell
         {
             var compositor = new Compositor<OpenTKWindow>();
             var window = compositor.NewWindow();
+            
             document = new Document();
             lua = new Lua();
             lua.LoadCLRPackage();
@@ -118,7 +119,6 @@ namespace DolDoc.Examples.Shell
             }
             
             Load();
-
             window.Show("DolDoc.NET File Browser", 1600, 1200, document);
         }
 

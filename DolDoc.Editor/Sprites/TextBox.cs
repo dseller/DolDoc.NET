@@ -1,8 +1,6 @@
 ﻿using DolDoc.Editor.Extensions;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using OpenTK.Graphics.OpenGL;
 
 namespace DolDoc.Editor.Sprites
 {
@@ -15,26 +13,30 @@ namespace DolDoc.Editor.Sprites
         {
         }
 
-        public override void Render(SpriteRenderContext ctx, byte[] frameBuffer, int pixelOffset)
+        public TextBox(int x, int y, string value)
+            : base(x, y, value)
+        {
+        }
+
+        public override void Render(SpriteRenderContext ctx, int x, int y)
         {
             // Draw the text first.
-            base.Render(ctx, frameBuffer, pixelOffset);
-
-            // Then, draw a border around it.
-            for (int i = -2; i < (Value.Length * ctx.State.Font.Width) + Padding; i++)
-                frameBuffer[i + pixelOffset + ((Y - Padding) * ctx.State.Width) + X] = 0x00;
-
+            base.Render(ctx, x, y);
+            
+            GL.Begin(BeginMode.Lines);
+            // Top
+            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
             // Bottom
-            for (int i = -2; i < (Value.Length * ctx.State.Font.Width) + Padding + 1; i++)
-                frameBuffer[i + pixelOffset + ((Y + Padding) * ctx.State.Width) + X + (ctx.State.Font.Width * ctx.State.Width)] = 0x00;
-
-            // Left 
-            for (int i = 0; i < ctx.State.Font.Width + (2 * Padding); i++)
-                frameBuffer[(i * ctx.State.Width) + pixelOffset + ((Y - 2) * ctx.State.Width) + X - Padding] = 0x00;
-
+            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) - 2 - Padding);
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) - 2 - Padding);
+            // Left
+            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
+            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) - 2 - Padding);
             // Right
-            for (int i = 0; i < ctx.State.Font.Width + (2 * 2); i++)
-                frameBuffer[(i * ctx.State.Width) + (Value.Length * ctx.State.Font.Width) + pixelOffset + ((Y - Padding) * ctx.State.Width) + X + Padding] = 0x00;
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) - 2 - Padding);
+            GL.End();
         }
 
         public override void Serialize(BinaryWriter writer)

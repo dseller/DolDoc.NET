@@ -22,7 +22,7 @@ namespace DolDoc.Examples.FileBrowser
             builder.AppendFormat("DATE       TIME  SIZE\n");
             builder.AppendFormat("0000/00/00 00:00 0000 $MA,\".\",LE=\"ChangeDir\",RE=\"{0}\"$\n", d.FullName);
             if (d.Parent != null)
-                builder.AppendFormat("0000/00/00 00:00 0000 $MA,\"..\",LE=\"ChangeDir\",RE=\"{0}\"$\n", d.Parent.FullName);
+                builder.AppendFormat("0000/00/00 00:00 0000 $MA,\"..\",LE=\"ChangeDir\",RE=\"{0}\"$\n", d.Parent.FullName.TrimEnd('\\'));
             
             foreach (var directory in d.EnumerateDirectories())
                 builder.AppendFormat("{0} {1} {2:X4} $MA,\"{3}\",LE=\"ChangeDir\",RE=\"{4}\"$\n", directory.LastWriteTime.ToString("yyyy/MM/dd"), directory.LastWriteTime.ToString("HH:mm"), 0, directory.Name, directory.FullName);
@@ -53,6 +53,7 @@ namespace DolDoc.Examples.FileBrowser
                 }
             }
 
+            
             document.OnMacro += OnMacro;
 
             document.Load(DirectoryListing());

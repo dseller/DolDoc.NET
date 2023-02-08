@@ -29,7 +29,7 @@ namespace DolDoc.Editor.Core
 
         public Document(IList<BinaryChunk> binaryChunks = null)
         {
-            BinaryChunks = binaryChunks;
+            BinaryChunks = binaryChunks ?? new List<BinaryChunk>();
 
             parser = new AntlrParser();
             entries = new LinkedList<DocumentEntry>();
@@ -80,6 +80,13 @@ namespace DolDoc.Editor.Core
             }
 
             OnUpdate?.Invoke(this, true);
+        }
+
+        public BinaryChunk AddChunk(byte[] data)
+        {
+            var chunk = new BinaryChunk((uint)BinaryChunks.Count, 0, (uint) data.Length, 0, data);
+            BinaryChunks.Add(chunk);
+            return chunk;
         }
 
         public virtual void Reload() => OnUpdate?.Invoke(this, true);

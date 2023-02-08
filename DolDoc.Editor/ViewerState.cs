@@ -5,7 +5,10 @@ using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
+using System.Drawing;
 using System.IO;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using Cursor = DolDoc.Editor.Core.Cursor;
 
 namespace DolDoc.Editor
 {
@@ -14,8 +17,8 @@ namespace DolDoc.Editor
     /// </summary>
     public class ViewerState : IInputListener, ITickListener
     {
-        public EgaColor DefaultBackgroundColor { get; set; } = EgaColor.Black;
-        public EgaColor DefaultForegroundColor { get; set; } = EgaColor.White;
+        public EgaColor DefaultBackgroundColor { get; set; } = EgaColor.White;
+        public EgaColor DefaultForegroundColor { get; set; } = EgaColor.Black;
         
         public Document Document { get; private set; }
 
@@ -23,19 +26,19 @@ namespace DolDoc.Editor
 
         public Cursor Cursor { get; }
 
-        private string _title;
-        private bool _cursorInverted;
-        private readonly IFrameBufferWindow _frameBuffer;
-        private readonly IFontProvider _fontProvider;
+        private string title;
+        private bool cursorInverted;
+        private readonly IFrameBufferWindow frameBuffer;
+        private readonly IFontProvider fontProvider;
 
         public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
         {
+            cursorInverted = false;
             Cursor = new Cursor(this);
             Document = doc;
-            _cursorInverted = false;
-            _frameBuffer = frameBuffer;
-            _fontProvider = fontProvider ?? new TempleOSFontProvider();
-            Font = _fontProvider.Get(font);
+            this.frameBuffer = frameBuffer;
+            this.fontProvider = fontProvider ?? new TempleOSFontProvider();
+            Font = this.fontProvider.Get(font);
 
             Width = width;
             Height = height;
@@ -55,8 +58,8 @@ namespace DolDoc.Editor
             if (child)
                 document.Parent = Document;
 
-            _frameBuffer?.Clear();
-            Pages.Clear(DefaultForegroundColor);
+            frameBuffer?.Clear();
+            Pages.Clear(DefaultBackgroundColor);
             Document = document;
             Document.OnUpdate += Document_OnUpdate;
             Cursor.SetPosition(0);
@@ -67,12 +70,13 @@ namespace DolDoc.Editor
         {
             if (clear)
             {
-                _frameBuffer?.Clear();
+                frameBuffer?.Clear();
                 Pages.Clear(DefaultBackgroundColor);
             }
 
             var renderOptions = new RenderOptions(DefaultForegroundColor, DefaultBackgroundColor);
             var ctx = new EntryRenderContext(document, this, renderOptions);
+            var startPosition = ctx.RenderPosition;
 
             if (!RawMode)
             {
@@ -89,7 +93,13 @@ namespace DolDoc.Editor
                 }
             }
             else
-                Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
+            {
+                var result = Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
+                ctx.RenderPosition += result?.WrittenCharacters ?? 0;
+            }
+
+            // TODO: calculate render rectangle
+            frameBuffer?.Render(new Rectangle(0, 0, Columns, Rows));
         }
 
         public CharacterPageDirectory Pages { get; }
@@ -110,12 +120,12 @@ namespace DolDoc.Editor
 
         public string Title
         {
-            get => _title;
+            get => title;
 
             set
             {
-                _title = value;
-                _frameBuffer.SetTitle(value);
+                title = value;
+                frameBuffer.SetTitle(value);
             }
         }
 
@@ -145,31 +155,27 @@ namespace DolDoc.Editor
                     break;
 
                 case Key.PAGE_UP:
-                    PreviousPage();
+                    Cursor.PageUp();
                     break;
 
                 case Key.PAGE_DOWN:
-                    NextPage();
+                    Cursor.PageDown();
                     break;
 
                 case Key.ARROW_RIGHT:
                     Cursor.Right();
-                    RenderCursor();
                     break;
 
                 case Key.ARROW_LEFT:
                     Cursor.Left();
-                    RenderCursor();
                     break;
 
                 case Key.ARROW_DOWN:
                     Cursor.Down();
-                    RenderCursor();
                     break;
 
                 case Key.ARROW_UP:
                     Cursor.Up();
-                    RenderCursor();
                     break;
             }
 
@@ -189,14 +195,14 @@ namespace DolDoc.Editor
             var entry = FindEntry(x, y);
             if (entry == null)
             {
-                _frameBuffer.SetCursorType(CursorType.Pointer);
+                frameBuffer.SetCursorType(CursorType.Pointer);
                 return;
             }
 
             if (entry.Clickable)
-                _frameBuffer.SetCursorType(CursorType.Hand);
+                frameBuffer.SetCursorType(CursorType.Hand);
             else
-                _frameBuffer.SetCursorType(CursorType.Pointer);
+                frameBuffer.SetCursorType(CursorType.Pointer);
         }
 
         public void MouseClick(float x, float y)
@@ -213,18 +219,6 @@ namespace DolDoc.Editor
             }
 
             Document.Refresh();
-        }
-
-        public void PreviousPage()
-        {
-            Cursor.PageUp();
-            RenderCursor();
-        }
-
-        public void NextPage()
-        {
-            Cursor.PageDown();
-            RenderCursor();
         }
 
         public void LastPage()
@@ -253,7 +247,7 @@ namespace DolDoc.Editor
                 Environment.Exit(0);
 
             Document = Document.Parent;
-            _frameBuffer?.Clear();
+            frameBuffer?.Clear();
             Pages.Clear(DefaultBackgroundColor);
             Cursor.SetPosition(0);
             Document_OnUpdate(Document, false);
@@ -282,9 +276,7 @@ namespace DolDoc.Editor
         //     _frameBuffer?.Render(_renderBuffer);
         // }
 
-        private void RenderCursor() => Pages[Cursor.DocumentPosition].Flags ^= CharacterFlags.Inverted;
-
-        private void DoBlink(bool inverted)
+        private void DoBlink()
         {
             for (int row = 0; row < Rows; row++)
                 for (int column = 0; column < Columns; column++)
@@ -294,21 +286,19 @@ namespace DolDoc.Editor
                         ch.Flags ^= CharacterFlags.Inverted;
                 }
         }
+        
+        private void RenderCursor() => Pages[Cursor.DocumentPosition].Flags ^= CharacterFlags.Inverted;
 
         public void Tick(ulong ticks)
         {
-            if (ticks % 6 == 0)
-            {
-                DoBlink(!_cursorInverted);
-                RenderCursor();
-                _cursorInverted = !_cursorInverted;
-            }
-            else if (ticks % 15 == 0)
-                Document.Refresh();
-            
             // Blink every 200ms, one frame is 33ms, so every 6 frames
-
-            
+            if (ticks % 15 == 0)
+            {
+                DoBlink();
+                RenderCursor();
+                cursorInverted = !cursorInverted;
+                GLFW.PostEmptyEvent();
+            }
         }
 
         /// <summary>

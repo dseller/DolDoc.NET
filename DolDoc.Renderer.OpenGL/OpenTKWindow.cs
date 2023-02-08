@@ -1,10 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
 using DolDoc.Editor;
 using DolDoc.Editor.Core;
+using DolDoc.Editor.Entries;
 using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Rendering;
 using OpenTK.Graphics.OpenGL;
@@ -19,13 +21,22 @@ namespace DolDoc.Renderer.OpenGL
     {
         private readonly ViewerState state;
         private readonly byte[] filledBitmap, underlineBitmap;
+        private readonly object renderQueueLock = new object();
+        private readonly Queue<Rectangle> renderQueue;
 
         public Wnd(ViewerState state, GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             this.state = state;
             filledBitmap = Enumerable.Repeat((byte) 0xFF, (state.Font.Width * state.Font.Height) / 8).ToArray();
             underlineBitmap = new byte[(state.Font.Width * state.Font.Height) / 8];
-            underlineBitmap[(underlineBitmap.Length - 1)/8] = 0xFF;
+            underlineBitmap[(underlineBitmap.Length - 1) / 8] = 0xFF;
+            renderQueue = new Queue<Rectangle>();
+        }
+
+        public void QueueRender(Rectangle rect)
+        {
+            lock (renderQueueLock)
+                renderQueue.Enqueue(rect);
         }
 
         protected override void OnLoad()
@@ -38,36 +49,44 @@ namespace DolDoc.Renderer.OpenGL
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.LineWidth(2.5f);
 
-            base.OnLoad();
-        }
-
-        private double blaat;
-        protected override void OnRenderFrame(FrameEventArgs args)
-        {
             GL.MatrixMode(MatrixMode.Projection);
             GL.Ortho(0, Size.X, 0, Size.Y, -1, 1);
             GL.Viewport(0, 0, Size.X, Size.Y);
 
-            // GL.Clear(ClearBufferMask.ColorBufferBit);
-            // GL.Disable(EnableCap.Lighting);
+            base.OnLoad();
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs args)
+        {
+            // Rectangle[] rects;
+            // lock (renderQueueLock)
+            // {
+            //     if (renderQueue.Count == 0)
+            //         return;
+            //     
+            //     rects = renderQueue.ToArray();
+            //     renderQueue.Clear();
+            // }
+
+            var spritesToRender = new List<(Sprite, int, int)>();
             
             for (int y = 0; y < state.Rows; y++)
                 for (int x = 0; x < state.Columns; x++)
                 {
                     if (!state.Pages.HasPageForPosition(x, y + state.Cursor.ViewLine))
                         state.Pages.GetOrCreatePage(x, y + state.Cursor.ViewLine);
-            
-                    var ch = state.Pages[x, y + state.Cursor.ViewLine]; 
-                    EgaColor fg, bg;
+
+                    var ch = state.Pages[x, y + state.Cursor.ViewLine];
+                    EgaColorRgbBitmap fg, bg;
                     if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
                     {
-                        fg = EgaColor.Palette[(byte) ((byte)ch.Color.Foreground ^ 0x0F)];
-                        bg = EgaColor.Palette[(byte) ((byte)ch.Color.Background ^ 0x0F)];
+                        fg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Foreground ^ 0x0F)];
+                        bg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Background ^ 0x0F)];
                     }
                     else
                     {
-                        fg = EgaColor.Palette[(byte) ch.Color.Foreground];
-                        bg = EgaColor.Palette[(byte) ch.Color.Background];
+                        fg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Foreground];
+                        bg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Background];
                     }
 
                     GL.Color3(bg.RD, bg.GD, bg.BD);
@@ -84,12 +103,14 @@ namespace DolDoc.Renderer.OpenGL
                         state.Font[ch.Char]);
 
                     if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-                    {
                         GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
-                    }
+                    if (ch.Entry is Sprite s)
+                        spritesToRender.Add((s, x, y));
                 }
             
-            // GL.Flush();
+            foreach (var s in spritesToRender)
+                s.Item1.SpriteObj.Render(state, s.Item2 * state.Font.Width, s.Item3 * state.Font.Height);
+
             Context.SwapBuffers();
             base.OnRenderFrame(args);
             Thread.Sleep(1);
@@ -129,10 +150,7 @@ namespace DolDoc.Renderer.OpenGL
                 Debug.WriteLine("Opening OpenTKWindow!");
 
                 this.document = document ?? new Document();
-
-                State = new ViewerState(this, this.document, width, heigth, new YaffFontProvider(), "Terminal_VGA_cp861");
-                document.Refresh();
-
+                GLFWProvider.CheckForMainThread = false;
                 var settings = new GameWindowSettings();
                 settings.RenderFrequency = 1;
                 var nativeSettings = new NativeWindowSettings
@@ -140,22 +158,27 @@ namespace DolDoc.Renderer.OpenGL
                     Size = new Vector2i(width, heigth),
                     Profile = ContextProfile.Compatability,
                     WindowBorder = WindowBorder.Fixed,
-                    IsEventDriven = false,
+                    IsEventDriven = true,
                     Title = title
                 };
 
-                ulong ticks = 0;
-                timer = new Timer(_ => State.Tick(ticks++), null, 0, 1000 / 30);
-
+                State = new ViewerState(this, this.document, width, heigth, new YaffFontProvider(), "Terminal_VGA_cp861");
                 using (window = new Wnd(State, settings, nativeSettings))
                 {
-                    window.VSync = VSyncMode.Off;
+                    this.document.Refresh();
+
+                    ulong ticks = 0;
+                    timer = new Timer(_ => State.Tick(ticks++), null, 0, 1000 / 30);
+
+                    window.VSync = VSyncMode.On;
                     window.RenderFrequency = 30;
                     window.Run();
                 }
             });
             thread.Start();
         }
+
+        public void Render(Rectangle rect) => window?.QueueRender(rect);
 
         public void Clear()
         {

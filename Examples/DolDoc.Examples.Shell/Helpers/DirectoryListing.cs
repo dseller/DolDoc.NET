@@ -35,7 +35,7 @@ namespace DolDoc.Examples.Shell.Helpers
 
             result.Add(new Entry(dir.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), ".", true, null));
             if (dir.Parent != null)
-                result.Add(new Entry(dir.Parent.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), "..", true, null));
+                result.Add(new Entry(dir.Parent.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).TrimEnd('\\'), "..", true, null));
 
             foreach (var directory in dir.EnumerateDirectories())
                 result.Add(new Entry(directory.FullName.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), directory.Name, true, directory.LastWriteTimeUtc));

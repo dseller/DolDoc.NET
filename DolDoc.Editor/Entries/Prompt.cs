@@ -21,12 +21,16 @@ namespace DolDoc.Editor.Entries
         {
             var toRender = builder.ToString() + " ";
 
+            var opts = ctx.NewOptions();
+            opts.Blink = true;
             var len = WriteString(ctx, toRender);
             if (!jumped)
             {
                 ctx.State.Cursor.SetPosition(ctx.RenderPosition);
                 jumped = true;
             }
+            
+            ctx.PopOptions();
             return new CommandResult(true, len);
         }
 

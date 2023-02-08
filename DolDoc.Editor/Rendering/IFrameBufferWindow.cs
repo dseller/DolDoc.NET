@@ -1,10 +1,13 @@
-﻿using DolDoc.Editor.Core;
+﻿using System.Drawing;
+using DolDoc.Editor.Core;
 
 namespace DolDoc.Editor.Rendering
 {
     public interface IFrameBufferWindow
     {
         void Show(string title, int width, int heigth, Document document = null);
+
+        void Render(Rectangle rect);
 
         void Clear();
 
