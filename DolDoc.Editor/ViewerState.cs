@@ -19,12 +19,12 @@ namespace DolDoc.Editor
         
         public Document Document { get; private set; }
 
+        public bool Dirty;
         public IFont Font;
 
         public Cursor Cursor { get; }
 
         private string _title;
-        private bool _cursorInverted;
         private readonly IFrameBufferWindow _frameBuffer;
         private readonly IFontProvider _fontProvider;
 
@@ -32,7 +32,6 @@ namespace DolDoc.Editor
         {
             Cursor = new Cursor(this);
             Document = doc;
-            _cursorInverted = false;
             _frameBuffer = frameBuffer;
             _fontProvider = fontProvider ?? new TempleOSFontProvider();
             Font = _fontProvider.Get(font);
@@ -90,6 +89,8 @@ namespace DolDoc.Editor
             }
             else
                 Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
+
+            Dirty = true;
         }
 
         public CharacterPageDirectory Pages { get; }
@@ -145,31 +146,27 @@ namespace DolDoc.Editor
                     break;
 
                 case Key.PAGE_UP:
-                    PreviousPage();
+                    Cursor.PageUp();
                     break;
 
                 case Key.PAGE_DOWN:
-                    NextPage();
+                    Cursor.PageDown();
                     break;
 
                 case Key.ARROW_RIGHT:
                     Cursor.Right();
-                    RenderCursor();
                     break;
 
                 case Key.ARROW_LEFT:
                     Cursor.Left();
-                    RenderCursor();
                     break;
 
                 case Key.ARROW_DOWN:
                     Cursor.Down();
-                    RenderCursor();
                     break;
 
                 case Key.ARROW_UP:
                     Cursor.Up();
-                    RenderCursor();
                     break;
             }
 
@@ -213,18 +210,6 @@ namespace DolDoc.Editor
             }
 
             Document.Refresh();
-        }
-
-        public void PreviousPage()
-        {
-            Cursor.PageUp();
-            RenderCursor();
-        }
-
-        public void NextPage()
-        {
-            Cursor.PageDown();
-            RenderCursor();
         }
 
         public void LastPage()
@@ -282,9 +267,7 @@ namespace DolDoc.Editor
         //     _frameBuffer?.Render(_renderBuffer);
         // }
 
-        private void RenderCursor() => Pages[Cursor.DocumentPosition].Flags ^= CharacterFlags.Inverted;
-
-        private void DoBlink(bool inverted)
+        private void DoBlink()
         {
             for (int row = 0; row < Rows; row++)
                 for (int column = 0; column < Columns; column++)
@@ -297,18 +280,15 @@ namespace DolDoc.Editor
 
         public void Tick(ulong ticks)
         {
-            if (ticks % 6 == 0)
-            {
-                DoBlink(!_cursorInverted);
-                RenderCursor();
-                _cursorInverted = !_cursorInverted;
-            }
-            else if (ticks % 15 == 0)
-                Document.Refresh();
+            // TODO: fix (cursor) blinking
+            // if (ticks % 15 == 0)
+            // {
+            //     // Document.Refresh();
+            //     DoBlink();
+            //     Dirty = true;
+            // }
             
             // Blink every 200ms, one frame is 33ms, so every 6 frames
-
-            
         }
 
         /// <summary>

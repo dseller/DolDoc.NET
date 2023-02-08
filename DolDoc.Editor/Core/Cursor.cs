@@ -165,6 +165,12 @@ namespace DolDoc.Editor.Core
                 DocumentPosition = 0;
         }
 
+        public void Move(int oldX, int oldY, int newX, int newY)
+        {
+            // TODO
+            _viewerState.Pages[DocumentPosition].Flags ^= CharacterFlags.Inverted;
+        }
+
         /// <summary>
         /// Scans the document in the specified direction <paramref name="dir"/>, and returns the position of the nearest <seealso cref="DocumentEntry"/>.
         /// If no entry was found, returns null.

@@ -44,6 +44,12 @@ namespace DolDoc.Renderer.OpenGL
         private double blaat;
         protected override void OnRenderFrame(FrameEventArgs args)
         {
+            if (!state.Dirty)
+            {
+                Thread.Sleep(1);
+                return;
+            }
+            
             GL.MatrixMode(MatrixMode.Projection);
             GL.Ortho(0, Size.X, 0, Size.Y, -1, 1);
             GL.Viewport(0, 0, Size.X, Size.Y);
@@ -93,6 +99,7 @@ namespace DolDoc.Renderer.OpenGL
             Context.SwapBuffers();
             base.OnRenderFrame(args);
             Thread.Sleep(1);
+            state.Dirty = false;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -133,6 +140,7 @@ namespace DolDoc.Renderer.OpenGL
                 State = new ViewerState(this, this.document, width, heigth, new YaffFontProvider(), "Terminal_VGA_cp861");
                 document.Refresh();
 
+                GLFWProvider.CheckForMainThread = false;
                 var settings = new GameWindowSettings();
                 settings.RenderFrequency = 1;
                 var nativeSettings = new NativeWindowSettings
