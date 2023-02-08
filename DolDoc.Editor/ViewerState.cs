@@ -7,6 +7,8 @@ using DolDoc.Editor.Rendering;
 using System;
 using System.Drawing;
 using System.IO;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using Cursor = DolDoc.Editor.Core.Cursor;
 
 namespace DolDoc.Editor
 {
@@ -295,7 +297,7 @@ namespace DolDoc.Editor
                 DoBlink();
                 RenderCursor();
                 cursorInverted = !cursorInverted;
-                // frameBuffer.Render(new Rectangle(Cursor.WindowX - 1, Cursor.WindowY - 1, 3, 3));
+                GLFW.PostEmptyEvent();
             }
         }
 
