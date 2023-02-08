@@ -34,8 +34,7 @@ namespace DolDoc.Examples.FileBrowser
         
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenTKWindow>();
-            var window = compositor.NewWindow();
+            var window = new OpenTKWindow();
             var document = new Document();
 
             void OnMacro(DocumentEntry entry)

@@ -72,8 +72,7 @@ namespace DolDoc.Examples.SimpleForm
     {
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenTKWindow>();
-            var window = compositor.NewWindow();
+            var window = new OpenTKWindow();
             var obj = new TestForm();
             var doc = new FormDocument<TestForm>(obj);
             window.Show("Form Test", 1024, 768, doc);

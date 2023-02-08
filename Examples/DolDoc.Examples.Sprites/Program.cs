@@ -104,8 +104,7 @@ namespace DolDoc.Examples.Sprites
     {
         public static void Main(string[] args)
         {
-            var compositor = new Compositor<OpenTKWindow>();
-            var window = compositor.NewWindow();
+            var window = new OpenTKWindow();
             var form = new SpriteDemoForm();
             var doc = new FormDocument<SpriteDemoForm>(form);
             window.Show("Form Test", 1024, 768, doc);

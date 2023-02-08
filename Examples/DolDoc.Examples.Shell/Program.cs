@@ -50,8 +50,7 @@ namespace DolDoc.Examples.Shell
 
         public void Run()
         {
-            var compositor = new Compositor<OpenTKWindow>();
-            var window = compositor.NewWindow();
+            var window = new OpenTKWindow();
             
             document = new Document();
             lua = new Lua();
