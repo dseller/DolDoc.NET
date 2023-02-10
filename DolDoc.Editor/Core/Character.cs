@@ -14,6 +14,12 @@
         {
             Index = index;
         }
+
+        public Character(byte ch, CombinedColor color)
+        {
+            Char = ch;
+            Color = color;
+        }
         
         public void Write(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0)
         {

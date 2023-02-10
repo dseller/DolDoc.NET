@@ -1,5 +1,4 @@
-﻿using DolDoc.Editor;
-using DolDoc.Editor.Core;
+﻿using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
 using DolDoc.Examples.Shell.Helpers;
 using DolDoc.Renderer.OpenGL;
@@ -12,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using DolDoc.Editor.Compositor;
 
 namespace DolDoc.Examples.Shell
 {
@@ -50,8 +50,6 @@ namespace DolDoc.Examples.Shell
 
         public void Run()
         {
-            var window = new OpenTKWindow();
-            
             document = new Document();
             lua = new Lua();
             lua.LoadCLRPackage();
@@ -118,7 +116,10 @@ namespace DolDoc.Examples.Shell
             }
             
             Load();
-            window.Show("DolDoc.NET File Browser", 1600, 1200, document);
+            
+            var window = new OpenTKWindow();
+            var compositor = Compositor.Initialize(window, 1600, 1200, document);
+            compositor.Start();
         }
 
         public void Shell(string cmd, Action<string> outputWriter)

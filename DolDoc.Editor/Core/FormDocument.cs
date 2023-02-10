@@ -56,14 +56,14 @@ namespace DolDoc.Editor.Core
             var handlerMethod = obj.GetArgument("H");
             if (string.IsNullOrEmpty(handlerMethod))
             {
-                Debug.WriteLine("No handler method specified.");
+                Compositor.Compositor.Instance.Logger.Warning("No handler method specified.");
                 return;
             }
 
             var methodInfo = typeof(T).GetMethod(handlerMethod);
             if (methodInfo == null)
             {
-                Debug.WriteLine($"Could not find method {methodInfo} on type {typeof(T)}");
+                Compositor.Compositor.Instance.Logger.Error($"Could not find method {methodInfo} on type {typeof(T)}");
                 return;
             }
 
@@ -83,7 +83,7 @@ namespace DolDoc.Editor.Core
 
         public T DataObject { get; }
 
-        private string Generate()
+        protected string Generate()
         {
             var builder = new StringBuilder();
             builder.Append(GetHeader(typeof(T)));
@@ -116,7 +116,7 @@ namespace DolDoc.Editor.Core
             }
         }
 
-        private string GetHeader(Type formType)
+        protected virtual string GetHeader(Type formType)
         {
             var builder = new StringBuilder();
 

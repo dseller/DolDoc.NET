@@ -6,7 +6,7 @@ namespace DolDoc.Editor.Input
     {
         void KeyPress(Key key);
 
-        void MouseClick(float x, float y);
+        void MouseDown(float x, float y);
 
         void MouseMove(float x, float y);
     }

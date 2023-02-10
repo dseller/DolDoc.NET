@@ -1,14 +1,13 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using DolDoc.Editor;
+using DolDoc.Editor.Compositor;
 using DolDoc.Editor.Core;
-using DolDoc.Renderer.OpenGL;
 
-namespace DolDoc.Examples.FileBrowser
+namespace DolDoc.Examples
 {
-    public static class Program
+    public static class FileBrowser
     {
         private static string DirectoryListing(string path = ".")
         {
@@ -32,9 +31,8 @@ namespace DolDoc.Examples.FileBrowser
             return builder.ToString();
         }
         
-        public static void Main(string[] args)
+        public static Document GetFileBrowserDocument()
         {
-            var window = new OpenTKWindow();
             var document = new Document();
 
             void OnMacro(DocumentEntry entry)
@@ -47,16 +45,14 @@ namespace DolDoc.Examples.FileBrowser
                     case "ChangeDir":
                         document = new Document(DirectoryListing(entry.GetArgument("RE")));
                         document.OnMacro += OnMacro;
-                        window.State.LoadDocument(document);
+                        Compositor.Instance.Root.State.LoadDocument(document);
                         break;
                 }
             }
-
             
             document.OnMacro += OnMacro;
-
             document.Load(DirectoryListing());
-            window.Show("DolDoc.NET File Browser", 1600, 1200, document);
+            return document;
         }
     }
 }

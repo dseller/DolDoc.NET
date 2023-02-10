@@ -6,8 +6,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\DolDoc.Editor\DolDoc.Editor.csproj" />
       <ProjectReference Include="..\..\DolDoc.Renderer.OpenGL\DolDoc.Renderer.OpenGL.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Examples.DD">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

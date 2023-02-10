@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using DolDoc.Editor.Logging;
 
 namespace DolDoc.Editor.Fonts
 {
@@ -10,12 +11,14 @@ namespace DolDoc.Editor.Fonts
     /// </summary>
     public class YaffFontProvider : IFontProvider
     {
+        private readonly ILogger logger;
         private readonly bool mirror;
         private readonly string _fontsFolder;
         private readonly bool useDefault;
 
-        public YaffFontProvider(bool mirror = true, string fontsFolder = "Fonts", bool useDefault = true)
+        public YaffFontProvider(ILogger logger, bool mirror = true, string fontsFolder = "Fonts", bool useDefault = true)
         {
+            this.logger = logger;
             this.mirror = mirror;
             _fontsFolder = fontsFolder;
             this.useDefault = useDefault;
@@ -73,7 +76,7 @@ namespace DolDoc.Editor.Fonts
                             values.Add(key, value);
                     }
 
-                    Debug.WriteLine($"YAFF Font {name} loaded with {values.Count} glyphs");
+                    logger.Debug($"YAFF Font {name} loaded with {values.Count} glyphs");
 
                     // TODO: font width/height is still hardcoded here, only supports
                     // Courier_8 now.

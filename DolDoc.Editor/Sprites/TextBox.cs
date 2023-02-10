@@ -25,17 +25,17 @@ namespace DolDoc.Editor.Sprites
             
             GL.Begin(BeginMode.Lines);
             // Top
-            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
-            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
+            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) + 2 + Padding + ctx.Compositor.Font.Height);
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.Compositor.Font.Width), ctx.State.Height - (y + Y) + 2 + Padding + ctx.Compositor.Font.Height);
             // Bottom
             GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) - 2 - Padding);
-            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) - 2 - Padding);
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.Compositor.Font.Width), ctx.State.Height - (y + Y) - 2 - Padding);
             // Left
-            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
+            GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) + 2 + Padding + ctx.Compositor.Font.Height);
             GL.Vertex2((x + X) - 2 - Padding, ctx.State.Height - (y + Y) - 2 - Padding);
             // Right
-            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) + 2 + Padding + ctx.State.Font.Height);
-            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.State.Font.Width), ctx.State.Height - (y + Y) - 2 - Padding);
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.Compositor.Font.Width), ctx.State.Height - (y + Y) + 2 + Padding + ctx.Compositor.Font.Height);
+            GL.Vertex2((x + X) + 2 + Padding + (Value.Length * ctx.Compositor.Font.Width), ctx.State.Height - (y + Y) - 2 - Padding);
             GL.End();
         }
 

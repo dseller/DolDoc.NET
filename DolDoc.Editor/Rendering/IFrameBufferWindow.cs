@@ -1,20 +1,19 @@
-﻿using System.Drawing;
-using DolDoc.Editor.Core;
-
-namespace DolDoc.Editor.Rendering
+﻿namespace DolDoc.Editor.Rendering
 {
     public interface IFrameBufferWindow
     {
-        void Show(string title, int width, int heigth, Document document = null);
-
-        void Render(Rectangle rect);
+        void Show(string title, int width, int height);
 
         void Clear();
 
         void SetTitle(string title);
 
         void SetCursorType(CursorType cursorType);
+        
+        int? Width { get; }
+        
+        int? Height { get; }
 
-        ViewerState State { get; }
+        Compositor.Compositor Compositor { get; set; }
     }
 }
