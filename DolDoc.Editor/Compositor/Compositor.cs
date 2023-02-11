@@ -178,6 +178,8 @@ namespace DolDoc.Editor.Compositor
                 {
                     FocusedWindow.X = (int) ((deltaX + windowMoveStart) / Font.Width);
                     FocusedWindow.Y = (int) ((deltaY + windowMoveEnd) / Font.Height);
+                    
+                    // If the window goes out-of-screen, make sure to keep at least 1 character visible so the window is not forever lost.
                     if ((FocusedWindow.X + FocusedWindow.Columns) < 0)
                         FocusedWindow.X = -FocusedWindow.Columns + 1;
                     if (FocusedWindow.X >= Columns)
@@ -186,6 +188,7 @@ namespace DolDoc.Editor.Compositor
                         FocusedWindow.Y = -FocusedWindow.Rows + 1;
                     if (FocusedWindow.Y >= Rows)
                         FocusedWindow.Y = Rows - 1;
+                    
                     RecalculateIndices();
                 }
 
@@ -197,23 +200,24 @@ namespace DolDoc.Editor.Compositor
                 var row = (int) Math.Floor(y / Font.Height);
                 var index = WindowIndexBitmap[column + (row * Columns)];
                 var window = Windows[index];
+                if (window.HasBorder)
+                {
+                    // If the window has borders, we need to normalize the coordinates to the X,Y offset of the window. 
+                    var localX = x - window.X * Font.Width;
+                    var localY = y - window.Y * Font.Height;
 
-                var normalizedX = window.HasBorder ? (x / Font.Width) - ((window.X)) : x - (window.X);
-                var normalizedY = window.HasBorder ? (y / Font.Width) - ((window.Y)) : y - (window.Y);
-
-                return window.State.MouseMove(normalizedX, normalizedY);
-
-                // var normalizedColumn = (int)Math.Floor(normalizedX / window.Compositor.Font.Width);
-                // var normalizedRow = (int)(Math.Floor(normalizedY / window.Compositor.Font.Height)) + window.State.Cursor.ViewLine;
-                //
-                // // Retrieve the entry belonging to the clicked character.
-                // var ch = window.State.Pages[normalizedColumn, normalizedRow];
-                // if (!ch.HasEntry)
-                //     frameBuffer.SetCursorType(CursorType.Pointer);
-                // else if (ch.Entry.Clickable)
-                //     frameBuffer.SetCursorType(CursorType.Hand);
-                // else
-                //     frameBuffer.SetCursorType(CursorType.Pointer);
+                    // Ignore borders
+                    if (localX < Font.Width || 
+                        localY < Font.Height || 
+                        (int)Math.Floor(localY / Font.Height) == window.Rows - 1 ||
+                        (int)Math.Floor(localX / Font.Width) == window.Columns - 1)
+                        return CursorType.Pointer;
+                    
+                    // Pass the normalized values on to the window state.
+                    return window.State.MouseMove(localX - Font.Width, localY - Font.Height);
+                }
+                
+                return window.State.MouseMove(x - (window.X * Font.Width), y - (window.Y * Font.Height));
             }
         }
 
@@ -230,17 +234,19 @@ namespace DolDoc.Editor.Compositor
                     var rect = rects.Dequeue();
                     for (int row = rect.Y; row < rect.Height + rect.Y; row++)
                     {
-                        if (row < 0)
-                            continue;
-                        if (row >= Rows)
+                        // If this row is out of view at the top or bottom, do not put it in the bitmap.
+                        if (row < 0 || row >= Rows)
                             continue;
 
                         var fillWidth = rect.Width;
+                        // If the window goes partly out of view to the right:
                         if (rect.X + fillWidth > Columns)
                             fillWidth = Columns - rect.X;
+                        // If the window goes partly out of view to the left:
                         if (rect.X < 0)
                             fillWidth = rect.Width + rect.X;
 
+                        // Write the window index into the bitmap.
                         Array.Fill(WindowIndexBitmap, counter, (row * Columns) + Math.Max(0, rect.X), fillWidth);
                     }
                 }
