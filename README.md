@@ -6,23 +6,29 @@ A .NET reimplementation of Terry Davis' [✝] [TempleOS](http://www.templeos.org
 
 **This is still heavily under development!**
 
+## Sponsors
+
 [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="128" height="128">](https://jb.gg/OpenSourceSupport)
+
+Jetbrains has kindly provided me with a Jetbrains Rider open source license for developing this project. Thank you Jetbrains! 
 
 ## Online Blazor proof of concept
 
-You can find a proof of concept of the DolDoc.NET formatting engine [here](http://dseller.github.io). Please note that at the time of writing, user input is not yet implemented. Also note that because DolDoc.NET is heavily under development,
-it is very unoptimized. This is extra apparent in the Blazor host.
+You can find a proof of concept of the DolDoc.NET formatting engine [here](http://dseller.github.io).
+
+__The Blazor POC is a very old version of DolDoc.NET! Please use the native application from this repository instead.__
 
 ## Todo list
 
 - [x] Implement basic document rendering
 - [x] Implement forms
+- [x] Window compositor
+- [x] Renderer optimizations
+- [ ] Fix editor inaccuracies
 - [ ] Extend forms
 - [ ] Design and implement network protocol to allow it to be used as a remote TUI
-- [ ] Renderer optimizations
-- [ ] Implement HolyC compiler
-
-And more :)
+- [ ] Implement HolyC compiler + VM
+- [ ] Migrate away from OpenGL legacy
 
 ## Examples
 
