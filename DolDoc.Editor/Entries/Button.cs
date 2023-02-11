@@ -17,7 +17,8 @@ namespace DolDoc.Editor.Entries
             if (Selected)
                 options.Inverted = true;
 
-            var charsWritten = WriteString(ctx, Tag);
+            // Add one character for the last border.
+            var charsWritten = WriteString(ctx, Tag) + 1;
             WriteBorder(ctx, Tag.Length);
 
             ctx.PopOptions();

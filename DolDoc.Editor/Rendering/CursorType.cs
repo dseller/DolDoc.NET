@@ -4,5 +4,7 @@
     {
         Pointer,
         Hand,
+        Move,
+        IBeam
     }
 }

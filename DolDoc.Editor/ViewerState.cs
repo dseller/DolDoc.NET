@@ -1,14 +1,13 @@
 ﻿using DolDoc.Editor.Commands;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
-using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Rendering;
 using System;
-using System.Drawing;
 using System.IO;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Cursor = DolDoc.Editor.Core.Cursor;
+using Window = DolDoc.Editor.Compositor.Window;
 
 namespace DolDoc.Editor
 {
@@ -17,33 +16,28 @@ namespace DolDoc.Editor
     /// </summary>
     public class ViewerState : IInputListener, ITickListener
     {
+        private readonly Window window;
         public EgaColor DefaultBackgroundColor { get; set; } = EgaColor.White;
         public EgaColor DefaultForegroundColor { get; set; } = EgaColor.Black;
         
         public Document Document { get; private set; }
 
-        public IFont Font;
-
         public Cursor Cursor { get; }
 
         private string title;
         private bool cursorInverted;
-        private readonly IFrameBufferWindow frameBuffer;
-        private readonly IFontProvider fontProvider;
 
-        public ViewerState(IFrameBufferWindow frameBuffer, Document doc, int width, int height, IFontProvider fontProvider = null, string font = null)
+        public ViewerState(Window window, Document doc, int columns, int rows)
         {
+            this.window = window;
             cursorInverted = false;
             Cursor = new Cursor(this);
             Document = doc;
-            this.frameBuffer = frameBuffer;
-            this.fontProvider = fontProvider ?? new YaffFontProvider();
-            Font = this.fontProvider.Get(font);
 
-            Width = width;
-            Height = height;
-            Rows = height / Font.Height;
-            Columns = width / Font.Width;
+            Width = columns * window.Compositor.Font.Width;
+            Height = rows * window.Compositor.Font.Height;
+            Rows = rows;
+            Columns = columns;
 
             RawMode = false;
 
@@ -58,7 +52,6 @@ namespace DolDoc.Editor
             if (child)
                 document.Parent = Document;
 
-            frameBuffer?.Clear();
             Pages.Clear(DefaultBackgroundColor);
             Document = document;
             Document.OnUpdate += Document_OnUpdate;
@@ -69,10 +62,7 @@ namespace DolDoc.Editor
         private void Document_OnUpdate(Document document, bool clear)
         {
             if (clear)
-            {
-                frameBuffer?.Clear();
                 Pages.Clear(DefaultBackgroundColor);
-            }
 
             var renderOptions = new RenderOptions(DefaultForegroundColor, DefaultBackgroundColor);
             var ctx = new EntryRenderContext(document, this, renderOptions);
@@ -97,9 +87,6 @@ namespace DolDoc.Editor
                 var result = Text.Create(new Flag[0], document.ToPlainText()).Evaluate(ctx);
                 ctx.RenderPosition += result?.WrittenCharacters ?? 0;
             }
-
-            // TODO: calculate render rectangle
-            frameBuffer?.Render(new Rectangle(0, 0, Columns, Rows));
         }
 
         public CharacterPageDirectory Pages { get; }
@@ -125,7 +112,8 @@ namespace DolDoc.Editor
             set
             {
                 title = value;
-                frameBuffer.SetTitle(value);
+                window.Title = value;
+                // frameBuffer.SetTitle(value);
             }
         }
 
@@ -190,27 +178,26 @@ namespace DolDoc.Editor
             Document.Refresh();
         }
 
-        public void MouseMove(float x, float y)
+        public CursorType MouseMove(float x, float y)
         {
             var entry = FindEntry(x, y);
             if (entry == null)
-            {
-                frameBuffer.SetCursorType(CursorType.Pointer);
-                return;
-            }
+                return CursorType.Pointer;
 
+            if (entry.IsInput)
+                return CursorType.IBeam;
             if (entry.Clickable)
-                frameBuffer.SetCursorType(CursorType.Hand);
-            else
-                frameBuffer.SetCursorType(CursorType.Pointer);
+                return CursorType.Hand;
+
+            return CursorType.Pointer;
         }
 
-        public void MouseClick(float x, float y)
+        public void MouseDown(float x, float y)
         {
             var entry = FindEntry(x, y);
             if (entry == null || !entry.Clickable)
             {
-                Cursor.SetPosition((int)((x / Font.Width)) + (((int)(y / Font.Height)) * Columns) + (Cursor.ViewLine * Columns));
+                Cursor.SetPosition((int)((x / window.Compositor.Font.Width)) + (((int)(y / window.Compositor.Font.Height)) * Columns) + (Cursor.ViewLine * Columns));
             }
             else
             {
@@ -232,49 +219,20 @@ namespace DolDoc.Editor
 
         public void CloseDocument(bool save)
         {
-            /*if (save && Document.Path != null)
-            {
-                using (var fs = File.Open(Document.Path, FileMode.Create))
-                using (var writer = new StreamWriter(fs))
-                    writer.Write(Document.ToPlainText());
-            }*/
-            
             if (save)
                 Document.Save();
 
-            // If there is no parent document, close the whole application.
+            // If there is no parent document, close the window.
             if (Document.Parent == null)
-                Environment.Exit(0);
-
-            Document = Document.Parent;
-            frameBuffer?.Clear();
-            Pages.Clear(DefaultBackgroundColor);
-            Cursor.SetPosition(0);
-            Document_OnUpdate(Document, false);
-            // Render();
+                window.Compositor.CloseWindow(window);
+            else
+            {
+                Document = Document.Parent;
+                Pages.Clear(DefaultBackgroundColor);
+                Cursor.SetPosition(0);
+                Document_OnUpdate(Document, false);
+            }
         }
-
-        // public void Render()
-        // {
-        //     Array.Clear(_renderBuffer, 0, _renderBuffer.Length);
-        //
-        //     for (int y = 0; y < Rows; y++)
-        //         for (int x = 0; x < Columns; x++)
-        //         {
-        //             if (!Pages.HasPageForPosition(x, y + Cursor.ViewLine))
-        //                 Pages.GetOrCreatePage(x, y + Cursor.ViewLine);
-        //
-        //             RenderCharacter(x, y, Pages[x, y + Cursor.ViewLine]);
-        //         }
-        //
-        //     // render sprites. this is hacky, but for now it will do.
-        //     foreach (var entry in Document.Entries)
-        //         if (entry is Sprite spriteEntry && spriteEntry.SpriteObj != null)
-        //             if ((spriteEntry.SpriteOffset * Font.Width * Font.Height) < Width * Height)
-        //                 spriteEntry.SpriteObj.WriteToFrameBuffer(this, _renderBuffer, (spriteEntry.SpriteOffset * Font.Width * Font.Height) - (Cursor.ViewLine * Columns * 8 * 8));
-        //
-        //     _frameBuffer?.Render(_renderBuffer);
-        // }
 
         private void DoBlink()
         {
@@ -289,15 +247,18 @@ namespace DolDoc.Editor
         
         private void RenderCursor() => Pages[Cursor.DocumentPosition].Flags ^= CharacterFlags.Inverted;
 
-        public void Tick(ulong ticks)
+        public void Tick(ulong ticks, bool hasFocus)
         {
             // Blink every 200ms, one frame is 33ms, so every 6 frames
             if (ticks % 15 == 0)
             {
                 DoBlink();
-                RenderCursor();
-                cursorInverted = !cursorInverted;
-                GLFW.PostEmptyEvent();
+                if (hasFocus)
+                {
+                    RenderCursor();
+                    cursorInverted = !cursorInverted;
+                    GLFW.PostEmptyEvent();
+                }
             }
         }
 
@@ -310,8 +271,8 @@ namespace DolDoc.Editor
         public DocumentEntry FindEntry(float x, float y)
         {
             // Find the entry that is being clicked.
-            var column = (int)Math.Floor(x / Font.Width);
-            var row = (int)(Math.Floor(y / Font.Height)) + Cursor.ViewLine;
+            var column = (int)Math.Floor(x / window.Compositor.Font.Width);
+            var row = (int)(Math.Floor(y / window.Compositor.Font.Height)) + Cursor.ViewLine;
 
             // Retrieve the entry belonging to the clicked character.
             var ch = Pages[column, row];

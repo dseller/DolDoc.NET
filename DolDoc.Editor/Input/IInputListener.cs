@@ -1,4 +1,5 @@
 ﻿using DolDoc.Editor.Core;
+using DolDoc.Editor.Rendering;
 
 namespace DolDoc.Editor.Input
 {
@@ -6,8 +7,8 @@ namespace DolDoc.Editor.Input
     {
         void KeyPress(Key key);
 
-        void MouseClick(float x, float y);
+        void MouseDown(float x, float y);
 
-        void MouseMove(float x, float y);
+        CursorType MouseMove(float x, float y);
     }
 }

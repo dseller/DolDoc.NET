@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using OpenTK.Graphics.OpenGL;
 
 namespace DolDoc.Editor.Sprites
@@ -71,11 +70,11 @@ namespace DolDoc.Editor.Sprites
             }
         }
 
-        public void Render(ViewerState state, int x, int y)
+        public void Render(Compositor.Compositor compositor, ViewerState state, int x, int y)
         {
             GL.PushAttrib(AttribMask.ColorBufferBit);
             GL.Color3(0, 0, 0);
-            var ctx = new SpriteRenderContext(state);
+            var ctx = new SpriteRenderContext(compositor, state);
             foreach (var element in spriteElements)
                 element.Render(ctx, x, y);
             GL.PopAttrib();

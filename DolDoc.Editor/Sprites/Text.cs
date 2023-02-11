@@ -32,21 +32,21 @@ namespace DolDoc.Editor.Sprites
         {
             var bgColor = EgaColorRgbBitmap.Palette[(byte)ctx.State.DefaultBackgroundColor];
             var fgColor = EgaColorRgbBitmap.Palette[(byte)ctx.Color];
-            var filledBitmap = Enumerable.Repeat((byte) 0xFF, (ctx.State.Font.Width * ctx.State.Font.Height) / 8).ToArray();
+            var filledBitmap = Enumerable.Repeat((byte) 0xFF, (ctx.Compositor.Font.Width * ctx.Compositor.Font.Height) / 8).ToArray();
             for (int i = 0; i < Value.Length; i++)
             {
                 GL.Color3(bgColor.RD, bgColor.GD, bgColor.BD);
-                GL.WindowPos2(x + X + (i * ctx.State.Font.Width),  ctx.State.Height - (y + Y + 1));
-                GL.Bitmap(ctx.State.Font.Width, ctx.State.Font.Height, 0, 0, 0, 0, filledBitmap);
+                GL.WindowPos2(x + X + (i * ctx.Compositor.Font.Width),  ctx.State.Height - (y + Y + 1));
+                GL.Bitmap(ctx.Compositor.Font.Width, ctx.Compositor.Font.Height, 0, 0, 0, 0, filledBitmap);
 
                 GL.Color3(fgColor.RD, fgColor.GD, fgColor.BD);
-                GL.WindowPos2(x + X + (i  * ctx.State.Font.Width), ctx.State.Height - (y + Y + 1));
+                GL.WindowPos2(x + X + (i  * ctx.Compositor.Font.Width), ctx.State.Height - (y + Y + 1));
 
-                GL.Bitmap(ctx.State.Font.Width, ctx.State.Font.Height,
+                GL.Bitmap(ctx.Compositor.Font.Width, ctx.Compositor.Font.Height,
                     0, 0,
                     0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
                     0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
-                    ctx.State.Font[(byte)Value[i]]);
+                    ctx.Compositor.Font[(byte)Value[i]]);
             }
         }
 

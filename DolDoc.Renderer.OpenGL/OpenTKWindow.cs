@@ -2,12 +2,10 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
-using DolDoc.Editor;
+using DolDoc.Editor.Compositor;
 using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
-using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -19,24 +17,13 @@ namespace DolDoc.Renderer.OpenGL
 {
     public class Wnd : GameWindow
     {
-        private readonly ViewerState state;
-        private readonly byte[] filledBitmap, underlineBitmap;
-        private readonly object renderQueueLock = new object();
-        private readonly Queue<Rectangle> renderQueue;
+        private readonly Compositor compositor;
+        private readonly IFrameBufferWindow frameBuffer;
 
-        public Wnd(ViewerState state, GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
+        public Wnd(Compositor compositor, IFrameBufferWindow frameBuffer, GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
-            this.state = state;
-            filledBitmap = Enumerable.Repeat((byte) 0xFF, (state.Font.Width * state.Font.Height) / 8).ToArray();
-            underlineBitmap = new byte[(state.Font.Width * state.Font.Height) / 8];
-            underlineBitmap[(underlineBitmap.Length - 1) / 8] = 0xFF;
-            renderQueue = new Queue<Rectangle>();
-        }
-
-        public void QueueRender(Rectangle rect)
-        {
-            lock (renderQueueLock)
-                renderQueue.Enqueue(rect);
+            this.compositor = compositor;
+            this.frameBuffer = frameBuffer;
         }
 
         protected override void OnLoad()
@@ -58,58 +45,45 @@ namespace DolDoc.Renderer.OpenGL
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            // Rectangle[] rects;
-            // lock (renderQueueLock)
-            // {
-            //     if (renderQueue.Count == 0)
-            //         return;
-            //     
-            //     rects = renderQueue.ToArray();
-            //     renderQueue.Clear();
-            // }
+            var spritesToRender = new List<(Sprite, Window, int, int)>();
 
-            var spritesToRender = new List<(Sprite, int, int)>();
-            
-            for (int y = 0; y < state.Rows; y++)
-                for (int x = 0; x < state.Columns; x++)
+            for (int y = 0; y < compositor.Rows; y++)
+            for (int x = 0; x < compositor.Columns; x++)
+            {
+                var (ch, window) = compositor.Get(x, y);
+                EgaColorRgbBitmap fg, bg;
+                if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
                 {
-                    if (!state.Pages.HasPageForPosition(x, y + state.Cursor.ViewLine))
-                        state.Pages.GetOrCreatePage(x, y + state.Cursor.ViewLine);
-
-                    var ch = state.Pages[x, y + state.Cursor.ViewLine];
-                    EgaColorRgbBitmap fg, bg;
-                    if ((ch.Flags & CharacterFlags.Inverted) == CharacterFlags.Inverted)
-                    {
-                        fg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Foreground ^ 0x0F)];
-                        bg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Background ^ 0x0F)];
-                    }
-                    else
-                    {
-                        fg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Foreground];
-                        bg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Background];
-                    }
-
-                    GL.Color3(bg.RD, bg.GD, bg.BD);
-                    GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
-                    GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, filledBitmap);
-
-                    GL.Color3(fg.RD, fg.GD, fg.BD);
-                    GL.WindowPos2(x * state.Font.Width, Size.Y - ((y + 1) * state.Font.Height));
-
-                    GL.Bitmap(state.Font.Width, state.Font.Height,
-                        0, 0,
-                        0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
-                        0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
-                        state.Font[ch.Char]);
-
-                    if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
-                        GL.Bitmap(state.Font.Width, state.Font.Height, 0, 0, 0, 0, underlineBitmap);
-                    if (ch.Entry is Sprite s)
-                        spritesToRender.Add((s, x, y));
+                    fg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Foreground ^ 0x0F)];
+                    bg = EgaColorRgbBitmap.Palette[(byte) ((byte) ch.Color.Background ^ 0x0F)];
                 }
-            
+                else
+                {
+                    fg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Foreground];
+                    bg = EgaColorRgbBitmap.Palette[(byte) ch.Color.Background];
+                }
+
+                GL.Color3(bg.RD, bg.GD, bg.BD);
+                GL.WindowPos2(x * compositor.Font.Width, Size.Y - ((y + 1) * compositor.Font.Height));
+                GL.Bitmap(compositor.Font.Width, compositor.Font.Height, 0, 0, 0, 0, compositor.FilledBitmap);
+
+                GL.Color3(fg.RD, fg.GD, fg.BD);
+                GL.WindowPos2(x * compositor.Font.Width, Size.Y - ((y + 1) * compositor.Font.Height));
+
+                GL.Bitmap(compositor.Font.Width, compositor.Font.Height,
+                    0, 0,
+                    0, //(chCounter % state.Columns == 0 ? -((state.Columns - 1) * state.Font.Width) : state.Font.Width), 
+                    0, //(chCounter % state.Columns == 0) ? -state.Font.Height : 0, 
+                    compositor.Font[ch.Char]);
+
+                if ((ch.Flags & CharacterFlags.Underline) == CharacterFlags.Underline)
+                    GL.Bitmap(compositor.Font.Width, compositor.Font.Height, 0, 0, 0, 0, compositor.UnderlineBitmap);
+                if (ch.Entry is Sprite s)
+                    spritesToRender.Add((s, window, x, y));
+            }
+
             foreach (var s in spritesToRender)
-                s.Item1.SpriteObj.Render(state, s.Item2 * state.Font.Width, s.Item3 * state.Font.Height);
+                s.Item1.SpriteObj.Render(compositor, s.Item2.State, s.Item3 * compositor.Font.Width, s.Item4 * compositor.Font.Height);
 
             Context.SwapBuffers();
             base.OnRenderFrame(args);
@@ -118,7 +92,7 @@ namespace DolDoc.Renderer.OpenGL
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            state.CloseDocument(false);
+            compositor.CloseDocument(false);
             e.Cancel = true;
         }
 
@@ -127,13 +101,17 @@ namespace DolDoc.Renderer.OpenGL
             var ch = KeyMap.GetKey(e);
             if (!ch.HasValue)
                 return;
-
-            state.KeyPress(ch.Value);
+            compositor.KeyPress(ch.Value);
         }
 
-        protected override void OnMouseMove(MouseMoveEventArgs e) => state.MouseMove(e.X, e.Y);
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            var cursor = compositor.MouseMove(e.X, e.Y);
+            frameBuffer.SetCursorType(cursor);
+        } 
+        protected override void OnMouseDown(MouseButtonEventArgs e) => compositor.MouseDown(MousePosition.X, MousePosition.Y);
 
-        protected override void OnMouseDown(MouseButtonEventArgs e) => state.MouseClick(MousePosition.X, MousePosition.Y);
+        protected override void OnMouseUp(MouseButtonEventArgs e) => compositor.MouseUp();
     }
 
     public class OpenTKWindow : IFrameBufferWindow
@@ -141,34 +119,32 @@ namespace DolDoc.Renderer.OpenGL
         private Wnd window;
         private Timer timer;
         private Thread thread;
-        private Document document;
 
-        public void Show(string title, int width, int heigth, Document document = null)
+        public void Show(string title, int width, int height)
         {
+            Width = width;
+            Height = height;
+
             thread = new Thread(() =>
             {
                 Debug.WriteLine("Opening OpenTKWindow!");
 
-                this.document = document ?? new Document();
                 GLFWProvider.CheckForMainThread = false;
                 var settings = new GameWindowSettings();
                 settings.RenderFrequency = 1;
                 var nativeSettings = new NativeWindowSettings
                 {
-                    Size = new Vector2i(width, heigth),
+                    Size = new Vector2i(width, height),
                     Profile = ContextProfile.Compatability,
                     WindowBorder = WindowBorder.Fixed,
                     IsEventDriven = true,
                     Title = title
                 };
 
-                State = new ViewerState(this, this.document, width, heigth);
-                using (window = new Wnd(State, settings, nativeSettings))
+                using (window = new Wnd(Compositor, this, settings, nativeSettings))
                 {
-                    this.document.Refresh();
-
                     ulong ticks = 0;
-                    timer = new Timer(_ => State.Tick(ticks++), null, 0, 1000 / 30);
+                    timer = new Timer(_ => Compositor.Tick(ticks++, false), null, 0, 1000 / 30);
 
                     window.VSync = VSyncMode.On;
                     window.RenderFrequency = 30;
@@ -177,8 +153,6 @@ namespace DolDoc.Renderer.OpenGL
             });
             thread.Start();
         }
-
-        public void Render(Rectangle rect) => window?.QueueRender(rect);
 
         public void Clear()
         {
@@ -196,10 +170,15 @@ namespace DolDoc.Renderer.OpenGL
             window.Cursor = cursorType switch
             {
                 CursorType.Hand => MouseCursor.Hand,
+                CursorType.Move => MouseCursor.Crosshair,
+                CursorType.IBeam => MouseCursor.IBeam, 
                 _ => MouseCursor.Default
             };
         }
 
-        public ViewerState State { get; private set; }
+        public int? Width { get; private set; }
+        public int? Height { get; private set; }
+
+        public Compositor Compositor { get; set; }
     }
 }

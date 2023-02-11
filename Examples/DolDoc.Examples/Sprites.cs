@@ -1,10 +1,8 @@
-﻿using DolDoc.Editor;
-using DolDoc.Editor.Core;
+﻿using DolDoc.Editor.Core;
 using DolDoc.Editor.Forms;
 using DolDoc.Editor.Sprites;
-using DolDoc.Renderer.OpenGL;
 
-namespace DolDoc.Examples.Sprites
+namespace DolDoc.Examples
 {
     [FormHeader("$TI,\"Sprite Demo\"$$FG,RED$Enter the parameters and click the desired sprite type. It will spawn it there.$FG$\n\n")]
     [FormFooter("\n\n")]
@@ -97,18 +95,6 @@ namespace DolDoc.Examples.Sprites
             var chunk = form.AddChunk(spriteBuilder.Serialize());
             
             form.Write($"$SP,BI={chunk.Id}$\n");
-        }
-    }
-
-    public static class Program
-    {
-        public static void Main(string[] args)
-        {
-            var compositor = new Compositor<OpenTKWindow>();
-            var window = compositor.NewWindow();
-            var form = new SpriteDemoForm();
-            var doc = new FormDocument<SpriteDemoForm>(form);
-            window.Show("Form Test", 1024, 768, doc);
         }
     }
 }

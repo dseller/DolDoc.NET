@@ -1,12 +1,11 @@
-﻿using DolDoc.Editor;
-using DolDoc.Editor.Core;
-using DolDoc.Editor.Forms;
-using DolDoc.Renderer.OpenGL;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DolDoc.Editor.Compositor;
+using DolDoc.Editor.Core;
+using DolDoc.Editor.Forms;
 
-namespace DolDoc.Examples.TodoList
+namespace DolDoc.Examples
 {
     public class TodoItem
     {
@@ -96,8 +95,13 @@ namespace DolDoc.Examples.TodoList
             if (item == null)
                 return;
 
-            items.Remove(item);
-            document.Reload();
+            var modal = new ConfirmationModal($"\n Are you sure you want to delete $FG,RED${item.Text}$FG$?", () =>
+            {
+                items.Remove(item);
+                document.Reload();    
+            });
+
+            Compositor.Instance.NewWindow("Confirm", 50, 8, 10, 10, modal);
         }
 
         public void ToggleDone(FormDocument<TodoForm> document, DocumentEntry entry)
@@ -109,20 +113,6 @@ namespace DolDoc.Examples.TodoList
 
             item.Done = !item.Done;
             document.Reload();
-        }
-    }
-
-    public static class Program
-    {
-        public static void Main(string[] args)
-        {
-            var compositor = new Compositor<OpenTKWindow>();
-            var window = compositor.NewWindow();
-
-            var list = new TodoForm();
-            var document = new FormDocument<TodoForm>(list);
-
-            window.Show("TempleTodo", 1024, 768, document);
         }
     }
 }

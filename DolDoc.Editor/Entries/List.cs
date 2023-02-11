@@ -29,7 +29,7 @@ namespace DolDoc.Editor.Entries
                     break;
             }
 
-            Debug.WriteLine($"List widget: {values}");
+            Compositor.Compositor.Instance?.Logger.Debug($"List widget: {values}");
         }
 
         public override CommandResult Evaluate(EntryRenderContext ctx)
