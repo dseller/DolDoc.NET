@@ -69,7 +69,7 @@ namespace DolDoc.Editor.Compositor
                     if (x == Columns - 4)
                         return new Character((byte) '[', borderColor);
                     if (x == Columns - 3)
-                        return new Character((byte) 'X', borderColor);
+                        return new Character(0x0F, borderColor);
                     if (x == Columns - 2)
                         return new Character((byte) ']', borderColor);
                 }

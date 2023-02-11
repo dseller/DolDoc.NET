@@ -158,6 +158,14 @@ namespace DolDoc.Editor.Compositor
 
             var normalizedX = window.HasBorder ? x - ((window.X + 1) * Font.Width) : x - (window.X * Font.Width);
             var normalizedY = window.HasBorder ? y - ((window.Y + 1) * Font.Height) : y - (window.Y * Font.Height);
+
+            if (normalizedY < 1 && (int) Math.Floor(normalizedX / Font.Width) == window.Columns - 4)
+            {
+                // Close button
+                CloseWindow(window);
+                return;
+            }
+            
             if (normalizedX < 0 || normalizedY < 0 || (normalizedX / Font.Width) > window.Columns || (normalizedY / Font.Height) > window.Rows)
             {
                 isMovingWindow = true;
@@ -205,6 +213,10 @@ namespace DolDoc.Editor.Compositor
                     // If the window has borders, we need to normalize the coordinates to the X,Y offset of the window. 
                     var localX = x - window.X * Font.Width;
                     var localY = y - window.Y * Font.Height;
+                    
+                    // If the user hovers over the close button in the border:
+                    if (localY < Font.Height && (int)Math.Floor((localX / Font.Width)) == window.Columns - 3)
+                        return CursorType.Hand;
 
                     // Ignore borders
                     if (localX < Font.Width || 
