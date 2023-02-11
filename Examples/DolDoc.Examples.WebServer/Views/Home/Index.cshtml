@@ -1,0 +1,17 @@
+﻿@{
+    Context.Response.ContentType = "text/plain";
+}
+
+@using System.Net
+$FG,RED$$TX+CX+B,"Welcome to DolDoc.NET Web!"$$FG$
+
+Current time: $FG,CYAN$@DateTime.UtcNow.ToString()$FG$
+Server: $FG,CYAN$@Dns.GetHostName()$FG$
+.NET Version: $FG,CYAN$@Environment.Version$FG$
+
+$FG,RED$Please log in to the mainframe:
+
+$DA,A="Username"$
+$DA,A="Password"$
+
+$BT,"Log in",A="Login"$

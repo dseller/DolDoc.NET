@@ -48,9 +48,9 @@ namespace DolDoc.Editor.Core
         
         public IList<BinaryChunk> BinaryChunks { get; private set; }
 
-        public void ButtonClicked(Button btn) => OnButtonClick?.Invoke(btn);
+        public virtual void ButtonClicked(Button btn) => OnButtonClick?.Invoke(btn);
 
-        public void FieldChanged(string name, object value) => OnFieldChange?.Invoke(name, value);
+        public virtual void FieldChanged(string name, object value) => OnFieldChange?.Invoke(name, value);
 
         public virtual void Macro(DocumentEntry entry) => OnMacro?.Invoke(entry);
 

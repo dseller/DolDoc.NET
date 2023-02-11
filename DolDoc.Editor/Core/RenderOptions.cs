@@ -46,6 +46,8 @@
             WordWrap = WordWrap,
             Inverted = Inverted,
             Indentation = Indentation,
+            ForegroundColor = ForegroundColor,
+            BackgroundColor = BackgroundColor,
             CollapsedTreeNodeIndentationLevel = CollapsedTreeNodeIndentationLevel
         };
     }

@@ -14,7 +14,7 @@ namespace DolDoc.Editor.Entries
 
         private int InputLineLength => int.Parse(GetArgument("ILL", "16"));
 
-        private string Property => GetArgument("PROP");
+        private string Property => GetArgument("PROP") ?? Aux;
 
         public override bool IsInput => true;
 

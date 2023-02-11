@@ -15,6 +15,8 @@ namespace DolDoc.Editor.Compositor
         private bool isMovingWindow;
         private float windowMoveStart, windowMoveEnd;
 
+        public event Action<Key> OnKeyPress;
+
         private readonly Document logDocument;
         private readonly IFrameBufferWindow frameBuffer;
         private readonly int width;
@@ -128,6 +130,7 @@ namespace DolDoc.Editor.Compositor
             }
 
             FocusedWindow?.State.KeyPress(key);
+            OnKeyPress?.Invoke(key);
         }
 
         public void MouseUp()

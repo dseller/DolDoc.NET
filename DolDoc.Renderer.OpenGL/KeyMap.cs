@@ -68,6 +68,16 @@ namespace DolDoc.Renderer.OpenGL
             { Keys.LeftBracket, Key.BRACKET_OPEN },
             { Keys.RightBracket, Key.BRACKET_CLOSE },
             { Keys.Minus, Key.MINUS },
+            { Keys.F1, Key.F1 },
+            { Keys.F2, Key.F2 },
+            { Keys.F3, Key.F3 },
+            { Keys.F4, Key.F4 },
+            { Keys.F5, Key.F5 },
+            { Keys.F6, Key.F6 },
+            { Keys.F7, Key.F7 },
+            { Keys.F8, Key.F8 },
+            { Keys.F9, Key.F9 },
+            { Keys.F10, Key.F10 },
             { Keys.F11, Key.F11 },
             { Keys.F12, Key.F12 }
         };
