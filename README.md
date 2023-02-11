@@ -41,6 +41,10 @@ There are a few examples in the Examples folder:
 
 ## Screenshots
 
+The compositor:
+
+![compositor](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/Compositor.png)
+
 The shell example:
 
 ![shell](https://github.com/dseller/DolDoc.NET/blob/master/Screenshots/shell.png)
