@@ -18,10 +18,12 @@ namespace DolDoc.Renderer.OpenGL
     public class Wnd : GameWindow
     {
         private readonly Compositor compositor;
+        private readonly IFrameBufferWindow frameBuffer;
 
-        public Wnd(Compositor compositor, GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
+        public Wnd(Compositor compositor, IFrameBufferWindow frameBuffer, GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             this.compositor = compositor;
+            this.frameBuffer = frameBuffer;
         }
 
         protected override void OnLoad()
@@ -102,7 +104,11 @@ namespace DolDoc.Renderer.OpenGL
             compositor.KeyPress(ch.Value);
         }
 
-        protected override void OnMouseMove(MouseMoveEventArgs e) => compositor.MouseMove(e.X, e.Y);
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            var cursor = compositor.MouseMove(e.X, e.Y);
+            frameBuffer.SetCursorType(cursor);
+        } 
         protected override void OnMouseDown(MouseButtonEventArgs e) => compositor.MouseDown(MousePosition.X, MousePosition.Y);
 
         protected override void OnMouseUp(MouseButtonEventArgs e) => compositor.MouseUp();
@@ -135,7 +141,7 @@ namespace DolDoc.Renderer.OpenGL
                     Title = title
                 };
 
-                using (window = new Wnd(Compositor, settings, nativeSettings))
+                using (window = new Wnd(Compositor, this, settings, nativeSettings))
                 {
                     ulong ticks = 0;
                     timer = new Timer(_ => Compositor.Tick(ticks++), null, 0, 1000 / 30);
@@ -164,6 +170,8 @@ namespace DolDoc.Renderer.OpenGL
             window.Cursor = cursorType switch
             {
                 CursorType.Hand => MouseCursor.Hand,
+                CursorType.Move => MouseCursor.Crosshair,
+                CursorType.IBeam => MouseCursor.IBeam, 
                 _ => MouseCursor.Default
             };
         }

@@ -16,6 +16,8 @@ namespace DolDoc.Editor.Entries
 
         private string Property => GetArgument("PROP");
 
+        public override bool IsInput => true;
+
         public override CommandResult Evaluate(EntryRenderContext ctx)
         {
             var options = ctx.NewOptions();

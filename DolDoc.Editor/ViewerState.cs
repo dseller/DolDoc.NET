@@ -178,19 +178,18 @@ namespace DolDoc.Editor
             Document.Refresh();
         }
 
-        public void MouseMove(float x, float y)
+        public CursorType MouseMove(float x, float y)
         {
             var entry = FindEntry(x, y);
             if (entry == null)
-            {
-                frameBuffer.SetCursorType(CursorType.Pointer);
-                return;
-            }
-            
+                return CursorType.Pointer;
+
+            if (entry.IsInput)
+                return CursorType.IBeam;
             if (entry.Clickable)
-                frameBuffer.SetCursorType(CursorType.Hand);
-            else
-                frameBuffer.SetCursorType(CursorType.Pointer);
+                return CursorType.Hand;
+
+            return CursorType.Pointer;
         }
 
         public void MouseDown(float x, float y)

@@ -14,7 +14,7 @@ namespace DolDoc.Editor.Compositor
     {
         private bool isMovingWindow;
         private float windowMoveStart, windowMoveEnd;
-        
+
         private readonly Document logDocument;
         private readonly IFrameBufferWindow frameBuffer;
         private readonly int width;
@@ -22,7 +22,7 @@ namespace DolDoc.Editor.Compositor
         public IFont Font;
         public readonly byte[] FilledBitmap, UnderlineBitmap;
         private readonly object syncRoot = new object();
-        
+
         public static Compositor Instance { get; private set; }
 
         public static Compositor Initialize(IFrameBufferWindow frameBuffer, int width, int height, Document root = null, IFontProvider fontProvider = null, string font = null)
@@ -30,7 +30,7 @@ namespace DolDoc.Editor.Compositor
             Instance = new Compositor(frameBuffer, width, height, root, fontProvider, font);
             return Instance;
         }
-        
+
         private Compositor(IFrameBufferWindow frameBuffer, int width, int height, Document root = null, IFontProvider fontProvider = null, string font = null)
         {
             logDocument = new Document();
@@ -43,7 +43,7 @@ namespace DolDoc.Editor.Compositor
             FilledBitmap = Enumerable.Repeat((byte) 0xFF, (Font.Width * Font.Height) / 8).ToArray();
             UnderlineBitmap = new byte[(Font.Width * Font.Height) / 8];
             UnderlineBitmap[(UnderlineBitmap.Length - 1) / 8] = 0xFF;
-            
+
             Windows = new List<Window>();
             Columns = width / Font.Width;
             Rows = height / Font.Height;
@@ -52,20 +52,20 @@ namespace DolDoc.Editor.Compositor
             FocusedWindow = Root;
             Logger.Info("Compositor initialized");
         }
-        
+
         public ILogger Logger { get; }
-        
+
         public Window FocusedWindow { get; private set; }
-        
+
         public List<Window> Windows { get; }
-        
+
         /// <summary>
         /// Contains a list of window indices, one for each character.
         /// </summary>
         public byte[] WindowIndexBitmap { get; }
-        
+
         public int Columns { get; }
-        public int Rows  { get; }
+        public int Rows { get; }
 
         public Window Root { get; }
 
@@ -93,7 +93,7 @@ namespace DolDoc.Editor.Compositor
                 for (int row = y; row < rows + y; row++)
                     Array.Fill(WindowIndexBitmap, (byte) (Windows.Count - 1), (row * Columns) + x, columns);
             }
-            
+
             if (FocusedWindow != null)
                 FocusedWindow.Flags &= ~WindowFlags.HasFocus;
             FocusedWindow = w;
@@ -122,10 +122,9 @@ namespace DolDoc.Editor.Compositor
             if (key == Key.F11)
             {
                 NewWindow("Log", Columns - 20, Rows - 20, 10, 10, logDocument);
-                
             }
-            
-            FocusedWindow?.State.KeyPress(key);  
+
+            FocusedWindow?.State.KeyPress(key);
         }
 
         public void MouseUp()
@@ -136,8 +135,8 @@ namespace DolDoc.Editor.Compositor
 
         public void MouseDown(float x, float y)
         {
-            var column = (int)Math.Floor(x / Font.Width);
-            var row = (int)(Math.Floor(y / Font.Height));
+            var column = (int) Math.Floor(x / Font.Width);
+            var row = (int) (Math.Floor(y / Font.Height));
 
             Window window;
             lock (syncRoot)
@@ -169,7 +168,7 @@ namespace DolDoc.Editor.Compositor
                 window.State.MouseDown(normalizedX, normalizedY);
         }
 
-        public void MouseMove(float x, float y)
+        public CursorType MouseMove(float x, float y)
         {
             if (isMovingWindow && !FocusedWindow.IsRoot)
             {
@@ -179,37 +178,45 @@ namespace DolDoc.Editor.Compositor
                 {
                     FocusedWindow.X = (int) ((deltaX + windowMoveStart) / Font.Width);
                     FocusedWindow.Y = (int) ((deltaY + windowMoveEnd) / Font.Height);
+                    if ((FocusedWindow.X + FocusedWindow.Columns) < 0)
+                        FocusedWindow.X = -FocusedWindow.Columns + 1;
+                    if (FocusedWindow.X >= Columns)
+                        FocusedWindow.X = Columns - 1;
+                    if (FocusedWindow.Y + FocusedWindow.Rows < 0)
+                        FocusedWindow.Y = -FocusedWindow.Rows + 1;
+                    if (FocusedWindow.Y >= Rows)
+                        FocusedWindow.Y = Rows - 1;
                     RecalculateIndices();
                 }
+
+                return CursorType.Move;
             }
             else
             {
-                var column = (int)Math.Floor(x / Font.Width);
+                var column = (int) Math.Floor(x / Font.Width);
                 var row = (int) Math.Floor(y / Font.Height);
                 var index = WindowIndexBitmap[column + (row * Columns)];
                 var window = Windows[index];
-                if (!window.IsRoot)
-                {
-                    var asdasdx = "";
-                }
 
-                var normalizedX = window.HasBorder ? (x / Font.Width) - ((window.X + 1)) : x - (window.X);
-                var normalizedY = window.HasBorder ? (y / Font.Width) - ((window.Y + 1)) : y - (window.Y);
-                
-                var normalizedColumn = (int)Math.Floor(normalizedX / window.Compositor.Font.Width);
-                var normalizedRow = (int)(Math.Floor(normalizedY / window.Compositor.Font.Height)) + window.State.Cursor.ViewLine;
-                
-                // Retrieve the entry belonging to the clicked character.
-                var ch = window.State.Pages[normalizedColumn, normalizedRow];
-                if (!ch.HasEntry)
-                    frameBuffer.SetCursorType(CursorType.Pointer);
-                else if (ch.Entry.Clickable)
-                    frameBuffer.SetCursorType(CursorType.Hand);
-                else
-                    frameBuffer.SetCursorType(CursorType.Pointer);
+                var normalizedX = window.HasBorder ? (x / Font.Width) - ((window.X)) : x - (window.X);
+                var normalizedY = window.HasBorder ? (y / Font.Width) - ((window.Y)) : y - (window.Y);
+
+                return window.State.MouseMove(normalizedX, normalizedY);
+
+                // var normalizedColumn = (int)Math.Floor(normalizedX / window.Compositor.Font.Width);
+                // var normalizedRow = (int)(Math.Floor(normalizedY / window.Compositor.Font.Height)) + window.State.Cursor.ViewLine;
+                //
+                // // Retrieve the entry belonging to the clicked character.
+                // var ch = window.State.Pages[normalizedColumn, normalizedRow];
+                // if (!ch.HasEntry)
+                //     frameBuffer.SetCursorType(CursorType.Pointer);
+                // else if (ch.Entry.Clickable)
+                //     frameBuffer.SetCursorType(CursorType.Hand);
+                // else
+                //     frameBuffer.SetCursorType(CursorType.Pointer);
             }
         }
-        
+
         private void RecalculateIndices()
         {
             lock (syncRoot)
@@ -223,11 +230,18 @@ namespace DolDoc.Editor.Compositor
                     var rect = rects.Dequeue();
                     for (int row = rect.Y; row < rect.Height + rect.Y; row++)
                     {
+                        if (row < 0)
+                            continue;
+                        if (row >= Rows)
+                            continue;
+
                         var fillWidth = rect.Width;
                         if (rect.X + fillWidth > Columns)
-                            fillWidth -= Columns - rect.X;
-                        
-                        Array.Fill(WindowIndexBitmap, counter, (row * Columns) + rect.X, fillWidth);
+                            fillWidth = Columns - rect.X;
+                        if (rect.X < 0)
+                            fillWidth = rect.Width + rect.X;
+
+                        Array.Fill(WindowIndexBitmap, counter, (row * Columns) + Math.Max(0, rect.X), fillWidth);
                     }
                 }
             }
@@ -238,7 +252,7 @@ namespace DolDoc.Editor.Compositor
             List<Window> windows;
             lock (syncRoot)
                 windows = new List<Window>(Windows);
-            
+
             foreach (var window in windows)
                 window.State.Tick(ticks);
         }

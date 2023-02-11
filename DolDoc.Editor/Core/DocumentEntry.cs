@@ -60,6 +60,8 @@ namespace DolDoc.Editor.Core
 
         public virtual bool Clickable => false;
 
+        public virtual bool IsInput => false;
+
         public virtual void Click(ViewerState state)
         {
             // Do nothing atm.
