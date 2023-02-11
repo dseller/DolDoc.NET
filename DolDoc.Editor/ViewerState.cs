@@ -247,15 +247,18 @@ namespace DolDoc.Editor
         
         private void RenderCursor() => Pages[Cursor.DocumentPosition].Flags ^= CharacterFlags.Inverted;
 
-        public void Tick(ulong ticks)
+        public void Tick(ulong ticks, bool hasFocus)
         {
             // Blink every 200ms, one frame is 33ms, so every 6 frames
             if (ticks % 15 == 0)
             {
                 DoBlink();
-                RenderCursor();
-                cursorInverted = !cursorInverted;
-                GLFW.PostEmptyEvent();
+                if (hasFocus)
+                {
+                    RenderCursor();
+                    cursorInverted = !cursorInverted;
+                    GLFW.PostEmptyEvent();
+                }
             }
         }
 

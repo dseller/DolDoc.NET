@@ -84,8 +84,8 @@ namespace DolDoc.Editor.Compositor
 
         public Window NewWindow(string title, int columns, int rows, int x = 10, int y = 10, Document doc = null, WindowFlags? flags = null)
         {
-            var w = new Window(this, title, columns, rows, x, y, doc, flags);
-            Windows.Add(w);
+            var window = new Window(this, title, columns, rows, x, y, doc, flags);
+            Windows.Add(window);
             doc?.Refresh();
 
             lock (syncRoot)
@@ -96,10 +96,10 @@ namespace DolDoc.Editor.Compositor
 
             if (FocusedWindow != null)
                 FocusedWindow.Flags &= ~WindowFlags.HasFocus;
-            FocusedWindow = w;
+            FocusedWindow = window;
             FocusedWindow.Flags |= WindowFlags.HasFocus;
 
-            return w;
+            return window;
         }
 
         public void Start()
@@ -113,6 +113,9 @@ namespace DolDoc.Editor.Compositor
                 Environment.Exit(0);
             Windows.Remove(window);
             RecalculateIndices();
+            FocusedWindow = Windows.LastOrDefault();
+            if (FocusedWindow != null)
+                FocusedWindow.Flags |= WindowFlags.HasFocus;
         }
 
         public void CloseDocument(bool save) => FocusedWindow?.State.CloseDocument(save);
@@ -121,7 +124,7 @@ namespace DolDoc.Editor.Compositor
         {
             if (key == Key.F11)
             {
-                NewWindow("Log", Columns - 20, Rows - 20, 10, 10, logDocument);
+                NewWindow("Log", Columns, Rows / 2, 0, Rows / 2, logDocument);
             }
 
             FocusedWindow?.State.KeyPress(key);
@@ -265,14 +268,14 @@ namespace DolDoc.Editor.Compositor
             }
         }
 
-        public void Tick(ulong ticks)
+        public void Tick(ulong ticks, bool hasFocus)
         {
             List<Window> windows;
             lock (syncRoot)
                 windows = new List<Window>(Windows);
 
             foreach (var window in windows)
-                window.State.Tick(ticks);
+                window.State.Tick(ticks, window.HasFocus);
         }
     }
 }

@@ -144,7 +144,7 @@ namespace DolDoc.Renderer.OpenGL
                 using (window = new Wnd(Compositor, this, settings, nativeSettings))
                 {
                     ulong ticks = 0;
-                    timer = new Timer(_ => Compositor.Tick(ticks++), null, 0, 1000 / 30);
+                    timer = new Timer(_ => Compositor.Tick(ticks++, false), null, 0, 1000 / 30);
 
                     window.VSync = VSyncMode.On;
                     window.RenderFrequency = 30;

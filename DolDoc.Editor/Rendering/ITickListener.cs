@@ -2,6 +2,6 @@
 {
     public interface ITickListener
     {
-        void Tick(ulong ticks);
+        void Tick(ulong ticks, bool hasFocus);
     }
 }
