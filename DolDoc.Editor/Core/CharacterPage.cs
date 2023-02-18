@@ -6,9 +6,9 @@ namespace DolDoc.Editor.Core
 {
     public class CharacterPage : IEnumerable<Character>
     {
-        private Character[] _characters;
+        private readonly Character[] characters;
 
-        public int PageNumber { get; set; }
+        public int PageNumber { get; }
 
         public int Columns { get; }
 
@@ -19,34 +19,34 @@ namespace DolDoc.Editor.Core
             Rows = rows;
             Columns = columns;
             PageNumber = pageNo;
-            _characters = new Character[rows * columns];
-            for (int i = 0; i < _characters.Length; i++)
-                _characters[i] = new Character((pageNo * columns * rows) + i);
+            characters = new Character[rows * columns];
+            for (int i = 0; i < characters.Length; i++)
+                characters[i] = new Character((pageNo * columns * rows) + i);
 
             Clear(viewerState.DefaultBackgroundColor);
         }
 
         public Character this[int pos]
         {
-            get => _characters[pos];
-            set => _characters[pos] = value;
+            get => characters[pos];
+            set => characters[pos] = value;
         }
 
         public Character this[int x, int y]
         {
-            get => _characters[(y * Columns) + x];
-            set => _characters[(y * Columns) + x] = value;
+            get => characters[(y * Columns) + x];
+            set => characters[(y * Columns) + x] = value;
         }
 
         public void Clear(EgaColor color)
         {
-            for (int i = 0; i < _characters.Length; i++)
-                if ((_characters[i].Flags & CharacterFlags.Hold) == 0)
-                    _characters[i].Write(null, i, 0x00, new CombinedColor(color, color), CharacterFlags.None);
+            for (int i = 0; i < characters.Length; i++)
+                if ((characters[i].Flags & CharacterFlags.Hold) == 0)
+                    characters[i].Write(null, i, (byte)0x00, new CombinedColor(color, color));
         }
 
-        public IEnumerator<Character> GetEnumerator() => _characters.AsEnumerable().GetEnumerator();
+        public IEnumerator<Character> GetEnumerator() => characters.AsEnumerable().GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => _characters.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => characters.GetEnumerator();
     }
 }

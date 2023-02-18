@@ -22,19 +22,11 @@ namespace DolDoc.Editor.Core
         /// </summary>
         public IList<Argument> Arguments { get; }
 
-        public string Tag
-        {
-            get => Arguments.FirstOrDefault(arg => arg.Key == "T" || arg.Key == null)?.Value;
-            set => Arguments.FirstOrDefault(arg => arg.Key == "T" || arg.Key == null).Value = value;
-        }
+        public string Tag => Arguments.FirstOrDefault(arg => arg.Key == "T" || arg.Key == null)?.Value;
 
-        public string Aux
-        {
-            get => Arguments.FirstOrDefault(arg => arg.Key == "A")?.Value;
-            set => Arguments.FirstOrDefault(arg => arg.Key == "A").Value = value;
-        }
+        public string Aux => GetArgument("A");
 
-        public DocumentEntry(IList<Flag> flags, IList<Argument> args)
+        protected DocumentEntry(IList<Flag> flags, IList<Argument> args)
         {
             Flags = flags;
             Arguments = args;
@@ -83,24 +75,25 @@ namespace DolDoc.Editor.Core
         {
             // TODO: add support for multiline borders!
             var renderPosition = renderPositionOverride ?? ctx.RenderPosition;
+            var color = new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor);
 
             // Write top border
-            ctx.State.Pages[renderPosition - ctx.State.Columns - 1].Write(this, 0, 0xDA, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
-            for (int i = 0; i < length; i++)
-                ctx.State.Pages[renderPosition - ctx.State.Columns + i].Write(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[renderPosition - ctx.State.Columns + length].Write(this, 0, 0xBF, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - ctx.State.Columns - 1].Write(this, 0, Codepage437.SingleTopLeftCorner, color);
+            for (var i = 0; i < length; i++)
+                ctx.State.Pages[renderPosition - ctx.State.Columns + i].Write(this, 0, Codepage437.SingleHorizontalLine, color);
+            ctx.State.Pages[renderPosition - ctx.State.Columns + length].Write(this, 0, Codepage437.SingleTopRightCorner, color);
 
             // Write bottom border
-            ctx.State.Pages[renderPosition + ctx.State.Columns - 1].Write(this, 0, 0xC0, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
-            for (int i = 0; i < length; i++)
-                ctx.State.Pages[renderPosition + ctx.State.Columns + i].Write(this, 0, 0xC4, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
-            ctx.State.Pages[renderPosition + ctx.State.Columns + length].Write(this, 0, 0xD9, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + ctx.State.Columns - 1].Write(this, 0, Codepage437.SingleBottomLeftCorner, color);
+            for (var i = 0; i < length; i++)
+                ctx.State.Pages[renderPosition + ctx.State.Columns + i].Write(this, 0, Codepage437.SingleHorizontalLine, color);
+            ctx.State.Pages[renderPosition + ctx.State.Columns + length].Write(this, 0, Codepage437.SingleBottomRightCorner, color);
 
             // Write left border
-            ctx.State.Pages[renderPosition - 1].Write(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition - 1].Write(this, 0, Codepage437.SingleVerticalLine, color);
 
             // Write right border
-            ctx.State.Pages[renderPosition + length].Write(this, 0, 0xB3, new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+            ctx.State.Pages[renderPosition + length].Write(this, 0, Codepage437.SingleVerticalLine, color);
         }
 
         /// <summary>
@@ -143,7 +136,7 @@ namespace DolDoc.Editor.Core
                 if (renderPosition % ctx.State.Columns == 0)
                 {
                     for (int indent = 0; indent < ctx.Options.Indentation; indent++)
-                        ctx.State.Pages[renderPosition + indent].Write(this, indent, (byte)' ', new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor), CharacterFlags.None);
+                        ctx.State.Pages[renderPosition + indent].Write(this, indent, (byte)' ', new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor));
 
                     renderPosition += ctx.Options.Indentation;
                     charsWritten += ctx.Options.Indentation;

@@ -1,7 +1,7 @@
-﻿using DolDoc.Editor.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DolDoc.Editor.Core;
 
-namespace DolDoc.Core.Parser
+namespace DolDoc.Editor.Parser
 {
     public interface IDolDocParser
     {

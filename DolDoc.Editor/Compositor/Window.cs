@@ -69,25 +69,25 @@ namespace DolDoc.Editor.Compositor
                     if (x == Columns - 4)
                         return new Character((byte) '[', borderColor);
                     if (x == Columns - 3)
-                        return new Character(0x0F, borderColor);
+                        return new Character(Codepage437.Solar, borderColor);
                     if (x == Columns - 2)
                         return new Character((byte) ']', borderColor);
                 }
 
                 if (x == 0 && y == 0)
-                    return new Character(0xDA, borderColor);
+                    return new Character(Codepage437.SingleTopLeftCorner, borderColor);
                 if (x == Columns - 1 && y == 0)
-                    return new Character(0xBF, borderColor);
+                    return new Character(Codepage437.SingleTopRightCorner, borderColor);
                 if (y == 0)
-                    return new Character(0xC4, borderColor);
+                    return new Character(Codepage437.SingleHorizontalLine, borderColor);
                 if (x == 0 && y == Rows - 1)
-                    return new Character(0xC0, borderColor);
+                    return new Character(Codepage437.SingleBottomLeftCorner, borderColor);
                 if (x == Columns - 1 && y == Rows - 1)
-                    return new Character(0xD9, borderColor);
+                    return new Character(Codepage437.SingleBottomRightCorner, borderColor);
                 if (x == 0 || x == Columns - 1)
-                    return new Character(0xB3, borderColor);
+                    return new Character(Codepage437.SingleVerticalLine, borderColor);
                 if (y == Rows - 1)
-                    return new Character(0xC4, borderColor);
+                    return new Character(Codepage437.SingleHorizontalLine, borderColor);
 
                 if (!State.Pages.HasPageForPosition(x - 1, y - 1 + State.Cursor.ViewLine))
                     State.Pages.GetOrCreatePage(x - 1, y - 1 + State.Cursor.ViewLine);

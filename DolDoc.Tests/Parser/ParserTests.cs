@@ -1,5 +1,4 @@
-﻿using DolDoc.Core.Parser;
-using DolDoc.Editor.Core;
+﻿using DolDoc.Editor.Core;
 using DolDoc.Editor.Entries;
 using DolDoc.Editor.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

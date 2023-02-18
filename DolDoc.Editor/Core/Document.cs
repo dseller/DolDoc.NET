@@ -1,5 +1,4 @@
-﻿using DolDoc.Core.Parser;
-using DolDoc.Editor.Entries;
+﻿using DolDoc.Editor.Entries;
 using DolDoc.Editor.Parser;
 using System;
 using System.Collections.Generic;

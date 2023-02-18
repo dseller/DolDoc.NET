@@ -21,7 +21,12 @@
             Color = color;
         }
         
-        public void Write(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0)
+        public Character(Codepage437 ch, CombinedColor color)
+            : this((byte)ch, color)
+        {
+        }
+        
+        public void Write(DocumentEntry entry, int relativeTextOffset, byte ch, CombinedColor color, CharacterFlags flags = CharacterFlags.None, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0)
         {
             Char = ch;
             Color = color;
@@ -33,6 +38,9 @@
             ShiftX = shiftX;
             ShiftY = shiftY;
         }
+
+        public void Write(DocumentEntry entry, int relativeTextOffset, Codepage437 ch, CombinedColor color, CharacterFlags flags = CharacterFlags.None, byte layer = 0, sbyte shiftX = 0, sbyte shiftY = 0) =>
+            Write(entry, relativeTextOffset, (byte) ch, color, flags, layer, shiftX, shiftY);
 
         public int Index { get; }
         

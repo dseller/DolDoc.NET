@@ -1,5 +1,4 @@
-﻿using DolDoc.Core.Parser;
-using DolDoc.Editor.Core;
+﻿using DolDoc.Editor.Core;
 using System.Collections.Generic;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;

@@ -19,8 +19,7 @@ namespace DolDoc.Editor.Core
             this.viewerState = viewerState;
             PageRows = pageRows;
             PageColumns = pageColumns;
-            pages = new List<CharacterPage>();
-            pages.Add(new CharacterPage(viewerState, 1, PageColumns, PageRows));
+            pages = new List<CharacterPage> { new CharacterPage(viewerState, 1, PageColumns, PageRows) };
         }
 
         public Character this[int position]
@@ -66,20 +65,19 @@ namespace DolDoc.Editor.Core
 
         public bool HasPageForPosition(int position)
         {
-            int pageIndex = position / PageRows / PageColumns;
+            var pageIndex = position / PageRows / PageColumns;
             return pageIndex < pages.Count;
         }
 
         public bool HasPageForPosition(int x, int y)
         {
-            int pageIndex = y / PageRows;
+            var pageIndex = y / PageRows;
             return pageIndex < pages.Count;
         }
 
         private CharacterPage GetOrCreatePageForPosition(int x, int y)
         {
-            int pageIndex = y / PageRows;
-
+            var pageIndex = y / PageRows;
             if (pageIndex < 0)
                 throw new ArgumentOutOfRangeException(nameof(y));
 

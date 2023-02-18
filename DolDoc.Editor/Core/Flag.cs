@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DolDoc.Editor.Core
+﻿namespace DolDoc.Editor.Core
 {
     public class Flag
     {
