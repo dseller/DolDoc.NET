@@ -15,8 +15,12 @@ namespace DolDoc.Editor.Compositor
 
     public class Window
     {
-        private string title;
+        private const int MaxTitleLength = 32; 
         private const WindowFlags DefaultFlags = WindowFlags.HasBorder | WindowFlags.HasCloseButton;
+
+        private string title;
+        private static readonly CombinedColor FocusedBorderColor = new CombinedColor(EgaColor.Blue, EgaColor.White);
+        private static readonly CombinedColor BorderColor = new CombinedColor(EgaColor.LtGray, EgaColor.White);
 
         public Window(Compositor compositor, string title, int columns, int rows, int x, int y, Document doc = null, WindowFlags? windowFlags = null)
         {
@@ -62,7 +66,7 @@ namespace DolDoc.Editor.Compositor
         {
             if (HasBorder)
             {
-                var borderColor = HasFocus ? new CombinedColor(EgaColor.Blue, EgaColor.White) : new CombinedColor(EgaColor.LtGray, EgaColor.White);
+                var borderColor = HasFocus ? FocusedBorderColor : BorderColor;
                 
                 if (y == 0 && HasCloseButton)
                 {
@@ -79,7 +83,13 @@ namespace DolDoc.Editor.Compositor
                 if (x == Columns - 1 && y == 0)
                     return new Character(Codepage437.SingleTopRightCorner, borderColor);
                 if (y == 0)
+                {
+                    // Window title: 
+                    if (x >= 1 && x < MaxTitleLength && !string.IsNullOrWhiteSpace(title) && (x - 1) < title.Length)
+                        return new Character((byte)title[x - 1], borderColor);
                     return new Character(Codepage437.SingleHorizontalLine, borderColor);
+                }
+
                 if (x == 0 && y == Rows - 1)
                     return new Character(Codepage437.SingleBottomLeftCorner, borderColor);
                 if (x == Columns - 1 && y == Rows - 1)

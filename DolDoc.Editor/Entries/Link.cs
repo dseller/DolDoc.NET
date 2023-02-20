@@ -53,7 +53,14 @@ namespace DolDoc.Editor.Entries
                 try
                 {
                     var document = DocumentLoader.Load(fs, file);
-                    state.LoadDocument(document, true);
+
+                    if (HasFlag("PU"))
+                    {
+                        var compositor = Compositor.Compositor.Instance;
+                        compositor.NewWindow(Path.GetFileName(file), compositor.Columns - 10, compositor.Rows / 2, 10, 10, document);
+                    }
+                    else
+                        state.LoadDocument(document, true);
                 }
                 catch (Exception ex)
                 {
