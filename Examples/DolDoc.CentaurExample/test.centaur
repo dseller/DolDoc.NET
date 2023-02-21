@@ -9,10 +9,12 @@ int get_42()
     return 42;
 }
 
-MyStruct my_function()
+int square(int x)
 {
-    MyStruct res = new MyStruct();
-    res.a = 42;
-    res.b = res.a + 19;
-    return res;
+    return x*x; 
+}
+
+int my_function()
+{
+    return 42;
 }

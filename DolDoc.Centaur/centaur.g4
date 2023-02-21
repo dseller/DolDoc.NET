@@ -32,6 +32,7 @@ T_INC: '++';
 T_SHL: '<<';
 T_SHR: '>>';
 T_RETURN: 'return';
+// LINE_COMMENT: '//' ~[\r\n]* -> skip;
 T_SYMBOL: [a-zA-Z_@]([a-zA-Z0-9_@])*;
 
 WS : [ \t\r\n]+ -> skip ;
@@ -40,21 +41,22 @@ start
     : definition_list 
     ;
     
+argument_list: ((expression) | (T_COMMA expression))+;
+    
 postfix_expression
 	: primary_expression                                        #chainPostfix
 	| postfix_expression T_AOPEN expression T_ACLOSE			#index
-	| postfix_expression T_POPEN T_PCLOSE						#call
-//	| postfix_expression T_POPEN argument_expression_list T_PCLOSE	{ $$ = node(CALL, $1, $3); }
-	| ctx=postfix_expression T_DOT field=T_SYMBOL							#member
+	| postfix_expression T_POPEN args=argument_list? T_PCLOSE	#call
+	| ctx=postfix_expression T_DOT field=T_SYMBOL				#member
 	| postfix_expression T_DEC									#decrement
 	| postfix_expression T_INC									#increment
 	;
 
 mul_expression
 	: postfix_expression                                                    #chainMul
-	| mul_expression T_ASTERISK postfix_expression                          #arithMultiply
-	| mul_expression T_SLASH postfix_expression                             #arithDivide
-	| mul_expression T_MOD postfix_expression	                            #arithModulo
+	| left=mul_expression T_ASTERISK right=postfix_expression                          #arithMultiply
+	| left=mul_expression T_SLASH right=postfix_expression                             #arithDivide
+	| left=mul_expression T_MOD right=postfix_expression	                            #arithModulo
 	;
 
 add_expression
@@ -162,8 +164,12 @@ statement_list
 struct_field: type=T_SYMBOL name=T_SYMBOL T_SEMICOLON;
 struct_definition: T_STRUCT name=T_SYMBOL T_BOPEN fields=struct_field+ T_BCLOSE;
     
+parameter: type=T_SYMBOL name=T_SYMBOL;
+parameter_list: ((parameter) | (T_COMMA parameter))+;
+    
 function_definition
     : resultType=T_SYMBOL name=T_SYMBOL T_POPEN T_PCLOSE body=compound_statement
+    | resultType=T_SYMBOL name=T_SYMBOL T_POPEN parameters=parameter_list T_PCLOSE body=compound_statement
     ;
 
 expression_statement
@@ -174,6 +180,7 @@ expression_statement
 definition
     : struct_definition
     | function_definition
+    | declaration
     ;
 
 definition_list

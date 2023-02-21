@@ -7,6 +7,7 @@ using DolDoc.Editor.Fonts;
 using DolDoc.Editor.Input;
 using DolDoc.Editor.Logging;
 using DolDoc.Editor.Rendering;
+using DolDoc.Shared;
 
 namespace DolDoc.Editor.Compositor
 {

@@ -20,4 +20,8 @@
         <Antlr4AbstractGrammar Include="centaur.g4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DolDoc.Shared\DolDoc.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

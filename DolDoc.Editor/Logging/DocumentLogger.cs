@@ -1,4 +1,5 @@
 ﻿using DolDoc.Editor.Core;
+using DolDoc.Shared;
 
 namespace DolDoc.Editor.Logging
 {
@@ -11,22 +12,22 @@ namespace DolDoc.Editor.Logging
             this.document = document;
         }
         
-        public void Debug(string message)
+        public void Debug(string message, params object[] parameters)
         {
             document.Write($"[$FG,LTGRAY$DEBUG$FG$] $FG,LTGRAY${message}$FG$\n");
         }
 
-        public void Info(string message)
+        public void Info(string message, params object[] parameters)
         {
             document.Write($"[$FG,GREEN$ INFO$FG$] $FG,GREEN${message}$FG$\n");
         }
 
-        public void Warning(string message)
+        public void Warning(string message, params object[] parameters)
         {
             document.Write($"[$FG,YELLOW$ WARN$FG$] $FG,YELLOW${message}$FG$\n");
         }
 
-        public void Error(string message)
+        public void Error(string message, params object[] parameters)
         {
             document.Write($"[$FG,RED$ERROR$FG$] $FG,RED${message}$FG$\n");
         }

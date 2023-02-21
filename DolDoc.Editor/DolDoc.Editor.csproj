@@ -38,4 +38,8 @@
 	  <None Remove="Fonts\Terminal_VGA_cp861.yaff" />
 	  <EmbeddedResource Include="Fonts\Terminal_VGA_cp861.yaff" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DolDoc.Shared\DolDoc.Shared.csproj" />
+	</ItemGroup>
 </Project>

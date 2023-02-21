@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using DolDoc.Editor.Logging;
+using DolDoc.Shared;
 
 namespace DolDoc.Editor.Fonts
 {
