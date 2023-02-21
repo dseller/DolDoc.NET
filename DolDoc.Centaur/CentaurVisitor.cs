@@ -8,9 +8,140 @@ namespace DolDoc.Centaur
 {
     public record Symbol(string name, Type type, int index, SymbolTarget target); 
     
-    public class Node
+    public abstract class Node
     {
         
+    }
+
+    public abstract class DataNode : Node
+    {
+        public Symbol symbol;
+        
+        public DataNode(Symbol symbol)
+        {
+            this.symbol = symbol;
+        }
+
+        public abstract void EmitRead(ILGenerator generator);
+
+        public abstract void EmitWrite(ILGenerator generator);
+    }
+
+    public class VariableNode : DataNode
+    {
+        public VariableNode(Symbol symbol) : base(symbol)
+        {
+        }
+
+        public override void EmitRead(ILGenerator generator)
+        {
+            generator.Emit(OpCodes.Ldloc, symbol.index);
+            Console.WriteLine($"LDC {symbol.index}");
+        }
+
+        public override void EmitWrite(ILGenerator generator)
+        {
+            generator.Emit(OpCodes.Stloc, symbol.index);
+            Console.WriteLine($"STLOC {symbol.index}");
+        }
+    }
+
+    class StructNode : Node
+    {
+        private Symbol symbol;
+        private readonly Type type;
+
+        public StructNode(Symbol symbol, Type type)
+        {
+            this.symbol = symbol;
+            this.type = type;
+        }
+
+        public void EmitGetField(ILGenerator generator, string name)
+        {
+            var field = type.GetField(name, BindingFlags.Public);
+            generator.Emit(OpCodes.Ldfld, field);
+            Console.WriteLine($"LDFLD {field}");
+        }
+
+        public void EmitSetField(ILGenerator generator, string name)
+        {
+            var field = type.GetField(name, BindingFlags.Public);
+            generator.Emit(OpCodes.Stfld, field);
+            Console.WriteLine($"STFLD {field}");
+        }
+    }
+
+    public class StructFieldNode : DataNode
+    {
+        public readonly DataNode target;
+        private readonly string fieldName;
+
+        public StructFieldNode(Symbol symbol, DataNode target, string fieldName) : base(symbol)
+        {
+            this.target = target;
+            this.fieldName = fieldName;
+        }
+
+        public override void EmitRead(ILGenerator generator)
+        {
+            var field = symbol.type.GetField(fieldName, BindingFlags.Public | BindingFlags.Instance);
+            generator.Emit(OpCodes.Ldfld, field);
+            Console.WriteLine($"LDFLD {field}");
+        }
+
+        public override void EmitWrite(ILGenerator generator)
+        {
+            var field = symbol.type.GetField(fieldName, BindingFlags.Public | BindingFlags.Instance);
+            generator.Emit(OpCodes.Stfld, field);
+            Console.WriteLine($"STFLD {field}");
+        }
+    }
+
+    public class ConstantVariableNode : VariableNode
+    {
+        public ConstantVariableNode() : base(null)
+        {
+            
+        }
+    }
+
+    public class ConstantIntegerNode : ConstantVariableNode
+    {
+        private readonly long value;
+
+        public ConstantIntegerNode(long value)
+        {
+            this.value = value;
+        }
+
+        public override void EmitRead(ILGenerator generator)
+        {
+            generator.Emit(OpCodes.Ldc_I8, value);
+            Console.WriteLine($"Ldc_I8 {value}");
+        }
+    }
+
+    
+    public class NewObjectNode : DataNode
+    {
+        private readonly Type type;
+
+        public NewObjectNode(Type type) : base(null)
+        {
+            this.type = type;
+        }
+
+        public override void EmitRead(ILGenerator generator)
+        {
+            generator.Emit(OpCodes.Newobj, type.GetConstructor(new Type[] { }));
+            Console.WriteLine($"Newobj {type}");
+        }
+
+        public override void EmitWrite(ILGenerator generator)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public enum SymbolTarget
@@ -19,17 +150,17 @@ namespace DolDoc.Centaur
         Function = 1
     }
     
+    
     public class CentaurVisitor : centaurBaseVisitor<Node>
     {
         private Dictionary<string, Type> types;
         private Dictionary<string, MethodInfo> functions;
-        private readonly AssemblyBuilder assemblyBuilder;
+        public readonly AssemblyBuilder assemblyBuilder;
         private readonly ModuleBuilder moduleBuilder;
         private readonly TypeBuilder codeBuilder;
         
         private ILGenerator generator;
         private Dictionary<string, LocalBuilder> variables;
-        private int varCounter;
         
         private Stack<List<Symbol>> symbols;
         private List<Symbol> rootSymbols;
@@ -73,7 +204,7 @@ namespace DolDoc.Centaur
                 throw new Exception("s is null");
 
             if (s.target == SymbolTarget.Variable)
-                generator.Emit(OpCodes.Ldloc, s.index);
+                return new VariableNode(s);
             return null;
         }
 
@@ -83,7 +214,22 @@ namespace DolDoc.Centaur
                 throw new Exception();
             // TODO: validate in whole table not exists
             var x = generator.DeclareLocal(type);
-            CurrentSymbolTable.Add(new Symbol(context.name.Text, type, x.LocalIndex, SymbolTarget.Variable));
+            var symbol = new Symbol(context.name.Text, type, x.LocalIndex, SymbolTarget.Variable);
+            CurrentSymbolTable.Add(symbol);
+            return new VariableNode(symbol);
+        }
+
+        public override Node VisitAssign(centaurParser.AssignContext context)
+        {
+            var source = Visit(context.source) as DataNode;
+            var target = Visit(context.target) as DataNode;
+            
+            if (target is StructFieldNode sfn)
+                sfn.target.EmitRead(generator);
+            if (source is StructFieldNode sfn2)
+                sfn2.target.EmitRead(generator);
+            source.EmitRead(generator);
+            target.EmitWrite(generator);
             
             return null;
         }
@@ -94,12 +240,15 @@ namespace DolDoc.Centaur
                 throw new Exception();
             // TODO: validate in whole table not exists
             var x = generator.DeclareLocal(type);
-            CurrentSymbolTable.Add(new Symbol(context.name.Text, type, x.LocalIndex, SymbolTarget.Variable));
+            var symbol = new Symbol(context.name.Text, type, x.LocalIndex, SymbolTarget.Variable);
+            CurrentSymbolTable.Add(symbol);
 
-            Visit(context.value);
-            generator.Emit(OpCodes.Stloc, x.LocalIndex);
-            
-            return null;
+            var srcNode = Visit(context.value) as DataNode;
+            srcNode.EmitRead(generator);
+
+            var targetNode = new VariableNode(symbol);
+            targetNode.EmitWrite(generator);
+            return targetNode;
         }
 
         public override Node VisitArithShiftLeft(centaurParser.ArithShiftLeftContext context)
@@ -136,8 +285,8 @@ namespace DolDoc.Centaur
 
         public override Node VisitConstInteger(centaurParser.ConstIntegerContext context)
         {
-            generator.Emit(OpCodes.Ldc_I8, long.Parse(context.T_INTEGER().GetText()));
-            return null;
+            // generator.Emit(OpCodes.Ldc_I8, long.Parse(context.T_INTEGER().GetText()));
+            return new ConstantIntegerNode(long.Parse(context.T_INTEGER().GetText()));
         }
 
         public override Node VisitConstString(centaurParser.ConstStringContext context)
@@ -152,10 +301,20 @@ namespace DolDoc.Centaur
             return null;
         }
 
+        public override Node VisitMember(centaurParser.MemberContext context)
+        {
+            var src = Visit(context.ctx) as DataNode;
+            return new StructFieldNode(src.symbol, src, context.field.Text);
+        }
+
         public override Node VisitJump_statement(centaurParser.Jump_statementContext context)
         {
             if (context.value != null)
-                Visit(context.value);
+            {
+                var node = Visit(context.value) as DataNode;
+                node.EmitRead(generator);
+                
+            }
             generator.Emit(OpCodes.Ret);
             return null;
         }
@@ -164,9 +323,8 @@ namespace DolDoc.Centaur
         {
             if (!types.TryGetValue(context.type.Text, out var type))
                 throw new Exception("type");
-            
-            generator.Emit(OpCodes.Newobj, type.GetConstructor(new Type[] {}));
-            return null;
+
+            return new NewObjectNode(type);
         }
 
         public override Node VisitCall(centaurParser.CallContext context)

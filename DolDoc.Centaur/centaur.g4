@@ -45,7 +45,7 @@ postfix_expression
 	| postfix_expression T_AOPEN expression T_ACLOSE			#index
 	| postfix_expression T_POPEN T_PCLOSE						#call
 //	| postfix_expression T_POPEN argument_expression_list T_PCLOSE	{ $$ = node(CALL, $1, $3); }
-	| postfix_expression T_DOT T_SYMBOL							#getMember
+	| ctx=postfix_expression T_DOT field=T_SYMBOL							#member
 	| postfix_expression T_DEC									#decrement
 	| postfix_expression T_INC									#increment
 	;
@@ -99,8 +99,8 @@ logical_and_expression
 	;
 
 logical_or_expression
-	: logical_and_expression
-	| logical_or_expression T_OR logical_and_expression			
+	: logical_and_expression                               
+	| logical_or_expression T_OR logical_and_expression		
 	;
 
 unary_expression
@@ -109,8 +109,8 @@ unary_expression
 	;	
 	
 assignment_expression
-	: logical_or_expression
-	| unary_expression T_ASSIGN assignment_expression			
+	: logical_or_expression                                   #chainAssignment
+	| target=unary_expression T_ASSIGN source=assignment_expression		  #assign	
 	;
 	
 expression

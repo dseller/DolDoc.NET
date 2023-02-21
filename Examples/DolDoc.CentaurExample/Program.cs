@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Antlr4.Runtime;
 using DolDoc.Centaur;
+using Lokad.ILPack;
 
 namespace DolDoc.CentaurExample
 {
