@@ -6,5 +6,7 @@
         void Info(string message, params object[] parameters);
         void Warning(string message, params object[] parameters);
         void Error(string message, params object[] parameters);
+        void Enter(string text);
+        void Leave();
     }
 }

@@ -6,10 +6,12 @@ namespace DolDoc.Editor.Logging
     public class DocumentLogger : ILogger
     {
         private readonly Document document;
+        private int indent;
 
         public DocumentLogger(Document document)
         {
             this.document = document;
+            indent = 0;
         }
         
         public void Debug(string message, params object[] parameters)
@@ -30,6 +32,16 @@ namespace DolDoc.Editor.Logging
         public void Error(string message, params object[] parameters)
         {
             document.Write($"[$FG,RED$ERROR$FG$] $FG,RED${message}$FG$\n");
+        }
+
+        public void Enter(string text)
+        {
+            document.Write($"$TR,\"{text}\"$\n$ID,2$");
+        }
+
+        public void Leave()
+        {
+            document.Write("$ID,-2$");
         }
     }
 }

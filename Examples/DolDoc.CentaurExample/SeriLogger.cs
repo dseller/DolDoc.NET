@@ -1,4 +1,5 @@
-﻿using DolDoc.Shared;
+﻿using Serilog;
+using ILogger = DolDoc.Shared.ILogger;
 
 namespace DolDoc.CentaurExample
 {
@@ -18,5 +19,12 @@ namespace DolDoc.CentaurExample
         public void Warning(string message, params object[] parameters) => logger.Warning(message, parameters);
 
         public void Error(string message, params object[] parameters) => logger.Error(message, parameters);
+        public void Enter(string text)
+        {
+        }
+
+        public void Leave()
+        {
+        }
     }
 }

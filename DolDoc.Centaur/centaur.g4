@@ -46,7 +46,7 @@ argument_list: ((expression) | (T_COMMA expression))+;
 postfix_expression
 	: primary_expression                                        #chainPostfix
 	| postfix_expression T_AOPEN expression T_ACLOSE			#index
-	| postfix_expression T_POPEN args=argument_list? T_PCLOSE	#call
+	| name=postfix_expression T_POPEN args=argument_list? T_PCLOSE	#call
 	| ctx=postfix_expression T_DOT field=T_SYMBOL				#member
 	| postfix_expression T_DEC									#decrement
 	| postfix_expression T_INC									#increment
@@ -137,7 +137,7 @@ declaration
 	
 compound_statement
 	: T_BOPEN T_BCLOSE											
-	| T_BOPEN statement_list T_BCLOSE							
+	| T_BOPEN statements=statement_list T_BCLOSE							
 	;
     
 jump_statement
@@ -174,7 +174,7 @@ function_definition
 
 expression_statement
 	: T_SEMICOLON										
-	| expression T_SEMICOLON								
+	| e=expression T_SEMICOLON								
 	;
 
 definition

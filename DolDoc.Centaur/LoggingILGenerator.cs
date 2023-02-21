@@ -27,7 +27,7 @@ namespace DolDoc.Centaur
         public void Emit(OpCode opcode)
         {
             generator.Emit(opcode);
-            logger.Debug($"{opcode}");
+            logger.Debug("{opcode}", opcode);
         }
 
         public void Emit(OpCode opcode, byte arg)

@@ -1,20 +1,10 @@
-struct MyStruct
-{
-    int a;
-    int b;
-}
-
-int get_42()
-{
-    return 42;
-}
-
-int square(int x)
-{
-    return x*x; 
-}
+int get_42() { return 42; }
 
 int my_function()
 {
-    return 42;
+    int a = 1;
+    int b = 8;
+    int c = get_42();
+    int d = a << b;
+    return d + c;
 }

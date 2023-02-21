@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Antlr4.Runtime;
 using DolDoc.Centaur;
+using DolDoc.Centaur.Nodes;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -25,20 +26,25 @@ namespace DolDoc.CentaurExample
             var inputStream = new AntlrInputStream(input);
             var lexer = new centaurLexer(inputStream);
 
+            var logger = new SeriLogger(Log.Logger);
             var commonTokenStream = new CommonTokenStream(lexer);
             var parser = new centaurParser(commonTokenStream);
-            var visitor = new CentaurVisitor(new SeriLogger(Log.Logger));
-            visitor.RegisterFunction("print", typeof(Program).GetMethod("Write", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
-            visitor.RegisterFunction("str", typeof(Program).GetMethod("Str", BindingFlags.Public | BindingFlags.Static, new[] { typeof(object) }));
+            var visitor = new CentaurVisitor(logger);
+            var symbolTable = new SymbolTable();
+            symbolTable.RegisterFunction("print", typeof(Program).GetMethod("Write", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
+            symbolTable.RegisterFunction("str", typeof(Program).GetMethod("Str", BindingFlags.Public | BindingFlags.Static, new[] { typeof(object) }));
 
             var context = parser.start();
-            visitor.Visit(context);
-            var codeType = visitor.Save();
+            var result = visitor.Visit(context) as DefinitionListNode;
+            foreach (var fn in result.Definitions.OfType<FunctionDefinitionNode>())
+                fn.GenerateBytecode(logger, symbolTable, visitor.codeBuilder);
+
+            var codeType = visitor.codeBuilder.CreateType();
 
             var mi = codeType.GetMethod("my_function", BindingFlags.Public | BindingFlags.Static);
-            var result = mi.Invoke(null, new object[] {});
+            var x = mi.Invoke(null, new object[] {});
             
-            Console.WriteLine(result);
+            Console.WriteLine(x);
         }
     }
 }
