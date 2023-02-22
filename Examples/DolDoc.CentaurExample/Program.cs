@@ -11,7 +11,7 @@ namespace DolDoc.CentaurExample
     {
         public static void Write(string text) => Console.Write(text);
 
-        public static string Str(object obj) => obj?.ToString() ?? "null";
+        public static string Str(object obj) => obj.ToString(); //obj?.ToString() ?? "null";
         
         public static void Main(string[] args)
         {
@@ -22,7 +22,6 @@ namespace DolDoc.CentaurExample
 
             var input = File.ReadAllText("test.centaur");
             // var input = "struct MyStruct { int a; int b; } int get_42() { return 42; } int my_function() { int a = get_42(); int b = 2; return a + b; }";
-            
             var inputStream = new AntlrInputStream(input);
             var lexer = new centaurLexer(inputStream);
 
@@ -31,20 +30,27 @@ namespace DolDoc.CentaurExample
             var parser = new centaurParser(commonTokenStream);
             var visitor = new CentaurVisitor(logger);
             var symbolTable = new SymbolTable();
-            symbolTable.RegisterFunction("print", typeof(Program).GetMethod("Write", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
-            symbolTable.RegisterFunction("str", typeof(Program).GetMethod("Str", BindingFlags.Public | BindingFlags.Static, new[] { typeof(object) }));
+            symbolTable.RegisterFunction("Print", typeof(Program).GetMethod("Write", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
+            symbolTable.RegisterFunction("Str", typeof(Program).GetMethod("Str", BindingFlags.Public | BindingFlags.Static, new[] { typeof(object) }));
+            // symbolTable.RegisterFunction("StrLen");
 
             var context = parser.start();
             var result = visitor.Visit(context) as DefinitionListNode;
-            foreach (var fn in result.Definitions.OfType<FunctionDefinitionNode>())
-                fn.GenerateBytecode(logger, symbolTable, visitor.codeBuilder);
 
-            var codeType = visitor.codeBuilder.CreateType();
+
+            var compilerContext = new CompilerContext(logger, symbolTable);
+            foreach (var staticVar in result.Definitions.OfType<DeclareVariableNode>())
+                staticVar.DefineStaticVariable(compilerContext);
+            foreach (var fn in result.Definitions.OfType<FunctionDefinitionNode>())
+                fn.GenerateBytecode(compilerContext);
+
+            var codeType = compilerContext.CodeBuilder.CreateType();
 
             var mi = codeType.GetMethod("my_function", BindingFlags.Public | BindingFlags.Static);
             var x = mi.Invoke(null, new object[] {});
             
-            Console.WriteLine(x);
+            // Console.WriteLine(x);
+            logger.Info("Result: {result}", x);
         }
     }
 }

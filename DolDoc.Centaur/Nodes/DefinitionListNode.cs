@@ -4,12 +4,12 @@ namespace DolDoc.Centaur.Nodes
 {
     public class DefinitionListNode : ASTNode
     {
-        public DefinitionListNode(List<DefinitionNode> definitions)
+        public DefinitionListNode(List<ASTNode> definitions)
         {
             Definitions = definitions;
         }
         
-        public List<DefinitionNode> Definitions { get; }
+        public List<ASTNode> Definitions { get; }
 
     }
 }

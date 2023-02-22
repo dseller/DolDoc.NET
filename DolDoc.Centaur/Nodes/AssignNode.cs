@@ -2,17 +2,17 @@
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class AssignNode : CodeNode
+    public class AssignNode : ASTNode, IBytecodeEmitter
     {
-        private readonly CodeNode source, target;
+        private readonly IBytecodeEmitter source, target;
 
-        public AssignNode(CodeNode source, CodeNode target)
+        public AssignNode(IBytecodeEmitter source, IBytecodeEmitter target)
         {
             this.source = source;
             this.target = target;
         }
 
-        public override void Emit(LoggingILGenerator generator, SymbolTable symbolTable)
+        public void Emit(FunctionCompilerContext ctx)
         {
             if (target is not IWrite write)
                 throw new Exception();
@@ -21,8 +21,10 @@ namespace DolDoc.Centaur.Nodes
             //     sfn.target.EmitRead(generator);
             // if (source is StructFieldAstNode sfn2)
             //     sfn2.target.EmitRead(generator);
-            source.Emit(generator, symbolTable);
-            write.EmitWrite(generator, symbolTable);
+            source.Emit(ctx);
+            write.EmitWrite(ctx);
         }
+
+        public Type Type => null;
     }
 }

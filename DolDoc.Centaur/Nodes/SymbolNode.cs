@@ -3,7 +3,7 @@ using System.Reflection.Emit;
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class SymbolNode : CodeNode, IWrite
+    public class SymbolNode : ASTNode, IWrite, IBytecodeEmitter
     {
         private readonly string identifier;
 
@@ -12,22 +12,18 @@ namespace DolDoc.Centaur.Nodes
             this.identifier = identifier;
         }
         
-        public override void Emit(LoggingILGenerator generator, SymbolTable symbolTable)
+        public void Emit(FunctionCompilerContext ctx)
         {
-            var sym = symbolTable.FindSymbol(identifier);
-            if (sym.Target == SymbolTarget.Variable)
-                generator.Emit(OpCodes.Ldloc, sym.Index);
-            else
-                throw new Exception();
+            var sym = ctx.SymbolTable.FindSymbol(identifier);
+            sym.EmitGet(ctx);
         }
 
-        public void EmitWrite(LoggingILGenerator generator, SymbolTable symbolTable)
+        public void EmitWrite(FunctionCompilerContext ctx)
         {
-            var sym = symbolTable.FindSymbol(identifier);
-            if (sym.Target == SymbolTarget.Variable)
-                generator.Emit(OpCodes.Stloc, sym.Index);
-            else
-                throw new Exception();
+            var sym = ctx.SymbolTable.FindSymbol(identifier);
+            sym.EmitSet(ctx);
         }
+        
+        public Type Type => null; // TODO
     }
 }

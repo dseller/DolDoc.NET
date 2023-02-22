@@ -20,7 +20,7 @@ namespace DolDoc.Centaur
         public LocalBuilder DeclareLocal(Type localType)
         {
             var res = generator.DeclareLocal(localType);
-            logger.Debug($"DECL {localType.FullName} -> {res.LocalIndex}");
+            logger.Debug(".decl {name} -> {idx}", localType.Name, res.LocalIndex);
             return res;
         }
 
@@ -57,7 +57,7 @@ namespace DolDoc.Centaur
         public void Emit(OpCode opcode, MethodInfo meth)
         {
             generator.Emit(opcode, meth);
-            logger.Debug($"{opcode}\t{meth}");
+            logger.Debug("{opcode}\t{name}", opcode, meth.Name);
         }
 
         public void EmitCall(OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
@@ -117,7 +117,7 @@ namespace DolDoc.Centaur
         public virtual void Emit(OpCode opcode, FieldInfo field)
         {
             generator.Emit(opcode, field);
-            logger.Debug($"{opcode}\t{field}");
+            logger.Debug("{opcode}\t{fieldName}", opcode, field.Name);
         }
 
         public void Emit(OpCode opcode, string str)

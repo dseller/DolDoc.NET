@@ -1,8 +1,9 @@
-﻿using System.Reflection.Emit;
+﻿using System;
+using System.Reflection.Emit;
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class ConstantIntegerNode : CodeNode
+    public class ConstantIntegerNode : ASTNode, IBytecodeEmitter
     {
         private readonly long value;
 
@@ -11,6 +12,7 @@ namespace DolDoc.Centaur.Nodes
             this.value = value;
         }
 
-        public override void Emit(LoggingILGenerator generator, SymbolTable symbolTable) => generator.Emit(OpCodes.Ldc_I8, value);
+        public void Emit(FunctionCompilerContext ctx) => ctx.Generator.Emit(OpCodes.Ldc_I8, value);
+        public Type Type => typeof(long);
     }
 }

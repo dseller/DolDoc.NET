@@ -1,37 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Emit;
+using DolDoc.Centaur.Symbols;
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class CallNode : CodeNode
+    public class CallNode : ASTNode, IBytecodeEmitter
     {
         private readonly string name;
+        private readonly List<IBytecodeEmitter> arguments;
 
-        public CallNode(string name)
+        public CallNode(string name, List<IBytecodeEmitter> arguments)
         {
             this.name = name;
+            this.arguments = arguments;
         }
 
-        public override void Emit(LoggingILGenerator generator, SymbolTable symbolTable)
+        public void Emit(FunctionCompilerContext ctx)
         {
-            var sym = symbolTable.FindSymbol(name);
+            var sym = ctx.SymbolTable.FindSymbol<FunctionSymbol>(name);
             Debug.Assert(sym != null);
-            Debug.Assert(sym.Target == SymbolTarget.Function);
-            Debug.Assert(sym.ParameterTypes == null || sym.ParameterTypes.Length  == 0);
 
-            // if (sym.ParameterTypes != null && sym.ParameterTypes.Length > 0)
-            // {
-            //     foreach (var child in context.args.children)
-            //     {
-            //         var x = Visit(child) as DataAstNode;
-            //         x?.EmitRead(generator);
-            //     }
-            //     generator.EmitCall(OpCodes.Call, mi, sym.ParameterTypes);                
-            // }
-            // else
-            
-            generator.Emit(OpCodes.Call, sym.Method);  
+            if (sym.Parameters != null && sym.Parameters.Length > 0)
+            {
+                var i = 0;
+                foreach (var arg in arguments)
+                {
+                    arg.Emit(ctx);
+                    if (sym.Parameters[i] == typeof(object) && arg.Type != null && arg.Type.IsPrimitive)
+                        ctx.Generator.Emit(OpCodes.Box, arg.Type);
+                    i++;
+                }
+
+                ctx.Generator.EmitCall(OpCodes.Call, sym.MethodInfo, sym.Parameters);                
+            }
+            else
+                ctx.Generator.Emit(OpCodes.Call, sym.MethodInfo);  
         }
+
+        public Type Type => null; // TODO
     }
 }

@@ -1,21 +1,24 @@
-﻿using System.Reflection.Emit;
+﻿using System;
+using System.Reflection.Emit;
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class ReturnNode : CodeNode
+    public class ReturnNode : ASTNode, IBytecodeEmitter
     {
-        private readonly CodeNode result;
+        private readonly IBytecodeEmitter result;
 
-        public ReturnNode(CodeNode result)
+        public ReturnNode(IBytecodeEmitter result)
         {
             this.result = result;
         }
         
-        public override void Emit(LoggingILGenerator generator, SymbolTable symbolTable)
+        public void Emit(FunctionCompilerContext ctx)
         {
             if (result != null)
-                result.Emit(generator, symbolTable);
-            generator.Emit(OpCodes.Ret);
+                result.Emit(ctx);
+            ctx.Generator.Emit(OpCodes.Ret);
         }
+
+        public Type Type => null;
     }
 }

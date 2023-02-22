@@ -1,51 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using DolDoc.Centaur.Nodes;
+using DolDoc.Centaur.Symbols;
 using DolDoc.Shared;
 
 namespace DolDoc.Centaur
 {
     public abstract class ASTNode
     {
-        
     }
 
-    public abstract class CodeNode : ASTNode
+    public interface IBytecodeEmitter
     {
-        public abstract void Emit(LoggingILGenerator generator, SymbolTable symbolTable);
+        public void Emit(FunctionCompilerContext ctx);
+
+        public Type Type { get; }
     }
 
     public interface IWrite
     {
-        void EmitWrite(LoggingILGenerator generator, SymbolTable symbolTable);
+        void EmitWrite(FunctionCompilerContext ctx);
     }
+    //
+    // public class ParameterListNode : ASTNode
+    // {
+    //     public ParameterListNode(IEnumerable<ParameterSymbol> symbols)
+    //     {
+    //         Symbols = new List<ParameterSymbol>(symbols);
+    //     }
+    //     
+    //     public List<ParameterSymbol> Symbols { get; }
+    //     
+    //     
+    // }
 
-    public class ParameterListNode : ASTNode
-    {
-        public ParameterListNode(IEnumerable<SymbolTable.Symbol> symbols)
-        {
-            Symbols = new List<SymbolTable.Symbol>(symbols);
-        }
-        
-        public List<SymbolTable.Symbol> Symbols { get; }
-        
-        
-    }
-
-    public class ParameterNode : ASTNode
-    {
-        public string Name { get; }
-        public Type Type { get; }
-
-        public ParameterNode(string name, Type type)
-        {
-            Name = name;
-            Type = type;
-        }
-    }
 
     // public class NewObjectAstNode : DataAstNode
     // {
@@ -58,7 +47,7 @@ namespace DolDoc.Centaur
     //
     //     public override void EmitRead(LoggingILGenerator generator)
     //     {
-    //         generator.Emit(OpCodes.Newobj, type.GetConstructor(new Type[] { }));
+    //         ctx.Generator.Emit(OpCodes.Newobj, type.GetConstructor(new Type[] { }));
     //     }
     //
     //     public override void EmitWrite(LoggingILGenerator generator)
@@ -70,70 +59,50 @@ namespace DolDoc.Centaur
     public class CentaurVisitor : centaurBaseVisitor<ASTNode>
     {
         private readonly ILogger logger;
-        private Dictionary<string, Type> types;
-        private readonly AssemblyBuilder assemblyBuilder;
-        private readonly ModuleBuilder moduleBuilder;
-        public readonly TypeBuilder codeBuilder;
-        
-        public Assembly Assembly => assemblyBuilder;
-        
+
         public CentaurVisitor(ILogger logger)
         {
             this.logger = logger;
-            types = new Dictionary<string, Type>
-            {
-                { "byte", typeof(byte) },
-                { "int", typeof(uint) },
-                { "bool", typeof(bool) },
-                { "string", typeof(string) },
-                { "object", typeof(object) }
-            };
-            
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.RunAndCollect);
-            moduleBuilder = assemblyBuilder.DefineDynamicModule("test");
-            codeBuilder = moduleBuilder.DefineType("gen_code");
         }
 
         public override ASTNode VisitSymbol(centaurParser.SymbolContext context) =>
             new SymbolNode(context.T_SYMBOL().GetText());
 
-        public override ASTNode VisitVar(centaurParser.VarContext context)
-        {
-            if (!types.TryGetValue(context.type.Text, out var type))
-                throw new Exception();
-            return new DeclareVariableNode(context.name.Text, type);
-        }
+        public override ASTNode VisitVar(centaurParser.VarContext context) =>
+            new DeclareVariableNode(context.name.Text, context.type.Text);
 
-        public override ASTNode VisitAssign(centaurParser.AssignContext context)  =>
-            new AssignNode((CodeNode) Visit(context.source), (CodeNode) Visit(context.target));
+        public override ASTNode VisitAssign(centaurParser.AssignContext context) =>
+            new AssignNode((IBytecodeEmitter) Visit(context.source), (IBytecodeEmitter) Visit(context.target));
 
-        public override ASTNode VisitVarAssign(centaurParser.VarAssignContext context)
-        {
-            if (!types.TryGetValue(context.type.Text, out var type))
-                throw new Exception();
-            return new DeclareVariableNode(context.name.Text, type, (CodeNode)Visit(context.value));
-        }
+        public override ASTNode VisitVarAssign(centaurParser.VarAssignContext context) =>
+            new DeclareVariableNode(context.name.Text, context.type.Text, (IBytecodeEmitter) Visit(context.value));
 
-        public override ASTNode VisitArithMultiply(centaurParser.ArithMultiplyContext context)  =>
-            new MultiplyNode((CodeNode) Visit(context.left), (CodeNode) Visit(context.right));
+        public override ASTNode VisitArithMultiply(centaurParser.ArithMultiplyContext context) =>
+            new MultiplyNode((IBytecodeEmitter) Visit(context.left), (IBytecodeEmitter) Visit(context.right));
 
         public override ASTNode VisitArithShiftLeft(centaurParser.ArithShiftLeftContext context) =>
-            new ShiftLeftNode((CodeNode) Visit(context.left), (CodeNode) Visit(context.right));
+            new ShiftLeftNode((IBytecodeEmitter) Visit(context.left), (IBytecodeEmitter) Visit(context.right));
 
         public override ASTNode VisitArithShiftRight(centaurParser.ArithShiftRightContext context) =>
-            new ShiftRightNode((CodeNode) Visit(context.left), (CodeNode) Visit(context.right));
+            new ShiftRightNode((IBytecodeEmitter) Visit(context.left), (IBytecodeEmitter) Visit(context.right));
 
         public override ASTNode VisitArithAdd(centaurParser.ArithAddContext context) =>
-            new AddNode((CodeNode) Visit(context.left), (CodeNode) Visit(context.right));
+            new AddNode((IBytecodeEmitter) Visit(context.left), (IBytecodeEmitter) Visit(context.right));
 
         public override ASTNode VisitArithSubtract(centaurParser.ArithSubtractContext context) =>
-            new SubtractNode((CodeNode) Visit(context.left), (CodeNode) Visit(context.right));
+            new SubtractNode((IBytecodeEmitter) Visit(context.left), (IBytecodeEmitter) Visit(context.right));
 
         public override ASTNode VisitConstInteger(centaurParser.ConstIntegerContext context) =>
             new ConstantIntegerNode(long.Parse(context.T_INTEGER().GetText()));
 
         public override ASTNode VisitConstString(centaurParser.ConstStringContext context) =>
             new ConstantStringNode(context.T_STRING().GetText()[1..^1]);
+
+        public override ASTNode VisitConstTrue(centaurParser.ConstTrueContext context) =>
+            new ConstantBooleanNode(true);
+
+        public override ASTNode VisitConstFalse(centaurParser.ConstFalseContext context) =>
+            new ConstantBooleanNode(false);
 
         public override ASTNode VisitConstNull(centaurParser.ConstNullContext context) =>
             new ConstantNullNode();
@@ -145,66 +114,60 @@ namespace DolDoc.Centaur
         // }
 
         public override ASTNode VisitJump_statement(centaurParser.Jump_statementContext context) =>
-            new ReturnNode(Visit(context.value) as CodeNode);
+            new ReturnNode(Visit(context.value) as IBytecodeEmitter);
 
         public override ASTNode VisitNewObj(centaurParser.NewObjContext context)
         {
-            if (!types.TryGetValue(context.type.Text, out var type))
-                throw new Exception("type");
-
             // return new NewObjectAstNode(type);
             return null;
         }
 
-        public override ASTNode VisitCall(centaurParser.CallContext context) =>
-            new CallNode(context.name.GetText());
+        public override ASTNode VisitCall(centaurParser.CallContext context)
+        {
+            var arguments = new List<IBytecodeEmitter>();
+            if (context.args != null)
+                foreach (var child in context.args.children)
+                    arguments.Add((IBytecodeEmitter) Visit(child));
+            return new CallNode(context.name.GetText(), arguments);
+        }
+
 
         public override ASTNode VisitCompound_statement(centaurParser.Compound_statementContext context)
         {
-            var nodes = new List<CodeNode>();
+            var nodes = new List<IBytecodeEmitter>();
             foreach (var child in context.statement_list().children)
             {
-                var node = (CodeNode) Visit(child);
+                var node = (IBytecodeEmitter) Visit(child);
                 if (node != null)
-                    nodes.Add((CodeNode)Visit(child));
+                    nodes.Add(node);
             }
+
             return new ScopeNode(nodes);
         }
 
-        public override ASTNode VisitParameter(centaurParser.ParameterContext context)
-        {
-            if (!types.TryGetValue(context.type.Text, out var type))
-                throw new Exception("type");
-            return new ParameterNode(context.name.Text, type);
-        }
+        public override ASTNode VisitParameter(centaurParser.ParameterContext context) =>
+            new ParameterNode(context.name.Text, context.type.Text);
 
         public override ASTNode VisitParameter_list(centaurParser.Parameter_listContext context)
         {
             var parameters = new List<ParameterNode>();
             foreach (var child in context.children)
                 parameters.Add(Visit(child) as ParameterNode);
-            return new ParameterListNode(parameters.Select((p, i) => new SymbolTable.Symbol(p.Name, p.Type, i, SymbolTarget.Parameter)));
+            return new ParameterListNode(parameters);
         }
 
         public override ASTNode VisitFunction_definition(centaurParser.Function_definitionContext context)
         {
-            if (!types.TryGetValue(context.resultType.Text, out var returnType))
-                throw new Exception();
-            
             ParameterListNode parameters = null;
             if (context.parameters != null)
                 parameters = Visit(context.parameters) as ParameterListNode;
 
             var body = Visit(context.body) as ScopeNode;
-            return new FunctionDefinitionNode(context.name.Text, returnType, parameters?.Symbols, body);
+            return new FunctionDefinitionNode(context.name.Text, context.resultType.Text, parameters, body);
         }
 
-        public override ASTNode VisitStruct_field(centaurParser.Struct_fieldContext context)
-        {
-            if (!types.TryGetValue(context.type.Text, out var type))
-                throw new Exception($"Unknown type {context.type.Text}");
-            return new StructFieldNode(context.name.Text, type);
-        }
+        public override ASTNode VisitStruct_field(centaurParser.Struct_fieldContext context) =>
+            new StructFieldNode(context.name.Text, context.type.Text);
 
         public override ASTNode VisitStruct_definition(centaurParser.Struct_definitionContext context)
         {
@@ -218,9 +181,9 @@ namespace DolDoc.Centaur
 
         public override ASTNode VisitDefinition_list(centaurParser.Definition_listContext context)
         {
-            var definitions = new List<DefinitionNode>();
+            var definitions = new List<ASTNode>();
             foreach (var child in context.children)
-                definitions.Add((DefinitionNode)Visit(child));
+                definitions.Add(Visit(child));
             return new DefinitionListNode(definitions);
         }
     }

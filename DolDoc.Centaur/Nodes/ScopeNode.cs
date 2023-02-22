@@ -1,23 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection.Emit;
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class ScopeNode : CodeNode
+    public class ScopeNode : ASTNode, IBytecodeEmitter
     {
-        public List<CodeNode> Nodes { get; }
+        public List<IBytecodeEmitter> Nodes { get; }
 
-        public ScopeNode(List<CodeNode> nodes)
+        public ScopeNode(List<IBytecodeEmitter> nodes)
         {
             Nodes = nodes;
         }
 
-        public override void Emit(LoggingILGenerator generator, SymbolTable symbolTable)
+        public void Emit(FunctionCompilerContext ctx)
         {
-            symbolTable.BeginScope();
+            ctx.SymbolTable.BeginScope();
             foreach (var node in Nodes)
-                node.Emit(generator, symbolTable);
-            symbolTable.EndScope();
+                node.Emit(ctx);
+            ctx.SymbolTable.EndScope();
         }
+        
+        public Type Type => null;
     }
 }

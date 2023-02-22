@@ -1,23 +1,26 @@
-﻿using System.Reflection.Emit;
+﻿using System;
+using System.Reflection.Emit;
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class SubtractNode : CodeNode
+    public class SubtractNode : ASTNode, IBytecodeEmitter
     {
-        private readonly CodeNode left;
-        private readonly CodeNode right;
+        private readonly IBytecodeEmitter left;
+        private readonly IBytecodeEmitter right;
 
-        public SubtractNode(CodeNode left, CodeNode right)
+        public SubtractNode(IBytecodeEmitter left, IBytecodeEmitter right)
         {
             this.left = left;
             this.right = right;
         }
         
-        public override void Emit(LoggingILGenerator generator, SymbolTable symbolTable)
+        public void Emit(FunctionCompilerContext ctx)
         {
-            left.Emit(generator, symbolTable);
-            right.Emit(generator, symbolTable);
-            generator.Emit(OpCodes.Sub);
+            left.Emit(ctx);
+            right.Emit(ctx);
+            ctx.Generator.Emit(OpCodes.Sub);
         }
+        
+        public Type Type => left.Type;
     }
 }

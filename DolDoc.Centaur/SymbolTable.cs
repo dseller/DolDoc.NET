@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DolDoc.Centaur.Symbols;
 
 namespace DolDoc.Centaur
 {
@@ -14,8 +14,7 @@ namespace DolDoc.Centaur
     
     public class SymbolTable
     {
-        public record Symbol(string Name, Type Type, int Index, SymbolTarget Target, Type[] ParameterTypes = null, MethodInfo Method = null);
-        private List<Symbol> CurrentSymbolTable => symbols.LastOrDefault();
+        private List<Symbol> CurrentSymbolTable => symbols.FirstOrDefault();
         private readonly Stack<List<Symbol>> symbols;
         public List<Symbol> RootSymbols { get; }
 
@@ -24,6 +23,15 @@ namespace DolDoc.Centaur
             symbols = new Stack<List<Symbol>>();
             RootSymbols = new List<Symbol>();
             symbols.Push(RootSymbols);
+            
+            RootSymbols.AddRange(new[]
+            {
+                new TypeSymbol("int", typeof(uint)),
+                new TypeSymbol("byte", typeof(byte)),
+                new TypeSymbol("bool", typeof(bool)),
+                new TypeSymbol("string", typeof(string)),
+                new TypeSymbol("object", typeof(object))
+            });
         }
 
         public bool IsRootScope => CurrentSymbolTable == RootSymbols;
@@ -46,9 +54,12 @@ namespace DolDoc.Centaur
             return null;
         }
 
-        public void NewSymbol(Symbol symbol)
+        public T FindSymbol<T>(string name) where T : class => FindSymbol(name) as T;
+        
+        public T NewSymbol<T>(T symbol) where T : Symbol
         {
             CurrentSymbolTable.Add(symbol);
+            return symbol;
         }
 
         public void BeginScope()
@@ -63,7 +74,7 @@ namespace DolDoc.Centaur
         
         public void RegisterFunction(string name, MethodInfo m)
         {
-            RootSymbols.Add(new Symbol(name, m.ReturnType, 0, SymbolTarget.Function, m.GetParameters().Select(p => p.ParameterType).ToArray(), m));
+            RootSymbols.Add(new FunctionSymbol(name, m.ReturnType, m.GetParameters().Select(p => p.ParameterType).ToArray(), m));
         }
     }
 }
