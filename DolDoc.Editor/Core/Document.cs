@@ -32,6 +32,7 @@ namespace DolDoc.Editor.Core
 
             parser = new AntlrParser();
             entries = new LinkedList<DocumentEntry>();
+            // Load("\x05");
         }
 
         public DocumentEntry[] Entries
@@ -104,6 +105,8 @@ namespace DolDoc.Editor.Core
 
             OnUpdate?.Invoke(this, false);
         }
+
+        public void Insert(int position, string text) => Load(ToPlainText().Insert(position, text));
 
         public void Write(DocumentEntry entry)
         {

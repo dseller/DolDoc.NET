@@ -28,7 +28,6 @@ namespace DolDoc.Editor.Entries
             if (character.HasValue)
             {
                 Arguments[0].Value = Arguments[0].Value.Insert(relativeOffset, new string(character.Value, 1));
-                //state.CursorPosition++;
                 state.Cursor.Right();
             }
 
@@ -57,6 +56,8 @@ namespace DolDoc.Editor.Entries
                     
                     break;
             }
+            
+            state.Document.Reload();
         }
     }
 }

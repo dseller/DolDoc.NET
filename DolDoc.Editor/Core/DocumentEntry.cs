@@ -1,5 +1,4 @@
 ﻿using DolDoc.Editor.Commands;
-using DolDoc.Editor.Entries;
 using DolDoc.Editor.Extensions;
 using System.Collections.Generic;
 using System.Linq;
@@ -144,15 +143,32 @@ namespace DolDoc.Editor.Core
 
                 if (ch == '\n')
                 {
+                    ctx.State.Pages[renderPosition++].Write(
+                        this,
+                        i,
+                        (byte)' ',
+                        new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor)
+                    );
+
                     var charsUntilEndOfLine = ctx.State.Columns - (renderPosition % ctx.State.Columns);
                     renderPosition += charsUntilEndOfLine;
-                    charsWritten += charsUntilEndOfLine;
+                    charsWritten += charsUntilEndOfLine + 1;
+                    
                     continue;
                 }
                 else if (ch == '\t')
                 {
                     var charsUntilMultipleOf5 = 8 - (renderPosition % 8);
-                    renderPosition += charsUntilMultipleOf5;
+                    for (var j = 0; j < charsUntilMultipleOf5; j++)
+                    {
+                        ctx.State.Pages[renderPosition++].Write(
+                            this,
+                            i + j,
+                            (byte)' ',
+                            new CombinedColor(ctx.Options.BackgroundColor, ctx.Options.ForegroundColor)
+                        );
+                    }
+                    // renderPosition += charsUntilMultipleOf5;
                     charsWritten += charsUntilMultipleOf5;
                     continue;
                 }
@@ -200,12 +216,12 @@ namespace DolDoc.Editor.Core
                 renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + ((ctx.State.Columns / 2) - (str.Length / 2));
             else if (HasFlag("RX"))
             {
-                offset = HasFlag("B", true) ? 3 : 2;
+                offset = HasFlag("B") ? 3 : 2;
                 renderPosition = (renderPosition - (renderPosition % ctx.State.Columns)) + (ctx.State.Columns - str.Length - offset);
             }
             else if (HasFlag("LX"))
             {
-                offset = HasFlag("B", true) ? 1 : 0;
+                offset = HasFlag("B") ? 1 : 0;
                 renderPosition = (renderPosition - (renderPosition % ctx.State.Columns) + offset);
             }
 

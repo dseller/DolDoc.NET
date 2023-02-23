@@ -40,6 +40,13 @@ namespace DolDoc.Examples
                     case "FileBrowser":
                         Compositor.Instance.Root.State.LoadDocument(FileBrowser.GetFileBrowserDocument(), true);
                         break;
+
+                    case "NewDocument":
+                    {
+                        var emptyDocument = new Document();
+                        Compositor.Instance.Root.State.LoadDocument(emptyDocument);
+                        break;
+                    }
                 }
             };
 

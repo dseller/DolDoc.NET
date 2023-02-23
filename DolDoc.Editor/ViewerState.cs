@@ -131,6 +131,10 @@ namespace DolDoc.Editor
                 Console.WriteLine($"Dumped document to {output}");
                 return;
             }
+            else if (key == Key.F6)
+            {
+                Console.WriteLine(Document.ToPlainText());
+            }
 
             switch (key)
             {
@@ -175,6 +179,12 @@ namespace DolDoc.Editor
             var ch = Pages[Cursor.DocumentPosition];
             if (ch.HasEntry)
                 ch.Entry.KeyPress(this, key, character, ch.RelativeTextOffset);
+            else if (character.HasValue)
+            {
+                Document.Insert(Cursor.DocumentPosition, new string(character.Value, 1));
+                Cursor.Right();
+            }
+
             Document.Refresh();
         }
 
