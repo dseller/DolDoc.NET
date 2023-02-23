@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -106,8 +107,15 @@ namespace DolDoc.Renderer.OpenGL
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
-            var cursor = compositor.MouseMove(e.X, e.Y);
-            frameBuffer.SetCursorType(cursor);
+            try
+            {
+                var cursor = compositor.MouseMove(e.X, e.Y);
+                frameBuffer.SetCursorType(cursor);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         } 
         protected override void OnMouseDown(MouseButtonEventArgs e) => compositor.MouseDown(MousePosition.X, MousePosition.Y);
 
