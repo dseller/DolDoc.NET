@@ -1,15 +1,20 @@
-int global_a;
-int a;
+I64 global_a;
+I64 a;
 
-int square(int x) { return x*x; }
-int get_42() { return 42 + global_a; }
+struct MyStruct {
+    I64 A;
+    I64 B;
+}
+
+I64 square(I64 x) { return x*x; }
+I64 get_42() { return 42 + global_a; }
 
 // Comment
 
-int scope_test() {
+I64 scope_test() {
     a = 42;
     {
-        int a = 16;
+        I64 a = 16;
         LogInfo(Str(a));
     }
     LogInfo(Str(a));
@@ -17,9 +22,11 @@ int scope_test() {
     return a;
 }
 
-string my_function()
+U0 my_function()
 {
-    int value = 0x02;
-    LogInfo(ToBinary(value ^ 0x01));
-    return "hi";
+    MyStruct s = new MyStruct();
+    s.A = 100;
+    s.B = s.A + 20;
+    LogInfo(Str(s.B));
+    LogInfo(ToBinary(s.B));
 }

@@ -22,26 +22,6 @@ namespace DolDoc.Centaur
         void EmitWrite(FunctionCompilerContext ctx);
     }
 
-    // public class NewObjectAstNode : DataAstNode
-    // {
-    //     private readonly Type type;
-    //
-    //     public NewObjectAstNode(Type type) : base(null)
-    //     {
-    //         this.type = type;
-    //     }
-    //
-    //     public override void EmitRead(LoggingILGenerator generator)
-    //     {
-    //         ctx.Generator.Emit(OpCodes.Newobj, type.GetConstructor(new Type[] { }));
-    //     }
-    //
-    //     public override void EmitWrite(LoggingILGenerator generator)
-    //     {
-    //         throw new NotImplementedException();
-    //     }
-    // }
-
     public class CentaurVisitor : centaurBaseVisitor<ASTNode>
     {
         private readonly ILogger logger;
@@ -96,20 +76,14 @@ namespace DolDoc.Centaur
         public override ASTNode VisitConstNull(centaurParser.ConstNullContext context) =>
             new ConstantNullNode();
 
-        // public override ASTNode VisitMember(centaurParser.MemberContext context)
-        // {
-        //     var src = Visit(context.ctx) as DataAstNode;
-        //     return new StructFieldAstNode(src.symbol, src, context.field.Text);
-        // }
+        public override ASTNode VisitMember(centaurParser.MemberContext context) =>
+            new MemberNode((IBytecodeEmitter)Visit(context.ctx), context.field.Text);
 
         public override ASTNode VisitJump_statement(centaurParser.Jump_statementContext context) =>
             new ReturnNode(Visit(context.value) as IBytecodeEmitter);
 
-        public override ASTNode VisitNewObj(centaurParser.NewObjContext context)
-        {
-            // return new NewObjectAstNode(type);
-            return null;
-        }
+        public override ASTNode VisitNewObj(centaurParser.NewObjContext context) =>
+            new NewNode(context.type.Text);
 
         public override ASTNode VisitEquals(centaurParser.EqualsContext context) =>
             new EqualsNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));

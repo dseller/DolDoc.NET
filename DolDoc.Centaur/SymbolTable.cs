@@ -5,13 +5,6 @@ using DolDoc.Centaur.Symbols;
 
 namespace DolDoc.Centaur
 {
-    public enum SymbolTarget
-    {
-        Variable = 0,
-        Function = 1,
-        Parameter = 2
-    }
-    
     public class SymbolTable
     {
         private List<Symbol> CurrentSymbolTable => symbols.FirstOrDefault();
@@ -26,8 +19,13 @@ namespace DolDoc.Centaur
             
             RootSymbols.AddRange(new[]
             {
-                new TypeSymbol("int", typeof(long)),
-                new TypeSymbol("byte", typeof(byte)),
+                new TypeSymbol("U0", typeof(void)),
+                new TypeSymbol("I64", typeof(long)),
+                new TypeSymbol("U64", typeof(ulong)),
+                new TypeSymbol("I32", typeof(int)),
+                new TypeSymbol("U32", typeof(uint)),
+                new TypeSymbol("U8", typeof(byte)),
+                new TypeSymbol("S8", typeof(sbyte)),
                 new TypeSymbol("bool", typeof(bool)),
                 new TypeSymbol("string", typeof(string)),
                 new TypeSymbol("object", typeof(object))

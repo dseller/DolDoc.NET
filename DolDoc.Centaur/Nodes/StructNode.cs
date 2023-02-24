@@ -30,7 +30,13 @@ namespace DolDoc.Centaur.Nodes
 
         public override string Name { get; }
 
-        public Type CreateType(FunctionCompilerContext ctx)
+        public void AddToSymbolTable(ICompilerContext ctx)
+        {
+            var type = CreateType(ctx);
+            ctx.SymbolTable.NewSymbol(new TypeSymbol(Name, type));
+        }
+
+        public Type CreateType(ICompilerContext ctx)
         {
             var builder = ctx.ModuleBuilder.DefineType(Name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
             foreach (var field in fields)

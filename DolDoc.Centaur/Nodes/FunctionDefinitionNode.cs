@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using DolDoc.Centaur.Symbols;
 
 namespace DolDoc.Centaur.Nodes
@@ -34,7 +35,7 @@ namespace DolDoc.Centaur.Nodes
                 {
                     var parameterType = ctx.SymbolTable.FindSymbol<TypeSymbol>(parameterNode.Type)?.Type;
                     if (parameterType == null)
-                        throw new Exception();
+                        throw new Exception($"Type {parameterNode.Type} not found");
                     parameterTypes.Add(parameterType);
                 }
             }
@@ -57,8 +58,10 @@ namespace DolDoc.Centaur.Nodes
                     ctx.SymbolTable.NewSymbol(new ParameterSymbol(sym.Name, parameterType, i++));
                 }
             }
-            body.Emit(fnCtx);
             
+            body.Emit(fnCtx);
+            if (type == typeof(void))
+                fnCtx.Generator.Emit(OpCodes.Ret);
 
             ctx.SymbolTable.EndScope();
 

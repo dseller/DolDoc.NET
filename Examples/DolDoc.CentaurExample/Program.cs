@@ -48,6 +48,8 @@ namespace DolDoc.CentaurExample
 
 
             var compilerContext = new CompilerContext(logger, symbolTable);
+            foreach (var structNode in result.Definitions.OfType<StructNode>())
+                structNode.AddToSymbolTable(compilerContext);
             foreach (var staticVar in result.Definitions.OfType<DeclareVariableNode>())
                 staticVar.DefineStaticVariable(compilerContext);
             foreach (var fn in result.Definitions.OfType<FunctionDefinitionNode>())
