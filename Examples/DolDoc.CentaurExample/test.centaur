@@ -24,6 +24,10 @@ I64 scope_test() {
 
 U0 my_function()
 {
+    if (StrICmp("ab", "A") == 0) {
+        Print("YES!");
+    }
+
     MyStruct s = new MyStruct();
     s.A = 100;
     s.B = s.A + 20;

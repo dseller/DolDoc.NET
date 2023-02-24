@@ -116,8 +116,15 @@ namespace DolDoc.Centaur
         {
             var arguments = new List<IBytecodeEmitter>();
             if (context.args != null)
+            {
                 foreach (var child in context.args.children)
-                    arguments.Add((IBytecodeEmitter) Visit(child));
+                {
+                    var be = (IBytecodeEmitter)Visit(child);
+                    if (be != null)
+                        arguments.Add(be);
+                }
+            }
+
             return new CallNode(context.name.GetText(), arguments);
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using DolDoc.Centaur.Symbols;
 using DolDoc.Shared;
@@ -23,7 +24,7 @@ namespace DolDoc.Centaur
             SymbolTable = symbolTable;
             AssemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("test"), AssemblyBuilderAccess.RunAndCollect);
             ModuleBuilder = AssemblyBuilder.DefineDynamicModule("test");
-            CodeBuilder = ModuleBuilder.DefineType("gen_code");
+            CodeBuilder = ModuleBuilder.DefineType($"gen_code_{Guid.NewGuid():N}");
         }
         
         public virtual ILogger Log { get; }
