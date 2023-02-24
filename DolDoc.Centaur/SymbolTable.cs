@@ -26,7 +26,7 @@ namespace DolDoc.Centaur
             
             RootSymbols.AddRange(new[]
             {
-                new TypeSymbol("int", typeof(uint)),
+                new TypeSymbol("int", typeof(long)),
                 new TypeSymbol("byte", typeof(byte)),
                 new TypeSymbol("bool", typeof(bool)),
                 new TypeSymbol("string", typeof(string)),

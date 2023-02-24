@@ -13,6 +13,8 @@ namespace DolDoc.CentaurExample
         
         public static void Write(string text) => Console.Write(text);
 
+        public static string ToBinary(long value) => Convert.ToString(value, 2);
+
         public static void LogInfo(string text) => logger?.Information(text);
 
         public static string Str(object obj) => obj.ToString(); //obj?.ToString() ?? "null";
@@ -38,6 +40,7 @@ namespace DolDoc.CentaurExample
             symbolTable.RegisterFunction("Print", typeof(Program).GetMethod("Write", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
             symbolTable.RegisterFunction("Str", typeof(Program).GetMethod("Str", BindingFlags.Public | BindingFlags.Static, new[] { typeof(object) }));
             symbolTable.RegisterFunction("LogInfo", typeof(Program).GetMethod("LogInfo", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
+            symbolTable.RegisterFunction("ToBinary", typeof(Program).GetMethod("ToBinary", BindingFlags.Public | BindingFlags.Static, new[] { typeof(long) }));
             
 
             var context = parser.start();

@@ -115,7 +115,7 @@ namespace DolDoc.Centaur
         public void Emit(OpCode opcode, long arg)
         {
             generator.Emit(opcode, arg);
-            logger.Debug("{opcode}\t{arg}", opcode, arg);
+            logger.Debug("{opcode}\t{arg:X16}", opcode, arg);
         }
 
         public void Emit(OpCode opcode, float arg)

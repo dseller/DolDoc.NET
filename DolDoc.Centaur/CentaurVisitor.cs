@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using DolDoc.Centaur.Nodes;
 using DolDoc.Shared;
 
@@ -80,6 +81,9 @@ namespace DolDoc.Centaur
         public override ASTNode VisitConstInteger(centaurParser.ConstIntegerContext context) =>
             new ConstantIntegerNode(long.Parse(context.T_INTEGER().GetText()));
 
+        public override ASTNode VisitConstHexInteger(centaurParser.ConstHexIntegerContext context) =>
+            new ConstantIntegerNode(long.Parse(context.T_HEX_INTEGER().GetText()[2..], NumberStyles.AllowHexSpecifier));
+
         public override ASTNode VisitConstString(centaurParser.ConstStringContext context) =>
             new ConstantStringNode(context.T_STRING().GetText()[1..^1]);
 
@@ -124,6 +128,15 @@ namespace DolDoc.Centaur
 
         public override ASTNode VisitGreaterThanOrEqual(centaurParser.GreaterThanOrEqualContext context) =>
             new GreaterThanOrEqualNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitBitwiseAnd(centaurParser.BitwiseAndContext context) =>
+            new BitwiseAndNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitBitwiseOr(centaurParser.BitwiseOrContext context) =>
+            new BitwiseOrNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitXor(centaurParser.XorContext context) =>
+            new BitwiseXorNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
 
         public override ASTNode VisitCall(centaurParser.CallContext context)
         {

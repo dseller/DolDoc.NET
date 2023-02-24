@@ -2,6 +2,7 @@ grammar centaur;
 
 LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN);
 T_INTEGER: [0-9]+;
+T_HEX_INTEGER: '0x'[0-9A-F]+;
 T_FLOAT: [0-9]+'.'[0-9]+;
 T_COMMA: ',';
 T_STRING: '"' (~'"' | '\\' '"' | '\\' '\\')* '"';
@@ -38,6 +39,11 @@ T_LTE: '<=';
 T_GTE: '>=';
 T_EQ: '==';
 T_NEQ: '!=';
+T_BAND: '&';
+T_BOR: '|';
+T_XOR: '^';
+T_AND: '&&';
+T_OR: '||';
 T_RETURN: 'return';
 T_SYMBOL: [a-zA-Z_@]([a-zA-Z0-9_@])*;
 
@@ -92,17 +98,22 @@ equality_expression
 	;
 
 bitwise_and_expression
-	: equality_expression
-	| bitwise_and_expression T_BAND equality_expression			
+	: equality_expression                                           #chainBand
+	| left=bitwise_and_expression T_BAND right=equality_expression			    #bitwiseAnd
 	;
 
 bitwise_or_expression
-	: bitwise_and_expression
-	| bitwise_or_expression T_BOR bitwise_and_expression		
+	: bitwise_and_expression                                        #chainBor
+	| left=bitwise_or_expression T_BOR right=bitwise_and_expression #bitwiseOr		    
 	;
+	
+xor_expression
+    : bitwise_and_expression                                        #chainXor
+    | left=xor_expression T_XOR right=bitwise_and_expression        #xor
+    ;
 
 logical_and_expression
-	: bitwise_or_expression
+	: xor_expression
     | logical_and_expression T_AND bitwise_or_expression        
 	;
 
@@ -128,6 +139,7 @@ expression
 primary_expression
 	: T_SYMBOL                                  #symbol
 	| T_INTEGER                                 #constInteger
+	| T_HEX_INTEGER                             #constHexInteger
 	| T_STRING                                  #constString
 	| T_FLOAT                                   #constFloat
     | T_NULL                                    #constNull
