@@ -9,16 +9,21 @@ namespace DolDoc.CentaurExample
 {
     public static class Program
     {
+        private static ILogger logger;
+        
         public static void Write(string text) => Console.Write(text);
+
+        public static void LogInfo(string text) => logger?.Information(text);
 
         public static string Str(object obj) => obj.ToString(); //obj?.ToString() ?? "null";
         
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
+                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
                 .MinimumLevel.Debug()
                 .CreateLogger();
+            Program.logger = Log.Logger;
 
             var input = File.ReadAllText("test.centaur");
             // var input = "struct MyStruct { int a; int b; } int get_42() { return 42; } int my_function() { int a = get_42(); int b = 2; return a + b; }";
@@ -32,7 +37,8 @@ namespace DolDoc.CentaurExample
             var symbolTable = new SymbolTable();
             symbolTable.RegisterFunction("Print", typeof(Program).GetMethod("Write", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
             symbolTable.RegisterFunction("Str", typeof(Program).GetMethod("Str", BindingFlags.Public | BindingFlags.Static, new[] { typeof(object) }));
-            // symbolTable.RegisterFunction("StrLen");
+            symbolTable.RegisterFunction("LogInfo", typeof(Program).GetMethod("LogInfo", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) }));
+            
 
             var context = parser.start();
             var result = visitor.Visit(context) as DefinitionListNode;

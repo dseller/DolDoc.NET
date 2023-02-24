@@ -20,6 +20,6 @@ namespace DolDoc.Centaur.Nodes
                 ctx.Generator.Emit(OpCodes.Ldc_I4_0);
         }
 
-        public Type Type => typeof(bool);
+        public Type Type(ICompilerContext ctx) => typeof(bool);
     }
 }

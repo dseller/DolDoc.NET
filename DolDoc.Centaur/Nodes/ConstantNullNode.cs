@@ -8,6 +8,6 @@ namespace DolDoc.Centaur.Nodes
         public void Emit(FunctionCompilerContext ctx) =>
             ctx.Generator.Emit(OpCodes.Ldnull);
 
-        public Type Type => typeof(object);
+        public Type Type(ICompilerContext ctx) => typeof(object);
     }
 }

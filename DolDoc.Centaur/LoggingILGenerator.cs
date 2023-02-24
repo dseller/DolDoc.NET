@@ -6,6 +6,22 @@ using DolDoc.Shared;
 
 namespace DolDoc.Centaur
 {
+    public class NamedLabel
+    {
+        private readonly string name;
+        private readonly Label label;
+
+        public NamedLabel(string name, Label label)
+        {
+            this.name = name;
+            this.label = label;
+        }
+
+        public static implicit operator Label(NamedLabel l) => l.label;
+
+        public override string ToString() => name;
+    }
+    
     public class LoggingILGenerator
     {
         private readonly ILogger logger;
@@ -14,7 +30,19 @@ namespace DolDoc.Centaur
         public LoggingILGenerator(ILogger logger, ILGenerator generator)
         {
             this.logger = logger;
-            this.generator = generator;
+            this.generator = generator; 
+        }
+
+        public NamedLabel DefineLabel(string name)
+        {
+            var res = generator.DefineLabel();
+            return new NamedLabel(name, res);
+        }
+
+        public void MarkLabel(NamedLabel label)
+        {
+            generator.MarkLabel(label);
+            logger.Debug(".label\t{name}", label.ToString());
         }
 
         public LocalBuilder DeclareLocal(Type localType)
@@ -102,10 +130,10 @@ namespace DolDoc.Centaur
             logger.Debug($"{opcode}\t{arg}");
         }
 
-        public void Emit(OpCode opcode, Label label)
+        public void Emit(OpCode opcode, NamedLabel label)
         {
             generator.Emit(opcode, label);
-            logger.Debug($"{opcode}\t{label}");
+            logger.Debug("{opcode}\t{label}", opcode, label);
         }
 
         public void Emit(OpCode opcode, Label[] labels)

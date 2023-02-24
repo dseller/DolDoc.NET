@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using DolDoc.Centaur.Nodes;
-using DolDoc.Centaur.Symbols;
 using DolDoc.Shared;
 
 namespace DolDoc.Centaur
@@ -15,26 +13,13 @@ namespace DolDoc.Centaur
     {
         public void Emit(FunctionCompilerContext ctx);
 
-        public Type Type { get; }
+        public Type Type(ICompilerContext ctx);
     }
 
     public interface IWrite
     {
         void EmitWrite(FunctionCompilerContext ctx);
     }
-    //
-    // public class ParameterListNode : ASTNode
-    // {
-    //     public ParameterListNode(IEnumerable<ParameterSymbol> symbols)
-    //     {
-    //         Symbols = new List<ParameterSymbol>(symbols);
-    //     }
-    //     
-    //     public List<ParameterSymbol> Symbols { get; }
-    //     
-    //     
-    // }
-
 
     // public class NewObjectAstNode : DataAstNode
     // {
@@ -122,6 +107,24 @@ namespace DolDoc.Centaur
             return null;
         }
 
+        public override ASTNode VisitEquals(centaurParser.EqualsContext context) =>
+            new EqualsNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitNotEquals(centaurParser.NotEqualsContext context) =>
+            new NotEqualsNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitLessThan(centaurParser.LessThanContext context) =>
+            new LessThanNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitGreaterThan(centaurParser.GreaterThanContext context) =>
+            new GreaterThanNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitLessThanOrEqual(centaurParser.LessThanOrEqualContext context) =>
+            new LessThanOrEqualNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
+        public override ASTNode VisitGreaterThanOrEqual(centaurParser.GreaterThanOrEqualContext context) =>
+            new GreaterThanOrEqualNode((IBytecodeEmitter)Visit(context.left), (IBytecodeEmitter)Visit(context.right));
+
         public override ASTNode VisitCall(centaurParser.CallContext context)
         {
             var arguments = new List<IBytecodeEmitter>();
@@ -175,7 +178,15 @@ namespace DolDoc.Centaur
             foreach (var field in context.struct_field())
                 fields.Add(Visit(field) as StructFieldNode);
             return new StructNode(context.name.Text, fields);
-        }
+        } 
+
+        public override ASTNode VisitIf(centaurParser.IfContext context) =>
+            new IfNode((IBytecodeEmitter)Visit(context.expr), (IBytecodeEmitter)Visit(context.body));
+
+        public override ASTNode VisitIfElse(centaurParser.IfElseContext context) =>
+            new IfElseNode((IBytecodeEmitter)Visit(context.expr),
+                (IBytecodeEmitter)Visit(context.body),
+                (IBytecodeEmitter)Visit(context.elseBody));
 
         public override ASTNode VisitExpression_statement(centaurParser.Expression_statementContext context) => Visit(context.e);
 

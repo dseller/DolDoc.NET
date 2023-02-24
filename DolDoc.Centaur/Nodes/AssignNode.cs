@@ -25,6 +25,6 @@ namespace DolDoc.Centaur.Nodes
             write.EmitWrite(ctx);
         }
 
-        public Type Type => null;
+        public Type Type(ICompilerContext ctx) => null;
     }
 }

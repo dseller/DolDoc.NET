@@ -1,5 +1,6 @@
 grammar centaur;
 
+LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN);
 T_INTEGER: [0-9]+;
 T_FLOAT: [0-9]+'.'[0-9]+;
 T_COMMA: ',';
@@ -31,8 +32,13 @@ T_DEC: '--';
 T_INC: '++';
 T_SHL: '<<';
 T_SHR: '>>';
+T_LT: '<';
+T_GT: '>';
+T_LTE: '<=';
+T_GTE: '>=';
+T_EQ: '==';
+T_NEQ: '!=';
 T_RETURN: 'return';
-// LINE_COMMENT: '//' ~[\r\n]* -> skip;
 T_SYMBOL: [a-zA-Z_@]([a-zA-Z0-9_@])*;
 
 WS : [ \t\r\n]+ -> skip ;
@@ -72,17 +78,17 @@ shift_expression
 	;
 
 relational_expression
-	: shift_expression
-	| relational_expression T_LT shift_expression				
-	| relational_expression T_GT shift_expression				
-	| relational_expression T_LTE shift_expression				
-	| relational_expression T_GTE shift_expression				
+	: shift_expression                                                      #chainRel
+	| left=relational_expression T_LT right=shift_expression				            #lessThan
+	| left=relational_expression T_GT right=shift_expression				            #greaterThan
+	| left=relational_expression T_LTE right=shift_expression				            #lessThanOrEqual
+	| left=relational_expression T_GTE right=shift_expression				            #greaterThanOrEqual
 	;
 
 equality_expression
-	: relational_expression
-	| equality_expression T_EQUAL relational_expression		    
-	| equality_expression T_NOTEQUAL relational_expression		
+	: relational_expression                                                 #chainEquality
+	| left=equality_expression T_EQ right=relational_expression		                #equals
+	| left=equality_expression T_NEQ right=relational_expression		                #notEquals
 	;
 
 bitwise_and_expression
@@ -145,9 +151,15 @@ jump_statement
 	| T_RETURN value=expression T_SEMICOLON							
 	;
 	
+selection_statement
+    : T_IF T_POPEN expr=expression T_PCLOSE body=compound_statement   #if
+    | T_IF T_POPEN expr=expression T_PCLOSE body=compound_statement T_ELSE elseBody=compound_statement #ifElse
+    ;
+	
 statement
     : compound_statement
     | expression_statement
+    | selection_statement
     | jump_statement
     ;
     

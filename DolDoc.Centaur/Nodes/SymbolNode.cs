@@ -23,7 +23,11 @@ namespace DolDoc.Centaur.Nodes
             var sym = ctx.SymbolTable.FindSymbol(identifier);
             sym.EmitSet(ctx);
         }
-        
-        public Type Type => null; // TODO
+
+        public Type Type(ICompilerContext ctx)
+        {
+            var sym = ctx.SymbolTable.FindSymbol(identifier);
+            return sym.Type;
+        }
     }
 }

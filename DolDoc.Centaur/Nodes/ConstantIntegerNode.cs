@@ -11,8 +11,9 @@ namespace DolDoc.Centaur.Nodes
         {
             this.value = value;
         }
-
+        
         public void Emit(FunctionCompilerContext ctx) => ctx.Generator.Emit(OpCodes.Ldc_I8, value);
-        public Type Type => typeof(long);
+        
+        public Type Type(ICompilerContext ctx) => typeof(long);
     }
 }

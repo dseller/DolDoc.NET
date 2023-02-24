@@ -44,7 +44,7 @@ namespace DolDoc.Centaur
         
         public Symbol FindSymbol(string name)
         {
-            foreach (var scope in symbols.Reverse())
+            foreach (var scope in symbols)
             {
                 var symbol = scope.Find(s => s.Name == name);
                 if (symbol != default)

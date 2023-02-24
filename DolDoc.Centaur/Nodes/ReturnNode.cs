@@ -19,6 +19,6 @@ namespace DolDoc.Centaur.Nodes
             ctx.Generator.Emit(OpCodes.Ret);
         }
 
-        public Type Type => null;
+        public Type Type(ICompilerContext ctx) => null;
     }
 }

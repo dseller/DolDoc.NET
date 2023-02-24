@@ -21,6 +21,6 @@ namespace DolDoc.Centaur.Nodes
             ctx.SymbolTable.EndScope();
         }
         
-        public Type Type => null;
+        public Type Type(ICompilerContext ctx) => null;
     }
 }

@@ -39,6 +39,6 @@ namespace DolDoc.Centaur.Nodes
             }
         }
 
-        public Type Type => null;
+        public Type Type(ICompilerContext ctx) => null;
     }
 }

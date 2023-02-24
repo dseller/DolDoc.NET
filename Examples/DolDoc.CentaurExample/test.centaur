@@ -1,11 +1,24 @@
 int global_a;
+int a;
 
 int square(int x) { return x*x; }
 int get_42() { return 42 + global_a; }
 
+// Comment
+
 string my_function()
 {
-    string s = str(true);
-    print("Hello " + ", World!");
-    return s;    
+    a = 42;
+    LogInfo(Str(a));
+    string s = Str(true);
+    LogInfo("Hello, World!");
+    if (a >= 50) {
+        int a = 16;
+        LogInfo("Should not happen!");
+        LogInfo(Str(a));
+    } else {
+        LogInfo("I am in the else statement!");
+    }
+    LogInfo(Str(a));
+    return s;
 }

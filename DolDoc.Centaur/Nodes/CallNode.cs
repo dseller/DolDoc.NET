@@ -17,10 +17,11 @@ namespace DolDoc.Centaur.Nodes
             this.arguments = arguments;
         }
 
-        public void Emit(FunctionCompilerContext ctx)
+        public void Emit(FunctionCompilerContext ctx) 
         {
             var sym = ctx.SymbolTable.FindSymbol<FunctionSymbol>(name);
-            Debug.Assert(sym != null);
+            if (sym == null)
+                throw new Exception($"Could not find function {name}");
 
             if (sym.Parameters != null && sym.Parameters.Length > 0)
             {
@@ -28,8 +29,8 @@ namespace DolDoc.Centaur.Nodes
                 foreach (var arg in arguments)
                 {
                     arg.Emit(ctx);
-                    if (sym.Parameters[i] == typeof(object) && arg.Type != null && arg.Type.IsPrimitive)
-                        ctx.Generator.Emit(OpCodes.Box, arg.Type);
+                    if (sym.Parameters[i] == typeof(object) && arg.Type(ctx) != null && arg.Type(ctx).IsPrimitive)
+                        ctx.Generator.Emit(OpCodes.Box, arg.Type(ctx));
                     i++;
                 }
 
@@ -39,6 +40,6 @@ namespace DolDoc.Centaur.Nodes
                 ctx.Generator.Emit(OpCodes.Call, sym.MethodInfo);  
         }
 
-        public Type Type => null; // TODO
+        public Type Type(ICompilerContext ctx) => null;
     }
 }

@@ -15,6 +15,6 @@ namespace DolDoc.Centaur.Nodes
         public void Emit(FunctionCompilerContext ctx) =>
             ctx.Generator.Emit(OpCodes.Ldstr, value);
 
-        public Type Type => typeof(string);
+        public Type Type(ICompilerContext ctx) => typeof(string);
     }
 }
