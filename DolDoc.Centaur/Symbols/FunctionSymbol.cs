@@ -15,6 +15,8 @@ namespace DolDoc.Centaur.Symbols
         public Type[] Parameters { get; }
         
         public MethodInfo MethodInfo { get; }
+        
+        public Type CodeType { get; internal set; }
 
         public override void EmitGet(FunctionCompilerContext ctx) => ctx.Generator.Emit(OpCodes.Ldobj, MethodInfo);
 

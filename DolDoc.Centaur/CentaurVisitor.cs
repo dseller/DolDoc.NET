@@ -61,6 +61,12 @@ namespace DolDoc.Centaur
         public override ASTNode VisitConstInteger(centaurParser.ConstIntegerContext context) =>
             new ConstantIntegerNode(long.Parse(context.T_INTEGER().GetText()));
 
+        public override ASTNode VisitConstFloat(centaurParser.ConstFloatContext context) =>
+            new ConstantDoubleNode(double.Parse(context.T_FLOAT().GetText(), CultureInfo.InvariantCulture));
+            
+        public override ASTNode VisitConstChar(centaurParser.ConstCharContext context) =>
+            new ConstantIntegerNode(context.T_CHAR().GetText()[1]);
+
         public override ASTNode VisitConstHexInteger(centaurParser.ConstHexIntegerContext context) =>
             new ConstantIntegerNode(long.Parse(context.T_HEX_INTEGER().GetText()[2..], NumberStyles.AllowHexSpecifier));
 
@@ -163,16 +169,16 @@ namespace DolDoc.Centaur
             return new FunctionDefinitionNode(context.name.Text, context.resultType.Text, parameters, body);
         }
 
-        public override ASTNode VisitStruct_field(centaurParser.Struct_fieldContext context) =>
-            new StructFieldNode(context.name.Text, context.type.Text);
+        public override ASTNode VisitClass_field(centaurParser.Class_fieldContext context) =>
+            new ClassFieldNode(context.name.Text, context.type.Text);
 
-        public override ASTNode VisitStruct_definition(centaurParser.Struct_definitionContext context)
+        public override ASTNode VisitClass_definition(centaurParser.Class_definitionContext context)
         {
-            var fields = new List<StructFieldNode>();
-            foreach (var field in context.struct_field())
-                fields.Add(Visit(field) as StructFieldNode);
-            return new StructNode(context.name.Text, fields);
-        } 
+            var fields = new List<ClassFieldNode>();
+            foreach (var field in context.class_field())
+                fields.Add(Visit(field) as ClassFieldNode);
+            return new ClassNode(context.name.Text, context.@base?.Text, fields);
+        }
 
         public override ASTNode VisitIf(centaurParser.IfContext context) =>
             new IfNode((IBytecodeEmitter)Visit(context.expr), (IBytecodeEmitter)Visit(context.body));
@@ -191,5 +197,16 @@ namespace DolDoc.Centaur
                 definitions.Add(Visit(child));
             return new DefinitionListNode(definitions);
         }
+
+        public override ASTNode VisitStatement_list(centaurParser.Statement_listContext context)
+        {
+            var definitions = new List<ASTNode>();
+            foreach (var child in context.children)
+                definitions.Add(Visit(child));
+            return new StatementListNode(definitions);
+        }
+
+        public override ASTNode VisitInclude_statement(centaurParser.Include_statementContext context) =>
+            new IncludeNode(context.path.Text[1..^1]);
     }
 }

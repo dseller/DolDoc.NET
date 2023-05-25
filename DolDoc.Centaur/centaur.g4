@@ -5,6 +5,7 @@ T_INTEGER: [0-9]+;
 T_HEX_INTEGER: '0x'[0-9A-F]+;
 T_FLOAT: [0-9]+'.'[0-9]+;
 T_COMMA: ',';
+T_CHAR: '\'' (~'\'' | '\\' '\'' | '\\' '\\') '\'';
 T_STRING: '"' (~'"' | '\\' '"' | '\\' '\\')* '"';
 T_IF: 'if';
 T_FOR: 'for';
@@ -16,6 +17,7 @@ T_WHILE: 'while';
 T_PLUS: '+';
 T_SEMICOLON: ';';
 T_SLASH: '/';
+T_COLON: ':';
 T_MOD: '%';
 T_ASTERISK: '*';
 T_MINUS: '-';
@@ -27,7 +29,7 @@ T_AOPEN: '[';
 T_ACLOSE: ']';
 T_ASSIGN: '=';
 T_NEW: 'new';
-T_STRUCT: 'struct';
+T_CLASS: 'class';
 T_DOT: '.';
 T_DEC: '--';
 T_INC: '++';
@@ -46,6 +48,7 @@ T_AND: '&&';
 T_OR: '||';
 T_RETURN: 'return';
 T_SYMBOL: [a-zA-Z_@]([a-zA-Z0-9_@])*;
+T_INCLUDE: '#include';
 
 WS : [ \t\r\n]+ -> skip ;
 
@@ -108,13 +111,13 @@ bitwise_or_expression
 	;
 	
 xor_expression
-    : bitwise_and_expression                                        #chainXor
-    | left=xor_expression T_XOR right=bitwise_and_expression        #xor
+    : bitwise_or_expression                                        #chainXor
+    | left=xor_expression T_XOR right=bitwise_or_expression        #xor
     ;
 
 logical_and_expression
 	: xor_expression
-    | logical_and_expression T_AND bitwise_or_expression        
+    | logical_and_expression T_AND xor_expression        
 	;
 
 logical_or_expression
@@ -145,6 +148,7 @@ primary_expression
     | T_NULL                                    #constNull
 	| T_TRUE                                    #constTrue
 	| T_FALSE                                   #constFalse
+	| T_CHAR                                    #constChar
 	| T_NEW type=T_SYMBOL T_POPEN T_PCLOSE      #newObj
     ;
     
@@ -185,8 +189,8 @@ statement_list
 	;
 	
 	
-struct_field: type=T_SYMBOL name=T_SYMBOL T_SEMICOLON;
-struct_definition: T_STRUCT name=T_SYMBOL T_BOPEN fields=struct_field+ T_BCLOSE;
+class_field: type=T_SYMBOL name=T_SYMBOL T_SEMICOLON; 
+class_definition: T_CLASS name=T_SYMBOL (T_COLON base=T_SYMBOL)? T_BOPEN fields=class_field+ T_BCLOSE;
     
 parameter: type=T_SYMBOL name=T_SYMBOL;
 parameter_list: ((parameter) | (T_COMMA parameter))+;
@@ -198,13 +202,19 @@ function_definition
 
 expression_statement
 	: T_SEMICOLON										
-	| e=expression T_SEMICOLON								
+	| e=expression T_SEMICOLON						 		
 	;
+	
+include_statement
+    : T_INCLUDE path=T_STRING 
+    ;
 
 definition
-    : struct_definition
+    : class_definition
     | function_definition
     | declaration
+    | include_statement 
+    | statement_list
     ;
 
 definition_list

@@ -6,24 +6,26 @@ using DolDoc.Centaur.Symbols;
 
 namespace DolDoc.Centaur.Nodes
 {
-    public class StructFieldNode : ASTNode
+    public class ClassFieldNode : ASTNode
     {
         public string Name { get; }
         public string Type { get; }
 
-        public StructFieldNode(string name, string type)
+        public ClassFieldNode(string name, string type)
         {
             Name = name;
             Type = type;
         }
     }
     
-    public class StructNode : DefinitionNode
+    public class ClassNode : DefinitionNode
     {
-        private readonly List<StructFieldNode> fields;
+        private readonly string baseClass;
+        private readonly List<ClassFieldNode> fields;
 
-        public StructNode(string name, List<StructFieldNode> fields)
+        public ClassNode(string name, string baseClass, List<ClassFieldNode> fields)
         {
+            this.baseClass = baseClass;
             this.fields = fields;
             Name = name;
         }
@@ -38,7 +40,14 @@ namespace DolDoc.Centaur.Nodes
 
         public Type CreateType(ICompilerContext ctx)
         {
-            var builder = ctx.ModuleBuilder.DefineType(Name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
+            Type baseType = null;
+            if (baseClass != null)
+            {
+                var sym = ctx.SymbolTable.FindSymbol<TypeSymbol>(baseClass);
+                baseType = sym.Type;
+            }
+            
+            var builder = ctx.ModuleBuilder.DefineType(Name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.AutoLayout, baseType);
             foreach (var field in fields)
             {
                 var type = ctx.SymbolTable.FindSymbol<TypeSymbol>(field.Type)?.Type;

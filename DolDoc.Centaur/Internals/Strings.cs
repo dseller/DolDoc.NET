@@ -20,5 +20,9 @@ namespace DolDoc.Centaur.Internals
 
         public static long StrOcc(string src, long ch) =>
             src.Count(c => c == (char)ch);
+
+        public static long StrLen(string str) => str.Length;
+
+        public static long ToUpper(long ch) => char.ToUpper((char) ch);
     }
 }

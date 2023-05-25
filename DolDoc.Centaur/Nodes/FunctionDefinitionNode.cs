@@ -23,7 +23,7 @@ namespace DolDoc.Centaur.Nodes
 
         public override string Name { get; }
 
-        public void GenerateBytecode(CompilerContext ctx)
+        public FunctionSymbol GenerateBytecode(ICompilerContext ctx)
         {
             ctx.Log.Debug($"=== Function {Name} ===");
             var type = ctx.SymbolTable.FindSymbol<TypeSymbol>(returnType)?.Type;
@@ -47,7 +47,8 @@ namespace DolDoc.Centaur.Nodes
                 parameterTypes.ToArray());
 
             var fnCtx = new FunctionCompilerContext(ctx, builder);
-            ctx.SymbolTable.RootSymbols.Add(new FunctionSymbol(Name, type, parameterTypes.ToArray(), builder));
+            var fs = new FunctionSymbol(Name, type, parameterTypes.ToArray(), builder);
+            ctx.SymbolTable.RootSymbols.Add(fs);
             ctx.SymbolTable.BeginScope();
             if (parameters != null)
             {
@@ -66,6 +67,8 @@ namespace DolDoc.Centaur.Nodes
             ctx.SymbolTable.EndScope();
 
             ctx.Log.Debug($"=== Function END ===");
+            
+            return fs;
         }
     }
 }

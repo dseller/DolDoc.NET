@@ -1,5 +1,4 @@
 ﻿using DolDoc.Centaur;
-using DolDoc.Centaur.Internals;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -23,12 +22,18 @@ namespace DolDoc.CentaurExample
                 .CreateLogger();
 
             var engine = new CentaurEngine(new SeriLogger(Log.Logger));
-            engine.LoadFunctions<Strings>();
             engine.LoadFunctions<Program>();
-            engine.Include(File.ReadAllText("test.centaur"));
+            engine.Include("test", File.ReadAllText("test.centaur"));
             
             var result = engine.Call<object>("my_function");
             Log.Logger.Information("Result: {result}", result);
+
+            // string str;
+            // while (!string.IsNullOrWhiteSpace(str = Console.ReadLine()))
+            // {
+            //     engine.Include("input_" + Guid.NewGuid().ToString("n"), str);
+            // }
+                
         }
     }
 }

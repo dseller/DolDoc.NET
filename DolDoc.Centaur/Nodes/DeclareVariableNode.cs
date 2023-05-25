@@ -17,7 +17,7 @@ namespace DolDoc.Centaur.Nodes
             this.assignment = assignment;
         }
 
-        public void DefineStaticVariable(CompilerContext ctx)
+        public void DefineStaticVariable(ICompilerContext ctx)
         {
             var type = ctx.SymbolTable.FindSymbol<TypeSymbol>(this.type)?.Type;
             var field = ctx.CodeBuilder.DefineField(name, type, FieldAttributes.Public | FieldAttributes.Static);

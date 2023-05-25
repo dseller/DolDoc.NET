@@ -30,7 +30,7 @@ namespace DolDoc.Centaur
         public LoggingILGenerator(ILogger logger, ILGenerator generator)
         {
             this.logger = logger;
-            this.generator = generator; 
+            this.generator = generator;
         }
 
         public NamedLabel DefineLabel(string name)
@@ -85,7 +85,7 @@ namespace DolDoc.Centaur
         public void Emit(OpCode opcode, MethodInfo meth)
         {
             generator.Emit(opcode, meth);
-            logger.Debug("{opcode}\t{name}", opcode, meth.Name);
+            logger.Debug("{opcode}\t{name}\t{type}", opcode, meth.Name, meth.DeclaringType.FullName);
         }
 
         public void EmitCall(OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)

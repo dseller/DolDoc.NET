@@ -1,0 +1,3 @@
+﻿U0 HelloTest() { LogInfo("Hello!"); }
+I64 Give42() { return 42; }
+LogInfo("Included include_me.centaur :-)")

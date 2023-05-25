@@ -1,16 +1,25 @@
+LogInfo("Hello!");
+LogInfo("Goodbye!");
+LogInfo("Test!");
+
 I64 global_a;
 I64 a;
+LogInfo("Code!");
+#include "include_me.centaur"
 
-struct MyStruct {
+class MyStruct {
     I64 A;
     I64 B;
+}
+
+class Extended : MyStruct {
+    I64 C;
 }
 
 I64 square(I64 x) { return x*x; }
 I64 get_42() { return 42 + global_a; }
 
 // Comment
-
 I64 scope_test() {
     a = 42;
     {
@@ -18,7 +27,7 @@ I64 scope_test() {
         LogInfo(Str(a));
     }
     LogInfo(Str(a));
-    
+
     return a;
 }
 
@@ -28,9 +37,32 @@ U0 my_function()
         Print("YES!");
     }
 
-    MyStruct s = new MyStruct();
-    s.A = 100;
+    Extended s = new Extended();
+    s.A = scope_test();
     s.B = s.A + 20;
+    s.C = 1337;
     LogInfo(Str(s.B));
+    LogInfo(Str(s.C));
     LogInfo(ToBinary(s.B));
 }
+
+//my_function();
+//my_function();
+//my_function();
+//LogInfo(Str(Give42()));
+//HelloTest();
+
+CDirEntry what;
+what = FilesFind("D:/Temp/*.exe", FUF_RECURSE | FUF_JUST_FILES);
+LogInfo(what.name);
+LogInfo(what.full_name);
+//LogInfo(what.datetime);
+
+LogInfo(what.next.name);
+LogInfo(what.next.full_name);
+
+
+LogInfo(MPrintDate(Now()));
+LogInfo(MPrintTime(Now()));
+LogInfo(Str(StrLen("HEllo!")));
+LogInfo(Str(Floor(3.1415)));

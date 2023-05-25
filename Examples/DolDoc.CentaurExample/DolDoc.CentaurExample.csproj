@@ -22,6 +22,9 @@
       <None Include="test.centaur">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="include_me.centaur">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
