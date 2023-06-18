@@ -118,7 +118,7 @@ namespace DolDoc.Renderer.OpenGL
             if (e.OffsetY < 0)
                 compositor.FocusedWindow.State.Cursor.PageDown(8);
             else if (e.OffsetY > 0)
-                compositor.FocusedWindow.State.Cursor.PageUp(9);
+                compositor.FocusedWindow.State.Cursor.PageUp(8);
         }
     }
 
