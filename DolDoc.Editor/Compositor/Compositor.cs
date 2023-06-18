@@ -14,6 +14,7 @@ namespace DolDoc.Editor.Compositor
     {
         private bool isMovingWindow;
         private float windowMoveStart, windowMoveEnd;
+        private float windowMoveXOffset, windowMoveYOffset;
 
         private readonly Document logDocument;
         private readonly IFrameBufferWindow frameBuffer;
@@ -133,7 +134,7 @@ namespace DolDoc.Editor.Compositor
         public void MouseUp()
         {
             isMovingWindow = false;
-            windowMoveStart = windowMoveEnd = 0f;
+            windowMoveStart = windowMoveEnd = windowMoveXOffset = windowMoveYOffset = 0f;
         }
 
         public void MouseDown(float x, float y)
@@ -174,6 +175,8 @@ namespace DolDoc.Editor.Compositor
                 isMovingWindow = true;
                 windowMoveStart = x;
                 windowMoveEnd = y;
+                windowMoveXOffset = windowMoveStart - (window.X * Font.Width);
+                windowMoveYOffset = windowMoveEnd - (window.Y * Font.Height);
             }
             else
                 window.State.MouseDown(normalizedX, normalizedY);
@@ -183,12 +186,10 @@ namespace DolDoc.Editor.Compositor
         {
             if (isMovingWindow && !FocusedWindow.IsRoot)
             {
-                var deltaX = x - windowMoveStart;
-                var deltaY = y - windowMoveEnd;
                 lock (syncRoot)
                 {
-                    FocusedWindow.X = (int) ((deltaX + windowMoveStart) / Font.Width);
-                    FocusedWindow.Y = (int) ((deltaY + windowMoveEnd) / Font.Height);
+                    FocusedWindow.X = (int) ((x - windowMoveXOffset) / Font.Width);
+                    FocusedWindow.Y = (int) ((y - windowMoveYOffset) / Font.Height);
                     
                     // If the window goes out-of-screen, make sure to keep at least 1 character visible so the window is not forever lost.
                     if ((FocusedWindow.X + FocusedWindow.Columns) < 0)
