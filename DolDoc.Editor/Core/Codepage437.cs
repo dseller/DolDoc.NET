@@ -15,8 +15,13 @@
         SingleBottomLeftCorner = 0xC0,
         SingleHorizontalLine = 0xC4,
         DoubleHorizontalLine = 0xCD,
+        DoubleHorizontalLineUp = 0xCF,
+        DoubleHorizontalLineDown = 0xD1,
         
+        VerticalSingleHorizontalDouble = 0xD8,
         SingleBottomRightCorner = 0xD9,
         SingleTopLeftCorner = 0xDA,
+        
+        SolidVerticalBlock = 0xDB,
     }
 }

@@ -70,6 +70,7 @@ namespace DolDoc.Editor.Compositor
                 
                 if (y == 0 && HasCloseButton)
                 {
+                    // Render close button
                     if (x == Columns - 4)
                         return new Character((byte) '[', borderColor);
                     if (x == Columns - 3)
@@ -94,8 +95,27 @@ namespace DolDoc.Editor.Compositor
                     return new Character(Codepage437.SingleBottomLeftCorner, borderColor);
                 if (x == Columns - 1 && y == Rows - 1)
                     return new Character(Codepage437.SingleBottomRightCorner, borderColor);
-                if (x == 0 || x == Columns - 1)
+                if (x == 0)
                     return new Character(Codepage437.SingleVerticalLine, borderColor);
+                if (x == Columns - 1)
+                {
+                    if (State.Pages.PageCount > 1)
+                    {
+                        var lines = (float)State.Pages.PageRows * State.Pages.PageCount;
+                        var positionInFile = (State.Cursor.DocumentY / lines);
+                        var scrollBarIndex = positionInFile * (Rows - 4);
+                        
+                        if (y == 1)
+                            return new Character(Codepage437.VerticalSingleHorizontalDouble, borderColor);
+                        if (y == Rows - 2)
+                            return new Character(Codepage437.VerticalSingleHorizontalDouble, borderColor);
+                        if (y == Math.Floor(scrollBarIndex) + 2)
+                            return new Character(Codepage437.SolidVerticalBlock, new CombinedColor(borderColor.Background, EgaColor.Red)); 
+                        return new Character(Codepage437.SingleVerticalLine, borderColor);
+                    }
+                    else
+                        return new Character(Codepage437.SingleVerticalLine, borderColor);
+                }
                 if (y == Rows - 1)
                     return new Character(Codepage437.SingleHorizontalLine, borderColor);
 

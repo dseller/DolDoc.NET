@@ -112,6 +112,14 @@ namespace DolDoc.Renderer.OpenGL
         protected override void OnMouseDown(MouseButtonEventArgs e) => compositor.MouseDown(MousePosition.X, MousePosition.Y);
 
         protected override void OnMouseUp(MouseButtonEventArgs e) => compositor.MouseUp();
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            if (e.OffsetY < 0)
+                compositor.FocusedWindow.State.Cursor.PageDown(8);
+            else if (e.OffsetY > 0)
+                compositor.FocusedWindow.State.Cursor.PageUp(9);
+        }
     }
 
     public class OpenTKWindow : IFrameBufferWindow

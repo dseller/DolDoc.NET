@@ -184,6 +184,10 @@ namespace DolDoc.Editor.Compositor
 
         public CursorType MouseMove(float x, float y)
         {
+            // Seems like a bug in OpenTK that X and Y can be greater than the window's size? Strange.
+            if (y >= height || x >= width)
+                return CursorType.Hand;
+            
             if (isMovingWindow && !FocusedWindow.IsRoot)
             {
                 lock (syncRoot)

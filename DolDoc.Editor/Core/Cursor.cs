@@ -145,19 +145,21 @@ namespace DolDoc.Editor.Core
             SelectedEntry.Selected = true;
         }
 
-        public void PageDown()
+        public void PageDown(int? lines = null)
         {
-            if (!_viewerState.Pages.HasPageForPosition(DocumentPosition + _viewerState.Rows * _viewerState.Columns))
+            lines ??= _viewerState.Rows;
+            if (!_viewerState.Pages.HasPageForPosition(DocumentPosition + lines.Value * _viewerState.Columns))
                 return;
 
-            ViewLine += _viewerState.Rows;
-            DocumentPosition += _viewerState.Rows * _viewerState.Columns;
+            ViewLine += lines.Value;
+            DocumentPosition += lines.Value * _viewerState.Columns;
         }
 
-        public void PageUp()
+        public void PageUp(int? lines = null)
         {
-            ViewLine -= _viewerState.Rows;
-            DocumentPosition -= _viewerState.Rows * _viewerState.Columns;
+            lines ??= _viewerState.Rows;
+            ViewLine -= lines.Value;
+            DocumentPosition -= lines.Value * _viewerState.Columns;
 
             if (ViewLine < 0)
                 ViewLine = 0;
